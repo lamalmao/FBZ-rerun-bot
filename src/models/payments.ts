@@ -10,6 +10,9 @@ export const PAYMENT_STATUSES = {
 };
 
 export type PaymentPlatform = 'anypay';
+export const PAYMENT_PLATFORMS = {
+  ANYPAY: 'anypay'
+};
 
 export interface IPayment {
   user: number;
@@ -50,6 +53,10 @@ const PaymentSchema = new Schema<IPayment>({
       type: String,
       required: true
     }
+  },
+  platform: {
+    type: String,
+    required: true
   }
 });
 
