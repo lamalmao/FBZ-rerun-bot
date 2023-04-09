@@ -1,3 +1,9 @@
 node_modules
 build
 .vscode
+
+settings.json
+
+extras/scenarios/**.*
+!extras/scenarios/template.json
+logs
