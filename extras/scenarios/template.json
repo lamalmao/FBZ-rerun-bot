@@ -1,0 +1,116 @@
+{
+  "name": "test-scenario",
+  "acts": [
+    {
+      "id": 0,
+      "content": "Тут в общем какой-то информационный текст",
+      "type": "info",
+      "buttons": [
+        [
+          {
+            "content": "Переход к доп информации",
+            "type": "move",
+            "pointer": 1
+          },
+          {
+            "content": "Далее",
+            "type": "move",
+            "pointer": 2
+          }
+        ],
+        [
+          {
+            "content": "Отмена покупки",
+            "type": "cancel"
+          }
+        ]
+      ]
+    },
+    {
+      "id": 1,
+      "content": "Здесь уже какая-то там дополнительная инфа",
+      "type": "info",
+      "buttons": [
+        [
+          {
+            "content": "Назад",
+            "type": "move",
+            "pointer": 0
+          }
+        ],
+        [
+          {
+            "content": "Отмена покупки",
+            "type": "cancel"
+          }
+        ]
+      ]
+    },
+    {
+      "id": 2,
+      "content": "Введите **почту** *(проверка почты включена)*",
+      "type": "data",
+      "dataType": "email",
+      "validate": true,
+      "next": 3,
+      "buttons": [
+        [
+          {
+            "content": "Назад",
+            "type": "move",
+            "pointer": 0
+          }
+        ],
+        [
+          {
+            "content": "Отмена",
+            "type": "cancel"
+          }
+        ]
+      ]
+    },
+    {
+      "id": 3,
+      "content": "Введите **пароль**",
+      "type": "data",
+      "dataType": "password",
+      "validate": false,
+      "next": 4,
+      "buttons": [
+        [
+          {
+            "content": "Назад",
+            "type": "move",
+            "pointer": 2
+          }
+        ],
+        [
+          {
+            "content": "Отмена",
+            "type": "cancel"
+          }
+        ]
+      ]
+    },
+    {
+      "id": 4,
+      "content": "Проверьте введенные данные:\nПочта: **{login}**\nПароль: **{password}**",
+      "type": "info",
+      "buttons": [
+        [
+          {
+            "content": "Все верно",
+            "type": "sell"
+          }
+        ],
+        [
+          {
+            "content": "Исправить",
+            "type": "move",
+            "pointer": 2
+          }
+        ]
+      ]
+    }
+  ]
+}
