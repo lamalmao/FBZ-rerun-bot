@@ -1,0 +1,31 @@
+doctype html
+html
+  head
+    meta(charset='utf-8')
+    meta(lang='ru')
+    link(rel='preconnect' href='https://fonts.googleapis.com')
+    link(rel='preconnect' href='https://fonts.gstatic.com' crossorigin='')
+    link(href='https://fonts.googleapis.com/css2?family=Russo+One&display=swap' rel='stylesheet')
+    style= styles
+  body
+    .item
+      -
+        var image = fs.readFileSync(images + '/' + item.icon)
+        var base64Image = new Buffer.from(image).toString('base64')
+        var dataURI = 'data:image/jpeg;base64,' + base64Image
+        var description = item.cover.description ? item.cover.description.replace(/\n/gm, '<br>') : null
+        var price = item.getPriceIn(currency)
+        var realPrice = item.discount !== 0 ? item.getRealPriceIn(currency) : null
+        var titleFont = 'font-size: ' + item.cover.titleFontCover + 'px !important;'
+        var descriptionFont = 'font-size: ' + item.cover.descriptionFontSize + 'px !important;'
+      img.item-image.item-data(src=dataURI)
+      .item-data
+        .item-info
+          p.item-title(style= titleFont)= item.title
+          p.item-description(style= descriptionFont) !{description}
+        .item-cost-container
+          if !realPrice
+            p.item-cost= price + ' ' + currencyText
+          else
+            del.old-cost= price
+            p.item-discount= realPrice + ' ' + currencyText

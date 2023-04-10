@@ -1,0 +1,100 @@
+* {
+  margin: 0;
+  padding: 0;
+  font-family: 'Russo One', sans-serif;
+}
+
+body {
+  width: 1280px;
+  height: 720px;
+  background-color: #2e2e2e;
+  font-family: 'Russo One', sans-serif;
+}
+
+.item {
+  display: block;
+}
+
+.item-data {
+  display: inline-block;
+  /* position: relative; */
+  width: 50%;
+  height: inherit;
+  vertical-align: top;
+}
+
+.item-image {
+  height: 720px;
+  width: 540px;
+  border-radius: 45px;
+  object-fit: cover;
+  box-shadow: 10px 10px 5px -10px rgba(5, 5, 5, 1);
+}
+
+.item-info {
+  display: block;
+  width: 710px;
+  height: 720px;
+  color: #2e2e2e;
+  position: absolute;
+}
+
+.item-title {
+  margin: 5% auto;
+  font-size: 46px;
+  text-align: center;
+  color: #fff;
+  /* max-height: 30px; */
+}
+
+.item-description {
+  display: block;
+  font-size: 120%;
+  margin-left: 5%;
+  /*color: #bbb;*/
+  text-align: justify;
+  color: #fff;
+}
+
+.item-cost-container {
+  /*margin: 30px 0 0 40px;*/
+  top: 610px;
+  left: 50%;
+  /* width: 550px; */
+  height: 90px;
+  padding: 5px 10px;
+  background-color: #212121;
+  border-radius: 12px;
+  box-sizing: border-box;
+  position: relative;
+  width: 340px;
+}
+
+.item-cost {
+  text-align: center;
+  font-size: 54px;
+  color: #e7e8ea;
+  line-height: 85px;
+}
+
+.old-cost {
+  text-decoration: line-through;
+  text-decoration-color: #fff;
+  text-decoration-thickness: 250;
+  color: #aaa;
+  font-size: 37px;
+  text-align: left;
+  position: relative;
+  display: ruby-text;
+  margin-right: 6px;
+  float: left;
+}
+
+.item-discount {
+  position: static;
+  font-size: 52px;
+  text-align: right;
+  color: #fff;
+  line-height: 80px;
+  display: inline-block;
+}
