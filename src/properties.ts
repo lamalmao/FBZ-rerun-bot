@@ -30,6 +30,7 @@ interface ISettings {
     name: string;
   };
   db: string;
+  saveTemplates: boolean;
 }
 
 const settingsFile = path.join(processDir, 'settings.json');

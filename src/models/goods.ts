@@ -1,11 +1,20 @@
 import { Schema, SchemaTypes, Types, model } from 'mongoose';
 import { Region } from './users.js';
 
+export const DEFAULT_ITEM_COVER = 'item_cover.jpg';
+
 export const courses = {
   ru: 1,
   ua: 2.22,
   by: 32.35,
   eu: 89.17
+};
+
+export const currencies = {
+  ru: 'руб',
+  ua: 'грн',
+  by: 'руб',
+  eu: 'евро'
 };
 
 export const PLATFORMS = {
@@ -172,10 +181,26 @@ const ItemSchema = new Schema<IItem>(
     cover: {
       description: String,
       images: {
-        ru: String,
-        ua: String,
-        eu: String,
-        by: String
+        ru: {
+          type: String,
+          required: true,
+          default: DEFAULT_ITEM_COVER
+        },
+        ua: {
+          type: String,
+          required: true,
+          default: DEFAULT_ITEM_COVER
+        },
+        eu: {
+          type: String,
+          required: true,
+          default: DEFAULT_ITEM_COVER
+        },
+        by: {
+          type: String,
+          required: true,
+          default: DEFAULT_ITEM_COVER
+        }
       },
       descriptionFontSize: {
         type: Number,

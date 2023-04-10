@@ -5,5 +5,8 @@ build
 settings.json
 
 extras/scenarios/**.*
+extras/raw-covers/**.html
+extras/images/**.*
+!extras/images/default_**.*
 !extras/scenarios/template.json
 logs
