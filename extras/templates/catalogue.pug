@@ -21,8 +21,8 @@ html
 					.item-cost-container
 						- var isDiscount = item.discount > 0
 						if !isDiscount
-							p.item-cost= item.price + ' ' + currency
+							p.item-cost= item.price + ' ' + currencyText
 						else
 							- var newPrice = item.getRealPriceIn(currency)
 							del.old-cost= item.getPriceIn(currency)
-							p.item-discount= newPrice + ' ' + currency
+							p.item-discount= newPrice + ' ' + currencyText

@@ -8,11 +8,7 @@ Render.init(CONSTANTS.TEMPLATES, CONSTANTS.IMAGES, CONSTANTS.RAW_COVERS, Setting
 console.log('Connecting to "' + Settings.db + '" ...');
 mongoose
   .connect(Settings.db)
-  .then(async () => {
-    console.log('Successfully connected to db');
-    const result = await Render.renderItemCovers(new Types.ObjectId('64343201d9d28c1e7219ef99'));
-    console.log(result);
-  })
+  .then(async () => console.log('Successfully connected to db'))
   .catch((err) => {
     console.error(err);
     errorLogger.error(err.message);

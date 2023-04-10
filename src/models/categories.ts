@@ -1,6 +1,6 @@
 import { Schema, SchemaTypes, Types, model } from 'mongoose';
 
-export const CATEGORY_BLANK = 'category_blank.jpg';
+export const CATEGORY_BLANK = 'default_category_cover.jpg';
 export type CategoryType = 'main' | 'sub';
 
 export const CATEGORY_TYPES = {
@@ -35,22 +35,26 @@ const CategorySchema = new Schema<ICategory>({
   },
   covers: {
     ru: {
-      type: String
+      type: String,
+      default: CATEGORY_BLANK
     },
     eu: {
-      type: String
+      type: String,
+      default: CATEGORY_BLANK
     },
     ua: {
-      type: String
+      type: String,
+      default: CATEGORY_BLANK
     },
     by: {
-      type: String
-    },
-    required: false
+      type: String,
+      default: CATEGORY_BLANK
+    }
   },
   image: {
     type: String,
-    required: false
+    required: false,
+    default: CATEGORY_BLANK
   },
   type: {
     type: String,

@@ -8,6 +8,7 @@ import { REGIONS } from './models/users.js';
 import crypto from 'crypto';
 import { CONSTANTS } from './properties.js';
 import nodeHtmlToImage from 'node-html-to-image';
+import Category from './models/categories.js';
 
 interface ITemplate {
   styles: string;
@@ -16,7 +17,7 @@ interface ITemplate {
 
 export abstract class Render {
   private static destination: string;
-  public static catalogueTemplate: ITemplate;
+  private static catalogueTemplate: ITemplate;
   private static itemTemplate: ITemplate;
   private static saveTemplates: boolean;
   private static rawTemplates: string;
@@ -104,11 +105,11 @@ export abstract class Render {
 
             // рендерим изображение из шаблона и сохраняем в файл
             const imageFile = crypto.randomBytes(8).toString('hex') + '.jpg';
-            console.log(imageFile);
             await nodeHtmlToImage({
               output: path.join(this.destination, imageFile),
               html: template
             });
+            console.log(imageFile);
 
             // сохраняем новую обложку в соответствующее поле
             await Item.updateOne(
@@ -118,6 +119,88 @@ export abstract class Render {
               {
                 $set: {
                   ['cover.images.' + currency]: imageFile
+                }
+              }
+            );
+
+            resolve([true, currency]);
+          } catch (error) {
+            // в случае ошибки возвращаем кортеж, содержащий саму ошибку и валюту на которой она случилась
+            reject([error, currency]);
+          }
+        });
+
+        // добавляем промис в массив промисов
+        renderTasks.push(renderTask);
+      }
+
+      // ждем завершения всех промисов вне зависимости от результата
+      const result = await Promise.allSettled(renderTasks);
+      return result.every((p) => p.status === 'fulfilled');
+    } catch (e: any) {
+      errorLogger.error(e.message);
+      return false;
+    }
+  }
+
+  public static async renderCategoryCovers(categoryId: Types.ObjectId): Promise<boolean> {
+    try {
+      const category = await Category.findById(categoryId);
+      if (!category) {
+        throw new Error(`Item "${categoryId.toString()}" was not found`);
+      }
+      if (category.type === 'main') {
+        throw new Error('Category must be sub for rendering covers');
+      }
+
+      const items = await Item.find({
+        category: categoryId
+      });
+      const renderTasks: Array<Promise<[boolean, string]>> = [];
+      // проходимся циклом по всем валютам
+      for (const currency of Object.values(REGIONS)) {
+        // создаем promise, который асинхронно сгенерирует html шаблон, после чего отрендерит его в изображение и сохранит
+        const renderTask: Promise<[boolean, string]> = new Promise<[boolean, string]>(async (resolve, reject) => {
+          try {
+            const template = this.catalogueTemplate.template({
+              items,
+              currency,
+              fs,
+              images: CONSTANTS.IMAGES,
+              styles: this.catalogueTemplate.styles,
+              currencyText: currencies[currency]
+            });
+
+            // если при инициализации флаг saveTemplates был установлен в true, то html шаблон сохранится в файл
+            if (this.saveTemplates) {
+              const templateFile = `${category.title}_${currency}_${new Date().toLocaleTimeString(
+                'ru-RU'
+              )}.html`.replaceAll(/[\ \:]/g, '_');
+              const templateFilePath = path.join(this.rawTemplates, templateFile);
+              fs.writeFile(templateFilePath, template, (err) => {
+                if (err) {
+                  errorLogger.error(err.message);
+                  return;
+                }
+              });
+            }
+
+            // рендерим изображение из шаблона и сохраняем в файл
+            const imageFile = crypto.randomBytes(8).toString('hex') + '.jpg';
+            await nodeHtmlToImage({
+              output: path.join(this.destination, imageFile),
+              html: template
+            });
+            console.log(imageFile);
+
+            // сохраняем новую обложку в соответствующее поле
+            await Category.updateOne(
+              {
+                _id: categoryId
+              },
+              {
+                $set: {
+                  ['covers.' + currency]: imageFile
                 }
               }
             );
