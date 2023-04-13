@@ -20,8 +20,8 @@ mongoose
 
 Scenario.parseScenarios();
 let scenarios = '';
-Scenario.LoadedScenarios.forEach((value) => {
-  scenarios += value + ' ';
+Scenario.LoadedScenarios.forEach((scenario) => {
+  scenarios += scenario.name + ' ';
 });
 console.log('Scenarios successfully parsed: ' + scenarios);
 
