@@ -4,16 +4,26 @@ import LocalSession from 'telegraf-session-local';
 import path from 'path';
 import { errorLogger } from '../../logger.js';
 import User, { IUser, ROLES } from '../../models/users.js';
-import { adminKeyboard } from './keyboard.js';
-import { getUserTo, userIs } from './checks.js';
+import {
+  Back,
+  adminKeyboard,
+  adminKeyboardButtons,
+  categoriesMainMenu,
+  categoriesMainMenuButtons
+} from './keyboard.js';
+import { deleteMessage, getUserTo, jumpBack, replyAndDeletePrevious, userIs } from './tools.js';
+import AdminStage from './scenes/index.js';
 
-export interface SessionData extends Scenes.SceneSessionData {
-  // userInstance?: Document<unknown, object, IUser>;
+export interface SessionData {
   userInstance?: IUser;
+  previousMessage?: number;
 }
 
-export interface AdminBot extends Context {
-  session: SessionData;
+export type BotContext = Context & Scenes.SceneContext;
+export type BotSession = SessionData & Scenes.SceneSession<Scenes.SceneSessionData>;
+
+export interface AdminBot extends BotContext {
+  session: BotSession;
   userInstance?: IUser;
 }
 
@@ -70,11 +80,16 @@ adminBot.start(async (ctx) => {
   }
 });
 
-adminBot.command('admin', getUserTo('context'), userIs([ROLES.ADMIN]), async (ctx) => {
+adminBot.use(getUserTo('session'));
+adminBot.use(AdminStage.middleware());
+
+adminBot.hears(Back, userIs([ROLES.ADMIN, ROLES.MANAGER]), jumpBack);
+
+adminBot.command('admin', deleteMessage, userIs([ROLES.ADMIN]), async (ctx) => {
   try {
     const username = ctx.session.userInstance ? ctx.session.userInstance.username : ctx.from.username;
 
-    await ctx.reply(`Панель администратора *${username}*`, {
+    await replyAndDeletePrevious(ctx, `Панель администратора *${username}*`, {
       parse_mode: 'MarkdownV2',
       reply_markup: adminKeyboard.reply_markup
     });
@@ -83,4 +98,19 @@ adminBot.command('admin', getUserTo('context'), userIs([ROLES.ADMIN]), async (ct
   }
 });
 
+adminBot.hears(adminKeyboardButtons.categories, deleteMessage, userIs([ROLES.ADMIN]), async (ctx) => {
+  try {
+    await replyAndDeletePrevious(ctx, 'Меню управления *категориями*', {
+      parse_mode: 'MarkdownV2',
+      reply_markup: categoriesMainMenu.reply_markup
+    });
+  } catch (error: any) {
+    errorLogger.error(error.message);
+    ctx.reply('Что-то пошло не так').catch();
+  }
+});
+
+adminBot.hears(categoriesMainMenuButtons.create, deleteMessage, getUserTo('session'), userIs([ROLES.ADMIN]), (ctx) =>
+  ctx.scene.enter('create-category')
+);
 export default adminBot;
