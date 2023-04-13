@@ -4,6 +4,8 @@ build
 
 settings.json
 
+**-session.*
+
 extras/scenarios/**.*
 extras/raw-covers/**.html
 extras/images/**.*
