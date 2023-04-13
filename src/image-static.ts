@@ -10,15 +10,16 @@ function ImageHostListener(req: IncomingMessage, res: ServerResponse) {
       throw new Error('No url provided');
     }
 
-    const image = path.join(CONSTANTS.IMAGES, req.url.slice(1) + '.jpg');
-    if (!fs.existsSync(image)) {
-      throw new Error('Image not found');
+    const imageFileName = req.url.slice(1) + '.jpg';
+    const imageFilePath = path.join(CONSTANTS.IMAGES, req.url.slice(1) + '.jpg');
+    if (!fs.existsSync(imageFilePath)) {
+      throw new Error(`Image "${imageFileName}" not found`);
     }
 
     res.writeHead(200, {
       'Content-Type': 'image/jpg'
     });
-    const imageFile = fs.createReadStream(image);
+    const imageFile = fs.createReadStream(imageFilePath);
     imageFile.pipe(res);
   } catch (e: any) {
     errorLogger.error(e.message);
