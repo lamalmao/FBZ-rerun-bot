@@ -1,6 +1,6 @@
 {
   "name": "shop-bot",
-  "version": "3.0.3",
+  "version": "3.0.1",
   "description": "FBZ Shop major update",
   "main": "build/app.js",
   "type": "module",
