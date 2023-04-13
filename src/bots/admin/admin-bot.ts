@@ -1,12 +1,23 @@
-import { Telegraf } from 'telegraf';
+import { Context, Scenes, Telegraf } from 'telegraf';
 import { CONSTANTS, Settings } from '../../properties.js';
 import LocalSession from 'telegraf-session-local';
 import path from 'path';
 import { errorLogger } from '../../logger.js';
-import User, { ROLES } from '../../models/users.js';
+import User, { IUser, ROLES } from '../../models/users.js';
 import { adminKeyboard } from './keyboard.js';
+import { getUserTo, userIs } from './checks.js';
 
-const adminBot = new Telegraf(Settings.bots.admin.token);
+export interface SessionData extends Scenes.SceneSessionData {
+  // userInstance?: Document<unknown, object, IUser>;
+  userInstance?: IUser;
+}
+
+export interface AdminBot extends Context {
+  session: SessionData;
+  userInstance?: IUser;
+}
+
+const adminBot = new Telegraf<AdminBot>(Settings.bots.admin.token);
 
 const adminSession = new LocalSession({
   database: path.join(CONSTANTS.PROCESS_DIR, 'admin-session.json'),
@@ -16,9 +27,6 @@ const adminSession = new LocalSession({
     serialize: (obj) => JSON.stringify(obj, null, 2),
     deserialize: (str) => JSON.parse(str)
   }
-});
-(adminSession.DB as any).then((DB) => {
-  console.log(DB.value());
 });
 
 adminBot.use(adminSession.middleware());
@@ -62,6 +70,17 @@ adminBot.start(async (ctx) => {
   }
 });
 
-adminBot.command('admin', async (ctx) => {});
+adminBot.command('admin', getUserTo('context'), userIs([ROLES.ADMIN]), async (ctx) => {
+  try {
+    const username = ctx.session.userInstance ? ctx.session.userInstance.username : ctx.from.username;
+
+    await ctx.reply(`Панель администратора *${username}*`, {
+      parse_mode: 'MarkdownV2',
+      reply_markup: adminKeyboard.reply_markup
+    });
+  } catch (error: any) {
+    errorLogger.error(error.message);
+  }
+});
 
 export default adminBot;
