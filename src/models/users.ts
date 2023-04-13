@@ -1,4 +1,4 @@
-import { Schema, SchemaTypes, Types, model } from 'mongoose';
+import { Document, Schema, SchemaTypes, Types, model } from 'mongoose';
 
 export type UserRole = 'admin' | 'client' | 'manager';
 export type UserStatus = 'normal' | 'blocked';
@@ -30,10 +30,10 @@ export interface IManagerStatisticsField {
   sells: number;
 }
 
-export interface IUser {
+export interface IUser extends Document {
   _id: Types.ObjectId;
   telegramId: number;
-  username?: string;
+  username: string;
   role: UserRole;
   joinDate?: Date;
   onlineUntil?: Date;
