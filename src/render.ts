@@ -191,7 +191,6 @@ export abstract class Render {
               output: path.join(this.destination, imageFile),
               html: template
             });
-            console.log(imageFile);
 
             // сохраняем новую обложку в соответствующее поле
             await Category.updateOne(

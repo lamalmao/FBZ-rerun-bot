@@ -24,10 +24,15 @@ for (const dir of Object.values(CONSTANTS)) {
   }
 }
 
+interface IBotSettings {
+  token: string;
+  name: string;
+}
+
 interface ISettings {
-  bot: {
-    key: string;
-    name: string;
+  bots: {
+    admin: IBotSettings;
+    shop: IBotSettings;
   };
   db: string;
   saveTemplates: boolean;

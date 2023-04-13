@@ -1,8 +1,9 @@
-import mongoose, { Types } from 'mongoose';
+import mongoose from 'mongoose';
 import { CONSTANTS, Settings } from './properties.js';
 import { errorLogger } from './logger.js';
 import { Scenario } from './scenarios.js';
 import { Render } from './render.js';
+import adminBot from './bots/admin/admin-bot.js';
 
 Render.init(CONSTANTS.TEMPLATES, CONSTANTS.IMAGES, CONSTANTS.RAW_COVERS, Settings.saveTemplates);
 console.log('Connecting to "' + Settings.db + '" ...');
@@ -21,3 +22,6 @@ Scenario.LoadedScenarios.forEach((value) => {
   scenarios += value + ' ';
 });
 console.log('Scenarios successfully parsed: ' + scenarios);
+
+adminBot.launch();
+console.log('Admin bot launched');
