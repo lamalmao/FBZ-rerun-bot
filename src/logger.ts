@@ -1,6 +1,7 @@
-import winston from 'winston';
+import winston, { format } from 'winston';
 import { CONSTANTS } from './properties.js';
 import path from 'path';
+import moment from 'moment';
 
 const errorLogsFile = path.join(CONSTANTS.LOGS, 'errors.log');
 const infoLogsFile = path.join(CONSTANTS.LOGS, 'story.log');
@@ -10,8 +11,7 @@ export const errorLogger = winston.createLogger({
   transports: [
     new winston.transports.File({
       filename: errorLogsFile,
-      format: winston.format.errors(),
-      level: 'error'
+      format: format.printf((data) => `${data.level}|${moment().format('DD-MM-YYYY hh:mm:ss')}: ${data.message}`)
     })
   ]
 });
@@ -21,7 +21,12 @@ export const infoLogger = winston.createLogger({
   transports: [
     new winston.transports.File({
       filename: infoLogsFile,
-      format: winston.format.json()
+      format: format.combine(
+        format.json(),
+        format.timestamp({
+          format: 'DD-MM-YYYY HH:mm:ss.SSSS'
+        })
+      )
     })
   ]
 });
