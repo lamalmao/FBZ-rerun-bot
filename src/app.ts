@@ -3,6 +3,8 @@ import { CONSTANTS, Settings } from './properties.js';
 import { errorLogger } from './logger.js';
 import { Scenario } from './scenarios.js';
 import { Render } from './render.js';
+import { ImageHost } from './image-static.js';
+import adminBot from './bots/admin/admin-bot.js';
 
 ImageHost.listen(3000, 'localhost', () => console.log('Image server launched'));
 Render.init(CONSTANTS.TEMPLATES, CONSTANTS.IMAGES, CONSTANTS.RAW_COVERS, Settings.saveTemplates);
