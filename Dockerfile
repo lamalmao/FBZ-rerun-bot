@@ -8,5 +8,6 @@ RUN npm run build
 EXPOSE 80
 EXPOSE 443
 EXPOSE 5222
+EXPOSE 3000
 
 CMD [ "node", "build/app.js" ]
