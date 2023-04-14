@@ -27,7 +27,9 @@ EditCategory.enterHandler = async function (ctx: AdminBot) {
       return;
     }
 
-    const image = HOST + '/' + category.type === 'main' ? category.image : category.covers?.ru;
+    const image = category.type === 'main' ? category.image : category.covers?.ru;
+    const imageLink = `${HOST}/${image}`;
+
     const messageData = genCategoryEditingMenu(category);
     await replyAndDeletePrevious(
       ctx,
@@ -36,7 +38,7 @@ EditCategory.enterHandler = async function (ctx: AdminBot) {
         disable_web_page_preview: true,
         reply_markup: messageData[1].reply_markup
       },
-      image
+      imageLink
     );
   } catch (error: any) {
     errorLogger.error(error.message);
