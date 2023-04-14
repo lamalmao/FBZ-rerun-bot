@@ -36,6 +36,10 @@ interface ISettings {
   };
   db: string;
   saveTemplates: boolean;
+  host: {
+    ip: string;
+    port: number;
+  };
 }
 
 const settingsFile = path.join(processDir, 'settings.json');
