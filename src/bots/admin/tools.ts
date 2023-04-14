@@ -3,7 +3,6 @@ import { errorLogger } from '../../logger.js';
 import User, { IUser, ROLES } from '../../models/users.js';
 import { AdminBot } from './admin-bot.js';
 import { adminKeyboard, managerKeyboard } from './keyboard.js';
-import { HOST } from '../../properties.js';
 import { ICategory } from '../../models/categories.js';
 import { Markup } from 'telegraf';
 import { InlineKeyboardMarkup } from 'telegraf/types';
