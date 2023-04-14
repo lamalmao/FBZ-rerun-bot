@@ -9,5 +9,6 @@ EXPOSE 80
 EXPOSE 443
 EXPOSE 5222
 EXPOSE 3000
+EXPOSE 5000
 
-CMD [ "node", "build/app.js" ]
+CMD [ "npm", "start" ]
