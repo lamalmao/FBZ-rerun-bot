@@ -14,16 +14,13 @@ import {
 import { deleteMessage, getUserTo, jumpBack, replyAndDeletePrevious, userIs } from './tools.js';
 import AdminStage from './scenes/index.js';
 import { IItem } from '../../models/goods.js';
-import { ICategory } from '../../models/categories.js';
+import { Types } from 'mongoose';
 
 export interface SessionData {
   userInstance?: IUser;
   previousMessage?: number;
   newItem?: IItem;
-  newCategory?: ICategory;
-  categoryModification?: {
-    loaded: boolean;
-  };
+  newCategory?: Types.ObjectId;
 }
 
 export type BotContext = Context & Scenes.SceneContext;
@@ -90,7 +87,7 @@ adminBot.start(async (ctx) => {
 adminBot.use(getUserTo('session'));
 adminBot.use(AdminStage.middleware());
 
-adminBot.hears(Back, userIs([ROLES.ADMIN, ROLES.MANAGER]), jumpBack);
+adminBot.hears(Back, deleteMessage, userIs([ROLES.ADMIN, ROLES.MANAGER]), jumpBack);
 
 adminBot.command('admin', deleteMessage, userIs([ROLES.ADMIN]), async (ctx) => {
   try {

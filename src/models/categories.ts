@@ -1,6 +1,6 @@
-import { Schema, SchemaTypes, Types, model } from 'mongoose';
+import { Document, Schema, SchemaTypes, Types, model } from 'mongoose';
 
-export const CATEGORY_BLANK = 'default_category_cover.jpg';
+export const CATEGORY_BLANK = 'default_category_cover';
 export type CategoryType = 'main' | 'sub';
 
 export const CATEGORY_TYPES = {
@@ -8,7 +8,7 @@ export const CATEGORY_TYPES = {
   SUB: 'sub'
 };
 
-export interface ICategory {
+export interface ICategory extends Document {
   title: string;
   description?: string;
   covers?: {

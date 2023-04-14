@@ -37,7 +37,7 @@ interface ISettings {
   db: string;
   saveTemplates: boolean;
   host: {
-    ip: string;
+    address: string;
     port: number;
   };
 }
@@ -48,3 +48,4 @@ if (!fs.existsSync(settingsFile)) {
   process.exit(-1);
 }
 export const Settings: ISettings = JSON.parse(fs.readFileSync(settingsFile).toString());
+export const HOST = 'https://' + Settings.host.address;
