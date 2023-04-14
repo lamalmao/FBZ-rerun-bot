@@ -36,7 +36,8 @@ EditCategory.enterHandler = async function (ctx: AdminBot) {
       messageData[0],
       {
         disable_web_page_preview: true,
-        reply_markup: messageData[1].reply_markup
+        reply_markup: messageData[1].reply_markup,
+        parse_mode: 'MarkdownV2'
       },
       imageLink
     );

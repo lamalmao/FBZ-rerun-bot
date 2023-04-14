@@ -140,8 +140,8 @@ export function genCategoryEditingMenu(category: ICategory): [string, Markup.Mar
       Markup.button.callback('Открыть', 'show:' + categoryId, !category.hidden)
     ],
     [
-      Markup.button.callback('Сделать основной', 'make-main:' + categoryId, category.type !== 'main'),
-      Markup.button.callback('Сделать вложенной', 'make-sub:' + categoryId, category.type !== 'sub'),
+      Markup.button.callback('Сделать основной', 'make-main:' + categoryId, category.type !== 'sub'),
+      Markup.button.callback('Сделать вложенной', 'make-sub:' + categoryId, category.type !== 'main'),
       Markup.button.callback('Переместить', pre + 'parent:' + categoryId, category.type !== 'sub')
     ],
     [Markup.button.callback('Удалить', 'delete-category:' + categoryId)]
