@@ -3,10 +3,10 @@ import { CONSTANTS, Settings } from './properties.js';
 import { errorLogger } from './logger.js';
 import { Scenario } from './scenarios.js';
 import { Render } from './render.js';
-import { ImageHost } from './image-static.js';
+import { ImageSecureHost } from './image-static.js';
 import adminBot from './bots/admin/admin-bot.js';
 
-ImageHost.listen(Settings.host.port, '0.0.0.0', () => console.log('Image server launched'));
+ImageSecureHost.listen(Settings.host.port, '0.0.0.0', () => console.log('Image server launched'));
 Render.init(CONSTANTS.TEMPLATES, CONSTANTS.IMAGES, CONSTANTS.RAW_COVERS, Settings.saveTemplates);
 console.log('Connecting to "' + Settings.db + '" ...');
 mongoose

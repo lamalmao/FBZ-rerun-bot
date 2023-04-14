@@ -12,3 +12,5 @@ extras/images/**.*
 !extras/images/default_**.*
 !extras/scenarios/template.json
 logs
+
+*.pem

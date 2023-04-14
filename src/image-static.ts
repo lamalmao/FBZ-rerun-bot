@@ -1,4 +1,5 @@
 import http, { IncomingMessage, ServerResponse } from 'http';
+import https from 'https';
 import { errorLogger } from './logger.js';
 import fs from 'fs';
 import path from 'path';
@@ -29,3 +30,10 @@ function ImageHostListener(req: IncomingMessage, res: ServerResponse) {
 }
 
 export const ImageHost = http.createServer(ImageHostListener);
+export const ImageSecureHost = https.createServer(
+  {
+    cert: fs.readFileSync(path.join(CONSTANTS.PROCESS_DIR, 'cert.pem')),
+    key: fs.readFileSync(path.join(CONSTANTS.PROCESS_DIR, 'key.pem'))
+  },
+  ImageHostListener
+);
