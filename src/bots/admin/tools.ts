@@ -77,7 +77,8 @@ export async function replyAndDeletePrevious(ctx: AdminBot, text: string | FmtSt
   let message;
   if (image) {
     extra.caption = text;
-    message = await ctx.replyWithPhoto(image, extra);
+    console.log(image);
+    message = await ctx.replyWithPhoto(image.trim(), extra);
   } else {
     message = await ctx.reply(text, extra);
   }
