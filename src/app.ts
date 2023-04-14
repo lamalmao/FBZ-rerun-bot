@@ -6,7 +6,7 @@ import { Render } from './render.js';
 import { ImageHost } from './image-static.js';
 import adminBot from './bots/admin/admin-bot.js';
 
-ImageHost.listen(3000, 'localhost', () => console.log('Image server launched'));
+ImageHost.listen(5000, 'localhost', () => console.log('Image server launched'));
 Render.init(CONSTANTS.TEMPLATES, CONSTANTS.IMAGES, CONSTANTS.RAW_COVERS, Settings.saveTemplates);
 console.log('Connecting to "' + Settings.db + '" ...');
 mongoose
