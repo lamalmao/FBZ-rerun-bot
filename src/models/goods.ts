@@ -43,13 +43,13 @@ export const ITEM_TYPES = {
 export interface IItem {
   title: string;
   itemType: string;
-  category: Types.ObjectId;
-  game: string;
+  category?: Types.ObjectId;
+  game?: string;
   description?: string;
   icon: string;
   price: number;
   discount: number;
-  created: Date;
+  created?: Date;
   extraOptions?: {
     title: string;
     values: Array<string>;

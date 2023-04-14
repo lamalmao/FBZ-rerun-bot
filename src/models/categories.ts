@@ -19,7 +19,7 @@ export interface ICategory {
   };
   image?: string;
   type: CategoryType;
-  parent: Types.ObjectId;
+  parent?: Types.ObjectId | undefined;
   hidden: boolean;
 }
 
@@ -71,7 +71,7 @@ const CategorySchema = new Schema<ICategory>({
   },
   parent: {
     type: SchemaTypes.ObjectId,
-    required: true
+    required: false
   }
 });
 

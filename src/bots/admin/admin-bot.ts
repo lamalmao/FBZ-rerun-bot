@@ -13,10 +13,17 @@ import {
 } from './keyboard.js';
 import { deleteMessage, getUserTo, jumpBack, replyAndDeletePrevious, userIs } from './tools.js';
 import AdminStage from './scenes/index.js';
+import { IItem } from '../../models/goods.js';
+import { ICategory } from '../../models/categories.js';
 
 export interface SessionData {
   userInstance?: IUser;
   previousMessage?: number;
+  newItem?: IItem;
+  newCategory?: ICategory;
+  categoryModification?: {
+    loaded: boolean;
+  };
 }
 
 export type BotContext = Context & Scenes.SceneContext;
