@@ -4,6 +4,7 @@ import { errorLogger } from '../../../../logger.js';
 import Category from '../../../../models/categories.js';
 import { genCategoryEditingMenu, replyAndDeletePrevious } from '../../tools.js';
 import { Types } from 'mongoose';
+import { HOST } from '../../../../properties.js';
 
 const EditCategory = new Scenes.BaseScene<AdminBot>('edit-category');
 
@@ -26,7 +27,7 @@ EditCategory.enterHandler = async function (ctx: AdminBot) {
       return;
     }
 
-    const image = category.type === 'main' ? category.image : category.covers?.ru;
+    const image = HOST + '/' + category.type === 'main' ? category.image : category.covers?.ru;
     const messageData = genCategoryEditingMenu(category);
     await replyAndDeletePrevious(
       ctx,
