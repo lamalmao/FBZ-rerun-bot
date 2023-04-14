@@ -1,6 +1,6 @@
 import { Document, Schema, SchemaTypes, Types, model } from 'mongoose';
 
-export const CATEGORY_BLANK = 'default_category_cover';
+export const CATEGORY_BLANK = 'default_category';
 export type CategoryType = 'main' | 'sub';
 
 export const CATEGORY_TYPES = {
