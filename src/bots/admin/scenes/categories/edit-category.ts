@@ -6,7 +6,7 @@ import { errorLogger } from '../../../../logger.js';
 import Category, { CATEGORY_TYPES } from '../../../../models/categories.js';
 import {
   EDIT_CATEGORY_PRE,
-  // deleteMessage,
+  deleteMessage,
   genCategoryEditingMenu,
   getUserTo,
   jumpBack,
