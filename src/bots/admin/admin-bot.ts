@@ -25,6 +25,7 @@ export interface SessionData {
     action: 'none' | 'text' | 'photo' | string;
     target?: 'image' | 'title' | 'description' | string;
   };
+  message?: number;
 }
 
 export type BotContext = Context & Scenes.SceneContext;
