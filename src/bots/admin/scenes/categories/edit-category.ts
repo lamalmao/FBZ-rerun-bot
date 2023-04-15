@@ -148,51 +148,65 @@ EditCategory.on(
   }
 );
 
-EditCategory.on(message('photo'), async (ctx) => {
-  try {
-    const imageFileName = crypto.randomBytes(8).toString('hex');
-    const imageFilePath = path.join(CONSTANTS.IMAGES, imageFileName + '.jpg');
-
-    const photoId = ctx.message.photo[2].file_id;
-    const photoLink = await ctx.telegram.getFileLink(photoId);
-
-    const res = await fetch(photoLink);
-    const buf = await res.body;
-    if (!buf) {
-      throw new Error('Ошибка во время загрузки файла');
+EditCategory.on(
+  message('photo'),
+  (ctx, next) => {
+    if (!ctx.session.editCategoryActions || !ctx.session.editCategoryActions.target) {
+      return;
     }
 
-    await writeFile(imageFilePath, buf);
-    await Category.updateOne(
-      {
-        _id: ctx.session.category
-      },
-      {
-        $set: {
-          image: imageFileName
-        }
+    if (ctx.session.editCategoryActions.action !== 'photo' || ctx.session.editCategoryActions.target !== 'image') {
+      return;
+    }
+
+    next();
+  },
+  async (ctx) => {
+    try {
+      const imageFileName = crypto.randomBytes(8).toString('hex');
+      const imageFilePath = path.join(CONSTANTS.IMAGES, imageFileName + '.jpg');
+
+      const photoId = ctx.message.photo[2].file_id;
+      const photoLink = await ctx.telegram.getFileLink(photoId);
+
+      const res = await fetch(photoLink);
+      const buf = await res.body;
+      if (!buf) {
+        throw new Error('Ошибка во время загрузки файла');
       }
-    );
 
-    if (ctx.session.message) {
-      ctx.telegram.deleteMessage(ctx.chat.id, ctx.session.message).catch((error) => errorLogger.error(error.message));
+      await writeFile(imageFilePath, buf);
+      await Category.updateOne(
+        {
+          _id: ctx.session.category
+        },
+        {
+          $set: {
+            image: imageFileName
+          }
+        }
+      );
+
+      if (ctx.session.message) {
+        ctx.telegram.deleteMessage(ctx.chat.id, ctx.session.message).catch((error) => errorLogger.error(error.message));
+      }
+
+      await ctx.scene.reenter();
+    } catch (error: any) {
+      errorLogger.error(error.message);
+      ctx
+        .reply(error.message)
+        .then((message) => {
+          setTimeout(() => {
+            adminBot.telegram
+              .deleteMessage(message.chat.id, message.message_id)
+              .catch((error) => errorLogger.error(error.message));
+          }, 5000);
+        })
+        .catch((error) => errorLogger.error(error.message));
     }
-
-    await ctx.scene.reenter();
-  } catch (error: any) {
-    errorLogger.error(error.message);
-    ctx
-      .reply(error.message)
-      .then((message) => {
-        setTimeout(() => {
-          adminBot.telegram
-            .deleteMessage(message.chat.id, message.message_id)
-            .catch((error) => errorLogger.error(error.message));
-        }, 5000);
-      })
-      .catch((error) => errorLogger.error(error.message));
   }
-});
+);
 
 EditCategory.action(new RegExp(EDIT_CATEGORY_PRE + '(title|description|image)', 'i'), async (ctx) => {
   try {
