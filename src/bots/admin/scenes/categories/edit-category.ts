@@ -332,13 +332,13 @@ EditCategory.on(
 
     next();
   },
-  (ctx, next) => {
-    if (ctx.chat && ctx.session.message) {
-      ctx.telegram.deleteMessage(ctx.chat.id, ctx.session.message).catch((error) => errorLogger.error(error));
-    }
+  // (ctx, next) => {
+  //   if (ctx.chat && ctx.session.message) {
+  //     ctx.telegram.deleteMessage(ctx.chat.id, ctx.session.message).catch((error) => errorLogger.error(error));
+  //   }
 
-    next();
-  },
+  //   next();
+  // },
   async (ctx, next) => {
     try {
       if (ctx.callbackQuery.data !== 'delete-category') {
