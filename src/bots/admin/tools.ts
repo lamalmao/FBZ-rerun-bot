@@ -128,27 +128,54 @@ export const EDIT_CATEGORY_PRE = 'edit-category-';
 
 export function genCategoryEditingMenu(category: ICategory): [string, Markup.Markup<InlineKeyboardMarkup>] {
   const pre = EDIT_CATEGORY_PRE;
-  const categoryId = category._id.toString();
   const message = `Управление категорией ${category.title}\n\n${category.description}`;
   const keyboard = Markup.inlineKeyboard([
-    [Markup.button.callback('Изменить название', pre + 'title:' + categoryId)],
-    [Markup.button.callback('Изменить описание', pre + 'description' + categoryId)],
+    [Markup.button.callback('Изменить название', pre + 'title')],
+    [Markup.button.callback('Изменить описание', pre + 'description')],
     [
-      Markup.button.callback('Изменить изображение', pre + 'image' + categoryId, category.type !== 'main'),
-      Markup.button.callback('Перерисовать обложки', 'redraw-category-covers:' + categoryId, category.type !== 'sub')
+      Markup.button.callback('Изменить изображение', pre + 'image', category.type !== 'main'),
+      Markup.button.callback('Перерисовать обложки', 'redraw-category-covers', category.type !== 'sub')
     ],
     [
-      Markup.button.callback('Скрыть', 'hide:' + categoryId, category.hidden),
-      Markup.button.callback('Открыть', 'show:' + categoryId, !category.hidden)
+      Markup.button.callback('Скрыть', 'hide', category.hidden),
+      Markup.button.callback('Открыть', 'show', !category.hidden)
     ],
     [
-      Markup.button.callback('Сделать основной', 'make-main:' + categoryId, category.type !== 'sub'),
-      Markup.button.callback('Сделать вложенной', 'make-sub:' + categoryId, category.type !== 'main'),
-      Markup.button.callback('Переместить', pre + 'parent:' + categoryId, category.type !== 'sub')
+      Markup.button.callback('Сделать основной', 'make-main', category.type !== 'sub'),
+      Markup.button.callback('Сделать вложенной', 'make-sub', category.type !== 'main'),
+      Markup.button.callback('Переместить', 'parent', category.type !== 'sub')
     ],
-    [Markup.button.callback('Удалить', 'delete-category:' + categoryId)],
+    [Markup.button.callback('Удалить', 'delete-category')],
     [Markup.button.callback('Выйти', 'exit')]
   ]);
 
   return [message, keyboard];
+}
+
+export function cbFilter(filter: string | RegExp) {
+  async function result(ctx: AdminBot, next: CallableFunction) {
+    try {
+      if (!ctx.callbackQuery) {
+        return;
+      }
+
+      const data: string = ctx.callbackQuery['data'];
+      if (typeof filter === 'string') {
+        if (filter !== data) {
+          return;
+        }
+      } else {
+        if (!filter.test(data)) {
+          return;
+        }
+      }
+
+      next();
+    } catch (error) {
+      errorLogger.error(error);
+      ctx.scene.reenter()?.catch((error) => errorLogger.error(error));
+    }
+  }
+
+  return result;
 }

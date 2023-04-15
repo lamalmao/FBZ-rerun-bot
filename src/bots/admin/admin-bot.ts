@@ -22,8 +22,8 @@ export interface SessionData {
   newItem?: IItem;
   category?: Types.ObjectId;
   editCategoryActions?: {
-    action: 'none' | 'text' | 'photo' | string;
-    target?: 'image' | 'title' | 'description' | string;
+    action: 'none' | 'text' | 'photo' | 'cb' | string;
+    target?: string;
   };
   message?: number;
 }
