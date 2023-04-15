@@ -71,10 +71,6 @@ EditCategory.leaveHandler = async function (ctx: AdminBot, next: CallableFunctio
   if (ctx.session.editCategoryActions) {
     ctx.session.editCategoryActions = undefined;
   }
-  if (ctx.session.category) {
-    ctx.session.category = undefined;
-  }
-
   next();
 };
 
@@ -104,7 +100,7 @@ EditCategory.action('cancel', (ctx) => {
 
 EditCategory.use(getUserTo('context'), userIs([ROLES.ADMIN]));
 
-// EditCategory.on('message', deleteMessage);
+EditCategory.on('message', deleteMessage);
 EditCategory.on(
   message('text'),
   (ctx, next) => {
