@@ -53,7 +53,7 @@ EditCategory.enterHandler = async function (ctx: AdminBot) {
     const messageData = genCategoryEditingMenu(category);
     await replyAndDeletePrevious(
       ctx,
-      messageData[0].replaceAll(/\</g, '\\<').replaceAll(/\>/g, '\\\\>'),
+      messageData[0],
       {
         disable_web_page_preview: true,
         reply_markup: messageData[1].reply_markup
@@ -251,6 +251,78 @@ EditCategory.action(new RegExp(EDIT_CATEGORY_PRE + '(title|description|image)', 
   }
 });
 
+EditCategory.action(
+  /(parent|hide|show|make-main|make-sub|delete-category|)/i,
+  async (ctx, next) => {
+    try {
+      const data: string = ctx.callbackQuery['data'];
+      if (data !== 'parent') {
+        next();
+        return;
+      }
+
+      if (!ctx.session.editCategoryActions) {
+        throw new Error('Ошибка во время выполнения изменений');
+      }
+
+      const current = await Category.findById(ctx.session.category);
+      if (!current) {
+        throw new Error('Категория не найдена');
+      }
+
+      const parentsButtons: Array<Array<InlineKeyboardButton>> = [];
+      // поиск всех основных категорий в базе, кроме той, что уже назначена как родительская данной
+      const parents = await Category.find(
+        {
+          type: CATEGORY_TYPES.MAIN,
+          _id: current.parent
+            ? {
+                $ne: current.parent
+              }
+            : undefined
+        },
+        {
+          title: 1
+        }
+      );
+
+      for (let i = 0; i < parents.length; i++) {
+        const parent = parents[i];
+        parentsButtons.push([Markup.button.callback(parent.title, 'set-parent:' + parent._id)]);
+      }
+      parentsButtons.push([Markup.button.callback('Отмена', 'cancel')]);
+
+      const message = await ctx.reply('Выберите новую родительскую категорию', {
+        reply_markup: Markup.inlineKeyboard(parentsButtons).reply_markup
+      });
+      ctx.session.editCategoryActions.target = 'set-parent';
+      ctx.session.message = message.message_id;
+    } catch (error: any) {
+      errorLogger.error(error.message);
+      popUp(ctx, error.message);
+    }
+  },
+  async (ctx) => {
+    try {
+      if (!ctx.session.editCategoryActions) {
+        throw new Error('Ошибка во время выполнения изменений');
+      }
+      const data: string = ctx.callbackQuery['data'];
+      ctx.session.editCategoryActions.target = data;
+
+      const message = await ctx.reply('Вы уверены что хотите выполнить это действие?', {
+        reply_markup: Markup.inlineKeyboard([
+          [Markup.button.callback('Да', 'do'), Markup.button.callback('Нет', 'cancel')]
+        ]).reply_markup
+      });
+      ctx.session.message = message.message_id;
+    } catch (error: any) {
+      errorLogger.error(error.message);
+      popUp(ctx, error.message);
+    }
+  }
+);
+
 EditCategory.on(
   callbackQuery('data'),
   (ctx, next) => {
@@ -401,86 +473,6 @@ EditCategory.on(
       if (ctx.session.editCategoryActions) {
         ctx.session.editCategoryActions.action = 'none';
       }
-      errorLogger.error(error.message);
-      popUp(ctx, error.message);
-    }
-  }
-);
-
-EditCategory.on(
-  callbackQuery('data'),
-  (ctx, next) => {
-    if (!ctx.callbackQuery.data.startsWith(EDIT_CATEGORY_PRE)) {
-      if (!ctx.session.editCategoryActions) {
-        throw new Error('Ошибка во время выполнения изменений');
-      }
-
-      ctx.session.editCategoryActions.action = 'cb';
-      next();
-    }
-  },
-  async (ctx, next) => {
-    try {
-      if (ctx.callbackQuery.data !== 'parent') {
-        next();
-        return;
-      }
-
-      if (!ctx.session.editCategoryActions) {
-        throw new Error('Ошибка во время выполнения изменений');
-      }
-
-      const current = await Category.findById(ctx.session.category);
-      if (!current) {
-        throw new Error('Категория не найдена');
-      }
-
-      const parentsButtons: Array<Array<InlineKeyboardButton>> = [];
-      // поиск всех основных категорий в базе, кроме той, что уже назначена как родительская данной
-      const parents = await Category.find(
-        {
-          type: CATEGORY_TYPES.MAIN,
-          _id: current.parent
-            ? {
-                $ne: current.parent
-              }
-            : undefined
-        },
-        {
-          title: 1
-        }
-      );
-
-      for (let i = 0; i < parents.length; i++) {
-        const parent = parents[i];
-        parentsButtons.push([Markup.button.callback(parent.title, 'set-parent:' + parent._id)]);
-      }
-      parentsButtons.push([Markup.button.callback('Отмена', 'cancel')]);
-
-      const message = await ctx.reply('Выберите новую родительскую категорию', {
-        reply_markup: Markup.inlineKeyboard(parentsButtons).reply_markup
-      });
-      ctx.session.editCategoryActions.target = 'set-parent';
-      ctx.session.message = message.message_id;
-    } catch (error: any) {
-      errorLogger.error(error.message);
-      popUp(ctx, error.message);
-    }
-  },
-  async (ctx) => {
-    try {
-      if (!ctx.session.editCategoryActions) {
-        throw new Error('Ошибка во время выполнения изменений');
-      }
-      ctx.session.editCategoryActions.target = ctx.callbackQuery.data;
-
-      const message = await ctx.reply('Вы уверены что хотите выполнить это действие?', {
-        reply_markup: Markup.inlineKeyboard([
-          [Markup.button.callback('Да', 'do'), Markup.button.callback('Нет', 'cancel')]
-        ]).reply_markup
-      });
-      ctx.session.message = message.message_id;
-    } catch (error: any) {
       errorLogger.error(error.message);
       popUp(ctx, error.message);
     }
