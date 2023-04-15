@@ -66,8 +66,22 @@ EditCategory.enterHandler = async function (ctx: AdminBot) {
   }
 };
 
-EditCategory.action('exit', (ctx) => ctx.scene.leave().catch((err) => errorLogger.error(err)), jumpBack);
-EditCategory.action('cancel', (ctx) => ctx.scene.reenter()?.catch((err) => errorLogger.error(err)));
+EditCategory.action(
+  'exit',
+  (ctx, next) => {
+    ctx.scene.leave().catch((err) => errorLogger.error(err));
+    next();
+  },
+  jumpBack
+);
+EditCategory.action('cancel', (ctx) => {
+  if (ctx.chat && ctx.callbackQuery.message) {
+    ctx.telegram
+      .deleteMessage(ctx.chat.id, ctx.callbackQuery.message.message_id)
+      .catch((error) => errorLogger.error(error.message));
+  }
+  ctx.scene.reenter()?.catch((err) => errorLogger.error(err));
+});
 
 EditCategory.use(getUserTo('context'), userIs([ROLES.ADMIN]));
 EditCategory.on('message', deleteMessage);
@@ -135,7 +149,7 @@ EditCategory.on(message('photo'), async (ctx) => {
     const imageFileName = crypto.randomBytes(8).toString('hex');
     const imageFilePath = path.join(CONSTANTS.IMAGES, imageFileName + '.jpg');
 
-    const photoId = ctx.message.photo[0].file_id;
+    const photoId = ctx.message.photo[2].file_id;
     const photoLink = await ctx.telegram.getFileLink(photoId);
 
     const res = await fetch(photoLink);
