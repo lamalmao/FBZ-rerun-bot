@@ -11,7 +11,7 @@ import {
   categoriesMainMenu,
   categoriesMainMenuButtons
 } from './keyboard.js';
-import { deleteMessage, getUserTo, jumpBack, replyAndDeletePrevious, userIs } from './tools.js';
+import { deleteMessage, getUserTo, jumpBack, popUp, replyAndDeletePrevious, userIs } from './tools.js';
 import AdminStage from './scenes/index.js';
 import { IItem } from '../../models/goods.js';
 import { Types } from 'mongoose';
@@ -105,6 +105,21 @@ adminBot.command('admin', userIs([ROLES.ADMIN]), async (ctx) => {
     });
   } catch (error: any) {
     errorLogger.error(error.message);
+  }
+});
+adminBot.command('logs', userIs([ROLES.ADMIN]), async (ctx) => {
+  try {
+    await ctx.replyWithDocument(
+      {
+        source: path.join(CONSTANTS.LOGS, 'errors.log')
+      },
+      {
+        caption: 'Логи бота'
+      }
+    );
+  } catch (error: any) {
+    errorLogger.error(error.message);
+    popUp(ctx, error.message);
   }
 });
 
