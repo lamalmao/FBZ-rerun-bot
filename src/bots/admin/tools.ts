@@ -1,7 +1,7 @@
 import { FmtString } from 'telegraf/format';
 import { errorLogger } from '../../logger.js';
 import User, { IUser, ROLES } from '../../models/users.js';
-import { AdminBot } from './admin-bot.js';
+import adminBot, { AdminBot } from './admin-bot.js';
 import { adminKeyboard, managerKeyboard } from './keyboard.js';
 import { ICategory } from '../../models/categories.js';
 import { Markup } from 'telegraf';
@@ -178,4 +178,17 @@ export function cbFilter(filter: string | RegExp) {
   }
 
   return result;
+}
+
+export async function popUp(ctx: AdminBot, text: string, extra = {}, timeout = 5000) {
+  ctx
+    .reply('⚠️ ' + text, extra)
+    .then((message) => {
+      setInterval(() => {
+        adminBot.telegram
+          .deleteMessage(message.chat.id, message.message_id)
+          .catch((error) => errorLogger.error(error.message));
+      }, timeout);
+    })
+    .catch((error) => errorLogger.error(error.message));
 }

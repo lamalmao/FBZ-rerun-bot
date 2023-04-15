@@ -1,7 +1,7 @@
 import { Scenes, Markup } from 'telegraf';
 import { InlineKeyboardButton } from 'telegraf/types';
 import { message, callbackQuery } from 'telegraf/filters';
-import adminBot, { AdminBot } from '../../admin-bot.js';
+import { AdminBot } from '../../admin-bot.js';
 import { errorLogger } from '../../../../logger.js';
 import Category, { CATEGORY_TYPES } from '../../../../models/categories.js';
 import {
@@ -10,6 +10,7 @@ import {
   genCategoryEditingMenu,
   getUserTo,
   jumpBack,
+  popUp,
   replyAndDeletePrevious,
   userIs
 } from '../../tools.js';
@@ -153,16 +154,7 @@ EditCategory.on(
       await ctx.scene.reenter();
     } catch (error: any) {
       errorLogger.error(error.message);
-      ctx
-        .reply(error.message)
-        .then((message) => {
-          setTimeout(() => {
-            adminBot.telegram
-              .deleteMessage(message.chat.id, message.message_id)
-              .catch((error) => errorLogger.error(error.message));
-          }, 5000);
-        })
-        .catch((error) => errorLogger.error(error.message));
+      popUp(ctx, error.message, {}, 5000);
     }
   }
 );
@@ -213,16 +205,7 @@ EditCategory.on(
       await ctx.scene.reenter();
     } catch (error: any) {
       errorLogger.error(error.message);
-      ctx
-        .reply(error.message)
-        .then((message) => {
-          setTimeout(() => {
-            adminBot.telegram
-              .deleteMessage(message.chat.id, message.message_id)
-              .catch((error) => errorLogger.error(error.message));
-          }, 5000);
-        })
-        .catch((error) => errorLogger.error(error.message));
+      popUp(ctx, error.message);
     }
   }
 );
@@ -309,16 +292,7 @@ EditCategory.on(
         ctx.session.editCategoryActions.action = 'none';
       }
       errorLogger.error(error.message);
-      ctx
-        .reply(error.message)
-        .then((message) => {
-          setTimeout(() => {
-            adminBot.telegram
-              .deleteMessage(message.chat.id, message.message_id)
-              .catch((error) => errorLogger.error(error.message));
-          }, 5000);
-        })
-        .catch((error) => errorLogger.error(error.message));
+      popUp(ctx, error.message);
     }
   },
   async (ctx, next) => {
@@ -360,16 +334,7 @@ EditCategory.on(
         ctx.session.editCategoryActions.action = 'none';
       }
       errorLogger.error(error.message);
-      ctx
-        .reply(error.message)
-        .then((message) => {
-          setTimeout(() => {
-            adminBot.telegram
-              .deleteMessage(message.chat.id, message.message_id)
-              .catch((error) => errorLogger.error(error.message));
-          }, 5000);
-        })
-        .catch((error) => errorLogger.error(error.message));
+      popUp(ctx, error.message);
     }
   },
   async (ctx) => {
@@ -437,16 +402,7 @@ EditCategory.on(
         ctx.session.editCategoryActions.action = 'none';
       }
       errorLogger.error(error.message);
-      ctx
-        .reply(error.message)
-        .then((message) => {
-          setTimeout(() => {
-            adminBot.telegram
-              .deleteMessage(message.chat.id, message.message_id)
-              .catch((error) => errorLogger.error(error.message));
-          }, 5000);
-        })
-        .catch((error) => errorLogger.error(error.message));
+      popUp(ctx, error.message);
     }
   }
 );
@@ -508,16 +464,7 @@ EditCategory.on(
       ctx.session.message = message.message_id;
     } catch (error: any) {
       errorLogger.error(error.message);
-      ctx
-        .reply(error.message)
-        .then((message) => {
-          setTimeout(() => {
-            adminBot.telegram
-              .deleteMessage(message.chat.id, message.message_id)
-              .catch((error) => errorLogger.error(error.message));
-          }, 5000);
-        })
-        .catch((error) => errorLogger.error(error.message));
+      popUp(ctx, error.message);
     }
   },
   async (ctx) => {
@@ -535,16 +482,7 @@ EditCategory.on(
       ctx.session.message = message.message_id;
     } catch (error: any) {
       errorLogger.error(error.message);
-      ctx
-        .reply(error.message)
-        .then((message) => {
-          setTimeout(() => {
-            adminBot.telegram
-              .deleteMessage(message.chat.id, message.message_id)
-              .catch((error) => errorLogger.error(error.message));
-          }, 5000);
-        })
-        .catch((error) => errorLogger.error(error.message));
+      popUp(ctx, error.message);
     }
   }
 );
