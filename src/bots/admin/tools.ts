@@ -129,7 +129,7 @@ export const EDIT_CATEGORY_PRE = 'edit-category-';
 export function genCategoryEditingMenu(category: ICategory): [string, Markup.Markup<InlineKeyboardMarkup>] {
   const pre = EDIT_CATEGORY_PRE;
   const categoryId = category._id.toString();
-  const message = `Управление категорией *${category.title}*\n\n${category.description}`;
+  const message = `Управление категорией ${category.title}\n\n${category.description}`;
   const keyboard = Markup.inlineKeyboard([
     [Markup.button.callback('Изменить название', pre + 'title:' + categoryId)],
     [Markup.button.callback('Изменить описание', pre + 'description' + categoryId)],
