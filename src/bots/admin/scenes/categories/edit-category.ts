@@ -106,6 +106,10 @@ EditCategory.on(
         throw new Error('Строка не может быть пустой');
       }
 
+      if (value.length >= 3096) {
+        throw new Error('Превышено допустимое число символов');
+      }
+
       if (!ctx.session.category) {
         throw new Error('Не найден идентификатор категории');
       }
