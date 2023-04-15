@@ -20,7 +20,11 @@ export interface SessionData {
   userInstance?: IUser;
   previousMessage?: number;
   newItem?: IItem;
-  newCategory?: Types.ObjectId;
+  category?: Types.ObjectId;
+  editCategoryActions?: {
+    action: 'none' | 'text' | 'photo' | string;
+    target?: 'image' | 'title' | 'description' | string;
+  };
 }
 
 export type BotContext = Context & Scenes.SceneContext;

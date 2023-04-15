@@ -11,12 +11,12 @@ CreateCategory.enterHandler = async function (ctx: AdminBot) {
     const category = await Category.create({
       image: CATEGORY_BLANK,
       description:
-        'Описание категории \nДлина не более *3096* символов\nФорматирование [MarkdownV2](https://core.telegram.org/bots/api#formatting-options)',
+        'Описание категории \nДлина не более *3096* символов\nФорматирование [HTML](https://core.telegram.org/bots/api#formatting-options)',
       title: 'Категория ' + (categoriesCount + 1),
       hidden: true,
       type: 'main'
     });
-    ctx.session.newCategory = category._id;
+    ctx.session.category = category._id;
 
     await ctx.scene.enter('edit-category');
   } catch (error: any) {

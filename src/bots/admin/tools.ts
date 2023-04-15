@@ -124,8 +124,10 @@ export async function jumpBack(ctx: AdminBot) {
   }
 }
 
+export const EDIT_CATEGORY_PRE = 'edit-category-';
+
 export function genCategoryEditingMenu(category: ICategory): [string, Markup.Markup<InlineKeyboardMarkup>] {
-  const pre = 'edit-category-';
+  const pre = EDIT_CATEGORY_PRE;
   const categoryId = category._id.toString();
   const message = `Управление категорией *${category.title}*\n\n${category.description}`;
   const keyboard = Markup.inlineKeyboard([
@@ -144,7 +146,8 @@ export function genCategoryEditingMenu(category: ICategory): [string, Markup.Mar
       Markup.button.callback('Сделать вложенной', 'make-sub:' + categoryId, category.type !== 'main'),
       Markup.button.callback('Переместить', pre + 'parent:' + categoryId, category.type !== 'sub')
     ],
-    [Markup.button.callback('Удалить', 'delete-category:' + categoryId)]
+    [Markup.button.callback('Удалить', 'delete-category:' + categoryId)],
+    [Markup.button.callback('Выйти', 'exit')]
   ]);
 
   return [message, keyboard];
