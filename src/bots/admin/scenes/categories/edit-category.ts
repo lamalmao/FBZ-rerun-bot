@@ -365,7 +365,8 @@ EditCategory.action(
   },
   async (ctx, next) => {
     try {
-      if (!ctx.session.editCategoryActions || !ctx.session.editCategoryActions.target?.startsWith('set-parent')) {
+      const actionData: string = ctx.callbackQuery['data'];
+      if (!ctx.session.editCategoryActions || !actionData.startsWith('set-parent')) {
         next();
         return;
       }
@@ -374,7 +375,7 @@ EditCategory.action(
         throw new Error('Не найден идентификатор категории');
       }
 
-      const data = /:([a-z0-9]+)/.exec(ctx.callbackQuery['data']);
+      const data = /:([a-z0-9]+)/.exec(actionData);
       if (!data) {
         throw new Error('Ошибка во время получения id');
       }
