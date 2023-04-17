@@ -1,12 +1,12 @@
 import { Scenes, Markup } from 'telegraf';
 import { InlineKeyboardButton } from 'telegraf/types';
-import { message } from 'telegraf/filters';
+import { message, callbackQuery } from 'telegraf/filters';
 import { AdminBot } from '../../admin-bot.js';
 import { errorLogger } from '../../../../logger.js';
 import Category, { CATEGORY_TYPES } from '../../../../models/categories.js';
 import {
   EDIT_CATEGORY_PRE,
-  deleteMessage,
+  // deleteMessage,
   genCategoryEditingMenu,
   getUserTo,
   jumpBack,
@@ -74,6 +74,11 @@ EditCategory.leaveHandler = async function (ctx: AdminBot, next: CallableFunctio
   next();
 };
 
+EditCategory.on(callbackQuery('data'), (ctx, next) => {
+  ctx.reply(ctx.callbackQuery.data).catch((e) => console.log(e));
+  next();
+});
+
 EditCategory.action(
   'exit',
   (ctx, next) => {
@@ -100,7 +105,7 @@ EditCategory.action('cancel', (ctx) => {
 
 EditCategory.use(getUserTo('context'), userIs([ROLES.ADMIN]));
 
-EditCategory.on('message', deleteMessage);
+// EditCategory.on('message', deleteMessage);
 EditCategory.on(
   message('text'),
   (ctx, next) => {
