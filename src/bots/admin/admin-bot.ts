@@ -11,7 +11,7 @@ import {
   categoriesMainMenu,
   categoriesMainMenuButtons
 } from './keyboard.js';
-import { getUserTo, jumpBack, popUp, replyAndDeletePrevious, userIs } from './tools.js';
+import { deleteMessage, getUserTo, jumpBack, popUp, replyAndDeletePrevious, userIs } from './tools.js';
 import AdminStage from './scenes/index.js';
 import { IItem } from '../../models/goods.js';
 import { Types } from 'mongoose';
@@ -50,7 +50,7 @@ const adminSession = new LocalSession({
 
 adminBot.use(adminSession.middleware());
 
-adminBot.start(async (ctx) => {
+adminBot.start(deleteMessage, async (ctx) => {
   try {
     const user = await User.findOne(
       {
@@ -92,9 +92,9 @@ adminBot.start(async (ctx) => {
 adminBot.use(getUserTo('session'));
 adminBot.use(AdminStage.middleware());
 
-adminBot.hears(Back, userIs([ROLES.ADMIN, ROLES.MANAGER]), jumpBack);
+adminBot.hears(Back, deleteMessage, userIs([ROLES.ADMIN, ROLES.MANAGER]), jumpBack);
 
-adminBot.command('admin', userIs([ROLES.ADMIN]), async (ctx) => {
+adminBot.command('admin', deleteMessage, userIs([ROLES.ADMIN]), async (ctx) => {
   try {
     const username = ctx.session.userInstance ? ctx.session.userInstance.username : ctx.from.username;
 
@@ -106,7 +106,7 @@ adminBot.command('admin', userIs([ROLES.ADMIN]), async (ctx) => {
     errorLogger.error(error.message);
   }
 });
-adminBot.command('logs', userIs([ROLES.ADMIN]), async (ctx) => {
+adminBot.command('logs', deleteMessage, userIs([ROLES.ADMIN]), async (ctx) => {
   try {
     await ctx.replyWithDocument(
       {
@@ -122,7 +122,7 @@ adminBot.command('logs', userIs([ROLES.ADMIN]), async (ctx) => {
   }
 });
 
-adminBot.hears(adminKeyboardButtons.categories, userIs([ROLES.ADMIN]), async (ctx) => {
+adminBot.hears(adminKeyboardButtons.categories, deleteMessage, userIs([ROLES.ADMIN]), async (ctx) => {
   try {
     await replyAndDeletePrevious(ctx, 'Меню управления *категориями*', {
       parse_mode: 'MarkdownV2',
@@ -134,11 +134,11 @@ adminBot.hears(adminKeyboardButtons.categories, userIs([ROLES.ADMIN]), async (ct
   }
 });
 
-adminBot.hears(categoriesMainMenuButtons.create, getUserTo('session'), userIs([ROLES.ADMIN]), (ctx) =>
+adminBot.hears(categoriesMainMenuButtons.create, deleteMessage, getUserTo('session'), userIs([ROLES.ADMIN]), (ctx) =>
   ctx.scene.enter('create-category')
 );
 
-adminBot.hears(categoriesMainMenuButtons.list, getUserTo('session'), userIs([ROLES.ADMIN]), (ctx) =>
+adminBot.hears(categoriesMainMenuButtons.list, deleteMessage, getUserTo('session'), userIs([ROLES.ADMIN]), (ctx) =>
   ctx.scene.enter('categories-list')
 );
 

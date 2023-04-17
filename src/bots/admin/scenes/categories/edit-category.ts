@@ -354,6 +354,7 @@ EditCategory.action(
         ctx.answerCbQuery('Категория успешно удалена').catch((error) => errorLogger.error(error));
       }
 
+      ctx.scene.leave();
       await jumpBack(ctx);
     } catch (error: any) {
       if (ctx.session.editCategoryActions) {
