@@ -262,6 +262,8 @@ EditCategory.action(
         throw new Error('Ошибка во время выполнения изменений');
       }
 
+      ctx.session.editCategoryActions.action = 'cb';
+
       const current = await Category.findById(ctx.session.category);
       if (!current) {
         throw new Error('Категория не найдена');
@@ -323,8 +325,6 @@ EditCategory.action(
 EditCategory.action(
   /(do|set-parent:[a-z0-9]+)/i,
   (ctx, next) => {
-    console.log(ctx.session.editCategoryActions);
-
     if (!ctx.session.editCategoryActions || ctx.session.editCategoryActions.action !== 'cb') {
       return;
     }
