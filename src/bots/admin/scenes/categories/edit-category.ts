@@ -50,7 +50,7 @@ EditCategory.enterHandler = async function (ctx: AdminBot) {
     const image = category.type === 'main' ? category.image : category.covers?.ru;
     const imageLink = `${HOST}/${image}`;
 
-    const messageData = genCategoryEditingMenu(category);
+    const messageData = await genCategoryEditingMenu(category);
     await replyAndDeletePrevious(
       ctx,
       messageData[0],
@@ -365,7 +365,7 @@ EditCategory.action(
   },
   async (ctx, next) => {
     try {
-      if (!ctx.session.editCategoryActions || ctx.session.editCategoryActions.target !== 'set-parent') {
+      if (!ctx.session.editCategoryActions || !ctx.session.editCategoryActions.target?.startsWith('set-parent')) {
         next();
         return;
       }
