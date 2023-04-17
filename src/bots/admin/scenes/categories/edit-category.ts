@@ -6,7 +6,7 @@ import { errorLogger } from '../../../../logger.js';
 import Category, { CATEGORY_TYPES } from '../../../../models/categories.js';
 import {
   EDIT_CATEGORY_PRE,
-  deleteMessage,
+  // deleteMessage,
   genCategoryEditingMenu,
   getUserTo,
   jumpBack,
@@ -34,6 +34,8 @@ EditCategory.enterHandler = async function (ctx: AdminBot) {
       return;
     }
 
+    console.log('Entering editing category');
+
     const category = await Category.findOne({
       _id: new Types.ObjectId(ctx.session.category)
     });
@@ -53,7 +55,7 @@ EditCategory.enterHandler = async function (ctx: AdminBot) {
     const messageData = await genCategoryEditingMenu(category);
     await replyAndDeletePrevious(
       ctx,
-      messageData[0],
+      messageData[0].replaceAll(/\</g, '\\<').replaceAll(/\>/g, '\\\\>'),
       {
         disable_web_page_preview: true,
         reply_markup: messageData[1].reply_markup
@@ -61,31 +63,37 @@ EditCategory.enterHandler = async function (ctx: AdminBot) {
       imageLink
     );
   } catch (error: any) {
+    console.log(error);
     errorLogger.error(error.message);
     ctx.reply('Что-то пошло не так').catch((error) => errorLogger.error(error.message));
     ctx.scene.leave();
   }
 };
 
+
 EditCategory.leaveHandler = async function (ctx: AdminBot, next: CallableFunction) {
   if (ctx.session.editCategoryActions) {
     ctx.session.editCategoryActions = undefined;
   }
-
   next();
-};
+}
 
-EditCategory.action(
-  'exit',
-  (ctx, next) => {
-    if (ctx.session.editCategoryActions) {
-      ctx.session.editCategoryActions.action = 'none';
-    }
-    ctx.scene.leave().catch((err) => errorLogger.error(err));
-    next();
-  },
-  jumpBack
-);
+EditCategory.on(callbackQuery('data'), (ctx, next) => {
+  ctx.reply(ctx.callbackQuery.data).catch((e) => console.log(e));
+  next();
+});
+
+// EditCategory.action(
+//   'exit',
+//   (ctx, next) => {
+//     if (ctx.session.editCategoryActions) {
+//       ctx.session.editCategoryActions.action = 'none';
+//     }
+//     ctx.scene.leave().catch((err) => errorLogger.error(err));
+//     next();
+//   },
+//   jumpBack
+// );
 
 EditCategory.action('cancel', (ctx) => {
   if (ctx.session.editCategoryActions) {
@@ -101,7 +109,7 @@ EditCategory.action('cancel', (ctx) => {
 
 EditCategory.use(getUserTo('context'), userIs([ROLES.ADMIN]));
 
-EditCategory.on('message', deleteMessage);
+// EditCategory.on('message', deleteMessage);
 EditCategory.on(
   message('text'),
   (ctx, next) => {
@@ -209,6 +217,7 @@ EditCategory.on(
 
 EditCategory.action(new RegExp(EDIT_CATEGORY_PRE + '(title|description|image)', 'i'), async (ctx) => {
   try {
+    console.log(1);
     const data: string = ctx.callbackQuery['data'];
     const check = new RegExp(EDIT_CATEGORY_PRE + '(title|description|image)', 'i').exec(data);
 

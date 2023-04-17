@@ -11,7 +11,7 @@ import {
   categoriesMainMenu,
   categoriesMainMenuButtons
 } from './keyboard.js';
-import { deleteMessage, getUserTo, jumpBack, popUp, replyAndDeletePrevious, userIs } from './tools.js';
+import { getUserTo, jumpBack, popUp, replyAndDeletePrevious, userIs } from './tools.js';
 import AdminStage from './scenes/index.js';
 import { IItem } from '../../models/goods.js';
 import { Types } from 'mongoose';
@@ -41,7 +41,7 @@ const adminBot = new Telegraf<AdminBot>(Settings.bots.admin.token);
 const adminSession = new LocalSession({
   database: path.join(CONSTANTS.PROCESS_DIR, 'admin-session.json'),
   property: 'session',
-  storage: LocalSession.storageFileAsync,
+  // storage: LocalSession.storageFileAsync,
   format: {
     serialize: (obj) => JSON.stringify(obj, null, 2),
     deserialize: (str) => JSON.parse(str)
@@ -88,6 +88,7 @@ adminBot.start(deleteMessage, async (ctx) => {
     errorLogger.error(error.message);
   }
 });
+
 
 adminBot.use(getUserTo('session'));
 adminBot.use(AdminStage.middleware());
