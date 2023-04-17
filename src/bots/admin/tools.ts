@@ -3,7 +3,7 @@ import { errorLogger } from '../../logger.js';
 import User, { IUser, ROLES } from '../../models/users.js';
 import adminBot, { AdminBot } from './admin-bot.js';
 import { adminKeyboard, managerKeyboard } from './keyboard.js';
-import { ICategory } from '../../models/categories.js';
+import Category, { ICategory } from '../../models/categories.js';
 import { Markup } from 'telegraf';
 import { InlineKeyboardMarkup } from 'telegraf/types';
 
@@ -126,9 +126,23 @@ export async function jumpBack(ctx: AdminBot) {
 
 export const EDIT_CATEGORY_PRE = 'edit-category-';
 
-export function genCategoryEditingMenu(category: ICategory): [string, Markup.Markup<InlineKeyboardMarkup>] {
+export async function genCategoryEditingMenu(
+  category: ICategory
+): Promise<[string, Markup.Markup<InlineKeyboardMarkup>]> {
   const pre = EDIT_CATEGORY_PRE;
-  const message = `Управление категорией ${category.title}\n\n${category.description}`;
+  let message = `Управление категорией ${category.title}\n\n${category.description}`;
+  if (category.type === 'sub') {
+    let nestingData = 'Вложена в ';
+    if (category.parent) {
+      const parent = await Category.findById(category.parent);
+      nestingData += `"${parent ? parent._id + ':' + parent.title : 'Неизвестная категория'}"`;
+    } else {
+      nestingData = 'Не вложена';
+    }
+
+    message += '\n\n' + nestingData;
+  }
+
   const keyboard = Markup.inlineKeyboard([
     [Markup.button.callback('Изменить название', pre + 'title')],
     [Markup.button.callback('Изменить описание', pre + 'description')],

@@ -1,6 +1,6 @@
 import { Scenes, Markup } from 'telegraf';
 import { InlineKeyboardButton } from 'telegraf/types';
-import { message, callbackQuery } from 'telegraf/filters';
+import { message } from 'telegraf/filters';
 import { AdminBot } from '../../admin-bot.js';
 import { errorLogger } from '../../../../logger.js';
 import Category, { CATEGORY_TYPES } from '../../../../models/categories.js';
@@ -52,7 +52,7 @@ EditCategory.enterHandler = async function (ctx: AdminBot) {
     const image = category.type === 'main' ? category.image : category.covers?.ru;
     const imageLink = `${HOST}/${image}`;
 
-    const messageData = genCategoryEditingMenu(category);
+    const messageData = await genCategoryEditingMenu(category);
     await replyAndDeletePrevious(
       ctx,
       messageData[0].replaceAll(/\</g, '\\<').replaceAll(/\>/g, '\\\\>'),
@@ -70,12 +70,13 @@ EditCategory.enterHandler = async function (ctx: AdminBot) {
   }
 };
 
-// EditCategory.leaveHandler = async function (ctx: AdminBot, next: CallableFunction) {
-//   if (ctx.session.editCategoryActions) {
-//     ctx.session.editCategoryActions = undefined;
-//   }
-//   next();
-// };
+
+EditCategory.leaveHandler = async function (ctx: AdminBot, next: CallableFunction) {
+  if (ctx.session.editCategoryActions) {
+    ctx.session.editCategoryActions = undefined;
+  }
+  next();
+}
 
 EditCategory.on(callbackQuery('data'), (ctx, next) => {
   ctx.reply(ctx.callbackQuery.data).catch((e) => console.log(e));
@@ -257,17 +258,18 @@ EditCategory.action(new RegExp(EDIT_CATEGORY_PRE + '(title|description|image)', 
 });
 
 EditCategory.action(
-  /(parent|hide|show|make-main|make-sub|delete-category|)/i,
+  /^(?!set-parent)(parent|hide|show|make-main|make-sub|delete-category)/i,
   async (ctx, next) => {
     try {
       const data: string = ctx.callbackQuery['data'];
+      if (!ctx.session.editCategoryActions) {
+        throw new Error('Ошибка во время выполнения изменений');
+      }
+
+      ctx.session.editCategoryActions.action = 'cb';
       if (data !== 'parent') {
         next();
         return;
-      }
-
-      if (!ctx.session.editCategoryActions) {
-        throw new Error('Ошибка во время выполнения изменений');
       }
 
       const current = await Category.findById(ctx.session.category);
@@ -280,11 +282,9 @@ EditCategory.action(
       const parents = await Category.find(
         {
           type: CATEGORY_TYPES.MAIN,
-          _id: current.parent
-            ? {
-                $ne: current.parent
-              }
-            : undefined
+          _id: {
+            $ne: current.parent
+          }
         },
         {
           title: 1
@@ -328,8 +328,8 @@ EditCategory.action(
   }
 );
 
-EditCategory.on(
-  callbackQuery('data'),
+EditCategory.action(
+  /(do|set-parent:[a-z0-9]+)/i,
   (ctx, next) => {
     if (!ctx.session.editCategoryActions || ctx.session.editCategoryActions.action !== 'cb') {
       return;
@@ -346,7 +346,7 @@ EditCategory.on(
   },
   async (ctx, next) => {
     try {
-      if (ctx.callbackQuery.data !== 'delete-category') {
+      if (!ctx.session.editCategoryActions || ctx.session.editCategoryActions.target !== 'delete-category') {
         next();
         return;
       }
@@ -363,6 +363,7 @@ EditCategory.on(
         ctx.answerCbQuery('Категория успешно удалена').catch((error) => errorLogger.error(error));
       }
 
+      ctx.scene.leave();
       await jumpBack(ctx);
     } catch (error: any) {
       if (ctx.session.editCategoryActions) {
@@ -374,7 +375,8 @@ EditCategory.on(
   },
   async (ctx, next) => {
     try {
-      if (ctx.session.editCategoryActions && ctx.session.editCategoryActions.target !== 'set-parent') {
+      const actionData: string = ctx.callbackQuery['data'];
+      if (!ctx.session.editCategoryActions || !actionData.startsWith('set-parent')) {
         next();
         return;
       }
@@ -383,7 +385,7 @@ EditCategory.on(
         throw new Error('Не найден идентификатор категории');
       }
 
-      const data = /:([a-z0-9]+)/.exec(ctx.callbackQuery.data);
+      const data = /:([a-z0-9]+)/.exec(actionData);
       if (!data) {
         throw new Error('Ошибка во время получения id');
       }
@@ -421,14 +423,9 @@ EditCategory.on(
       }
 
       let update: object;
-      const data = ctx.callbackQuery.data;
-      if (data === 'delete-category') {
-        await Category.deleteOne({
-          _id: ctx.session.category
-        });
-      }
+      const data: string | undefined = ctx.session.editCategoryActions?.target;
 
-      switch (ctx.callbackQuery.data) {
+      switch (data) {
         case 'hide':
           update = {
             $set: {
