@@ -249,10 +249,9 @@ EditCategory.action(new RegExp(EDIT_CATEGORY_PRE + '(title|description|image)', 
 });
 
 EditCategory.action(
-  /(parent|hide|show|make-main|make-sub|delete-category|)/i,
+  /(parent|hide|show|make-main|make-sub|delete-category)/i,
   async (ctx, next) => {
     try {
-      console.log(1);
       const data: string = ctx.callbackQuery['data'];
       if (data !== 'parent') {
         next();
@@ -324,7 +323,6 @@ EditCategory.action(
 EditCategory.action(
   /(do|set-parent:[a-z0-9]+)/i,
   (ctx, next) => {
-    console.log(2);
     if (!ctx.session.editCategoryActions || ctx.session.editCategoryActions.action !== 'cb') {
       return;
     }
