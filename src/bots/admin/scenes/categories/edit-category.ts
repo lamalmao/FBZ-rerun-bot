@@ -273,11 +273,9 @@ EditCategory.action(
       const parents = await Category.find(
         {
           type: CATEGORY_TYPES.MAIN,
-          _id: current.parent
-            ? {
-                $ne: current.parent
-              }
-            : undefined
+          _id: {
+            $ne: current.parent
+          }
         },
         {
           title: 1
@@ -324,6 +322,7 @@ EditCategory.action(
 EditCategory.action(
   /(do|set-parent:[a-z0-9]+)/i,
   (ctx, next) => {
+    console.log(1);
     if (!ctx.session.editCategoryActions || ctx.session.editCategoryActions.action !== 'cb') {
       return;
     }
@@ -341,6 +340,7 @@ EditCategory.action(
   },
   async (ctx, next) => {
     try {
+      console.log(2);
       if (!ctx.session.editCategoryActions || ctx.session.editCategoryActions.target !== 'delete-category') {
         next();
         return;
@@ -369,6 +369,7 @@ EditCategory.action(
   },
   async (ctx, next) => {
     try {
+      console.log(3);
       if (!ctx.session.editCategoryActions || ctx.session.editCategoryActions.target !== 'set-parent') {
         next();
         return;
@@ -411,6 +412,7 @@ EditCategory.action(
   },
   async (ctx) => {
     try {
+      console.log(4);
       if (!ctx.session.category) {
         throw new Error('Идентификатор категории не найден');
       }
