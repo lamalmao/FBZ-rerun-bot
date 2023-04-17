@@ -328,6 +328,8 @@ EditCategory.action(
       return;
     }
 
+    console.log(ctx.session.editCategoryActions.target);
+
     next();
   },
   (ctx, next) => {
@@ -339,7 +341,7 @@ EditCategory.action(
   },
   async (ctx, next) => {
     try {
-      if (ctx.callbackQuery['data'] !== 'delete-category') {
+      if (!ctx.session.editCategoryActions || ctx.session.editCategoryActions.target !== 'delete-category') {
         next();
         return;
       }
@@ -367,7 +369,7 @@ EditCategory.action(
   },
   async (ctx, next) => {
     try {
-      if (ctx.session.editCategoryActions && ctx.session.editCategoryActions.target !== 'set-parent') {
+      if (!ctx.session.editCategoryActions || ctx.session.editCategoryActions.target !== 'set-parent') {
         next();
         return;
       }
@@ -415,11 +417,6 @@ EditCategory.action(
 
       let update: object;
       const data: string = ctx.callbackQuery['data'];
-      if (data === 'delete-category') {
-        await Category.deleteOne({
-          _id: ctx.session.category
-        });
-      }
 
       switch (data) {
         case 'hide':
@@ -454,6 +451,7 @@ EditCategory.action(
           await ctx.scene.reenter();
           return;
       }
+      console.log(update);
 
       const result = await Category.updateOne(
         {
