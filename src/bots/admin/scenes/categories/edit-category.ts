@@ -322,12 +322,9 @@ EditCategory.action(
 EditCategory.action(
   /(do|set-parent:[a-z0-9]+)/i,
   (ctx, next) => {
-    console.log(1);
     if (!ctx.session.editCategoryActions || ctx.session.editCategoryActions.action !== 'cb') {
       return;
     }
-
-    console.log(ctx.session.editCategoryActions.target);
 
     next();
   },
@@ -340,7 +337,6 @@ EditCategory.action(
   },
   async (ctx, next) => {
     try {
-      console.log(2);
       if (!ctx.session.editCategoryActions || ctx.session.editCategoryActions.target !== 'delete-category') {
         next();
         return;
@@ -369,7 +365,6 @@ EditCategory.action(
   },
   async (ctx, next) => {
     try {
-      console.log(3);
       if (!ctx.session.editCategoryActions || ctx.session.editCategoryActions.target !== 'set-parent') {
         next();
         return;
@@ -412,13 +407,12 @@ EditCategory.action(
   },
   async (ctx) => {
     try {
-      console.log(4);
       if (!ctx.session.category) {
         throw new Error('Идентификатор категории не найден');
       }
 
       let update: object;
-      const data: string = ctx.callbackQuery['data'];
+      const data: string | undefined = ctx.session.editCategoryActions?.target;
 
       switch (data) {
         case 'hide':
@@ -453,7 +447,6 @@ EditCategory.action(
           await ctx.scene.reenter();
           return;
       }
-      console.log(update);
 
       const result = await Category.updateOne(
         {
