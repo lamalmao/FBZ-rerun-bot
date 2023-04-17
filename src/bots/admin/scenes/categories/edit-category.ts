@@ -55,7 +55,7 @@ EditCategory.enterHandler = async function (ctx: AdminBot) {
     const messageData = genCategoryEditingMenu(category);
     await replyAndDeletePrevious(
       ctx,
-      messageData[0],
+      messageData[0].replaceAll(/\</g, '\\<').replaceAll(/\>/g, '\\\\>'),
       {
         disable_web_page_preview: true,
         reply_markup: messageData[1].reply_markup
@@ -260,7 +260,6 @@ EditCategory.action(
   /(parent|hide|show|make-main|make-sub|delete-category|)/i,
   async (ctx, next) => {
     try {
-      console.log(2);
       const data: string = ctx.callbackQuery['data'];
       if (data !== 'parent') {
         next();
@@ -323,6 +322,162 @@ EditCategory.action(
       });
       ctx.session.message = message.message_id;
     } catch (error: any) {
+      errorLogger.error(error.message);
+      popUp(ctx, error.message);
+    }
+  }
+);
+
+EditCategory.on(
+  callbackQuery('data'),
+  (ctx, next) => {
+    if (!ctx.session.editCategoryActions || ctx.session.editCategoryActions.action !== 'cb') {
+      return;
+    }
+
+    next();
+  },
+  (ctx, next) => {
+    if (ctx.chat && ctx.session.message) {
+      ctx.telegram.deleteMessage(ctx.chat.id, ctx.session.message).catch((error) => errorLogger.error(error));
+    }
+
+    next();
+  },
+  async (ctx, next) => {
+    try {
+      if (ctx.callbackQuery.data !== 'delete-category') {
+        next();
+        return;
+      }
+
+      if (!ctx.session.category) {
+        throw new Error('Не найден идентификатор категории');
+      }
+
+      const result = await Category.deleteOne({
+        _id: ctx.session.category._id
+      });
+
+      if (result.deletedCount > 0) {
+        ctx.answerCbQuery('Категория успешно удалена').catch((error) => errorLogger.error(error));
+      }
+
+      await jumpBack(ctx);
+    } catch (error: any) {
+      if (ctx.session.editCategoryActions) {
+        ctx.session.editCategoryActions.action = 'none';
+      }
+      errorLogger.error(error.message);
+      popUp(ctx, error.message);
+    }
+  },
+  async (ctx, next) => {
+    try {
+      if (ctx.session.editCategoryActions && ctx.session.editCategoryActions.target !== 'set-parent') {
+        next();
+        return;
+      }
+
+      if (!ctx.session.category) {
+        throw new Error('Не найден идентификатор категории');
+      }
+
+      const data = /:([a-z0-9]+)/.exec(ctx.callbackQuery.data);
+      if (!data) {
+        throw new Error('Ошибка во время получения id');
+      }
+
+      const newParentId = new Types.ObjectId(data[1]);
+
+      const result = await Category.updateOne(
+        {
+          _id: ctx.session.category._id
+        },
+        {
+          $set: {
+            parent: newParentId
+          }
+        }
+      );
+
+      if (result.modifiedCount > 1) {
+        ctx.answerCbQuery('Родитель успешно изменен').catch((error) => errorLogger.error(error.message));
+      }
+
+      await ctx.scene.reenter();
+    } catch (error: any) {
+      if (ctx.session.editCategoryActions) {
+        ctx.session.editCategoryActions.action = 'none';
+      }
+      errorLogger.error(error.message);
+      popUp(ctx, error.message);
+    }
+  },
+  async (ctx) => {
+    try {
+      if (!ctx.session.category) {
+        throw new Error('Идентификатор категории не найден');
+      }
+
+      let update: object;
+      const data = ctx.callbackQuery.data;
+      if (data === 'delete-category') {
+        await Category.deleteOne({
+          _id: ctx.session.category
+        });
+      }
+
+      switch (ctx.callbackQuery.data) {
+        case 'hide':
+          update = {
+            $set: {
+              hidden: true
+            }
+          };
+          break;
+        case 'show':
+          update = {
+            $set: {
+              hidden: false
+            }
+          };
+          break;
+        case 'make-main':
+          update = {
+            $set: {
+              type: CATEGORY_TYPES.MAIN
+            }
+          };
+          break;
+        case 'make-sub':
+          update = {
+            $set: {
+              type: CATEGORY_TYPES.SUB
+            }
+          };
+          break;
+        default:
+          await ctx.scene.reenter();
+          return;
+      }
+
+      const result = await Category.updateOne(
+        {
+          _id: ctx.session.category._id
+        },
+        update
+      );
+
+      if (result.modifiedCount > 1) {
+        ctx.answerCbQuery('Изменения успешно внесены').catch((error) => errorLogger.error(error.message));
+      }
+
+      await ctx.scene.reenter();
+    } catch (error: any) {
+      if (ctx.session.editCategoryActions) {
+        ctx.session.editCategoryActions.action = 'none';
+      }
       errorLogger.error(error.message);
       popUp(ctx, error.message);
     }
