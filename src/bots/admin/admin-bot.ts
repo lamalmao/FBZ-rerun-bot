@@ -41,7 +41,7 @@ const adminBot = new Telegraf<AdminBot>(Settings.bots.admin.token);
 const adminSession = new LocalSession({
   database: path.join(CONSTANTS.PROCESS_DIR, 'admin-session.json'),
   property: 'session',
-  storage: LocalSession.storageFileAsync,
+  // storage: LocalSession.storageFileAsync,
   format: {
     serialize: (obj) => JSON.stringify(obj, null, 2),
     deserialize: (str) => JSON.parse(str)
