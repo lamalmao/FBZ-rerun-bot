@@ -325,6 +325,8 @@ EditCategory.action(
 EditCategory.action(
   /(do|set-parent:[a-z0-9]+)/i,
   (ctx, next) => {
+    console.log(ctx.session.editCategoryActions);
+
     if (!ctx.session.editCategoryActions || ctx.session.editCategoryActions.action !== 'cb') {
       return;
     }
