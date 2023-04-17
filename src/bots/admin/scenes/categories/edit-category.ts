@@ -61,18 +61,19 @@ EditCategory.enterHandler = async function (ctx: AdminBot) {
       imageLink
     );
   } catch (error: any) {
+    console.log(error);
     errorLogger.error(error.message);
     ctx.reply('Что-то пошло не так').catch((error) => errorLogger.error(error.message));
     ctx.scene.leave();
   }
 };
 
-EditCategory.leaveHandler = async function (ctx: AdminBot, next: CallableFunction) {
-  if (ctx.session.editCategoryActions) {
-    ctx.session.editCategoryActions = undefined;
-  }
-  next();
-};
+// EditCategory.leaveHandler = async function (ctx: AdminBot, next: CallableFunction) {
+//   if (ctx.session.editCategoryActions) {
+//     ctx.session.editCategoryActions = undefined;
+//   }
+//   next();
+// };
 
 EditCategory.on(callbackQuery('data'), (ctx, next) => {
   ctx.reply(ctx.callbackQuery.data).catch((e) => console.log(e));
@@ -213,6 +214,7 @@ EditCategory.on(
 
 EditCategory.action(new RegExp(EDIT_CATEGORY_PRE + '(title|description|image)', 'i'), async (ctx) => {
   try {
+    console.log(1);
     const data: string = ctx.callbackQuery['data'];
     const check = new RegExp(EDIT_CATEGORY_PRE + '(title|description|image)', 'i').exec(data);
 
@@ -256,6 +258,7 @@ EditCategory.action(
   /(parent|hide|show|make-main|make-sub|delete-category|)/i,
   async (ctx, next) => {
     try {
+      console.log(2);
       const data: string = ctx.callbackQuery['data'];
       if (data !== 'parent') {
         next();
