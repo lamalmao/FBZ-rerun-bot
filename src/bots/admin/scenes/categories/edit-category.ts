@@ -249,7 +249,7 @@ EditCategory.action(new RegExp(EDIT_CATEGORY_PRE + '(title|description|image)', 
 });
 
 EditCategory.action(
-  /(parent|hide|show|make-main|make-sub|delete-category)/i,
+  /^(?!set-parent)(parent|hide|show|make-main|make-sub|delete-category)/i,
   async (ctx, next) => {
     try {
       const data: string = ctx.callbackQuery['data'];
@@ -322,7 +322,6 @@ EditCategory.action(
 EditCategory.action(
   /(do|set-parent:[a-z0-9]+)/i,
   (ctx, next) => {
-    console.log(ctx.callbackQuery['data']);
     if (!ctx.session.editCategoryActions || ctx.session.editCategoryActions.action !== 'cb') {
       return;
     }
