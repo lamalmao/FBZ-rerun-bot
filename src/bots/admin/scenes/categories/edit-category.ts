@@ -79,17 +79,17 @@ EditCategory.on(callbackQuery('data'), (ctx, next) => {
   next();
 });
 
-EditCategory.action(
-  'exit',
-  (ctx, next) => {
-    if (ctx.session.editCategoryActions) {
-      ctx.session.editCategoryActions.action = 'none';
-    }
-    ctx.scene.leave().catch((err) => errorLogger.error(err));
-    next();
-  },
-  jumpBack
-);
+// EditCategory.action(
+//   'exit',
+//   (ctx, next) => {
+//     if (ctx.session.editCategoryActions) {
+//       ctx.session.editCategoryActions.action = 'none';
+//     }
+//     ctx.scene.leave().catch((err) => errorLogger.error(err));
+//     next();
+//   },
+//   jumpBack
+// );
 
 EditCategory.action('cancel', (ctx) => {
   if (ctx.session.editCategoryActions) {
