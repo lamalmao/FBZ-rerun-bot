@@ -49,6 +49,15 @@ const adminSession = new LocalSession({
 });
 
 adminBot.use(adminSession.middleware());
+if (Settings.bots.debug) {
+  adminBot.use((ctx, next) => {
+    if (ctx.callbackQuery) {
+      console.log(ctx.callbackQuery['data']);
+    }
+
+    next();
+  });
+}
 
 adminBot.start(async (ctx) => {
   try {

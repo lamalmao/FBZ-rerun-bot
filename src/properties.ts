@@ -33,6 +33,7 @@ interface ISettings {
   bots: {
     admin: IBotSettings;
     shop: IBotSettings;
+    debug: boolean;
   };
   db: string;
   saveTemplates: boolean;
