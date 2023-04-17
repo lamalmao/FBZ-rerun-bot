@@ -71,9 +71,6 @@ EditCategory.leaveHandler = async function (ctx: AdminBot, next: CallableFunctio
   if (ctx.session.editCategoryActions) {
     ctx.session.editCategoryActions = undefined;
   }
-  if (ctx.session.category) {
-    ctx.session.category = undefined;
-  }
 
   next();
 };
