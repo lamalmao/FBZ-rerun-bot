@@ -1,6 +1,6 @@
 import { Scenes, Markup } from 'telegraf';
 import { InlineKeyboardButton } from 'telegraf/types';
-import { message, callbackQuery } from 'telegraf/filters';
+import { message } from 'telegraf/filters';
 import { AdminBot } from '../../admin-bot.js';
 import { errorLogger } from '../../../../logger.js';
 import Category, { CATEGORY_TYPES } from '../../../../models/categories.js';
@@ -320,8 +320,8 @@ EditCategory.action(
   }
 );
 
-EditCategory.on(
-  callbackQuery('data'),
+EditCategory.action(
+  /(do|set-parent:[a-z0-9]+)/i,
   (ctx, next) => {
     if (!ctx.session.editCategoryActions || ctx.session.editCategoryActions.action !== 'cb') {
       return;
@@ -338,7 +338,7 @@ EditCategory.on(
   },
   async (ctx, next) => {
     try {
-      if (ctx.callbackQuery.data !== 'delete-category') {
+      if (ctx.callbackQuery['data'] !== 'delete-category') {
         next();
         return;
       }
@@ -375,7 +375,7 @@ EditCategory.on(
         throw new Error('Не найден идентификатор категории');
       }
 
-      const data = /:([a-z0-9]+)/.exec(ctx.callbackQuery.data);
+      const data = /:([a-z0-9]+)/.exec(ctx.callbackQuery['data']);
       if (!data) {
         throw new Error('Ошибка во время получения id');
       }
@@ -413,14 +413,14 @@ EditCategory.on(
       }
 
       let update: object;
-      const data = ctx.callbackQuery.data;
+      const data: string = ctx.callbackQuery['data'];
       if (data === 'delete-category') {
         await Category.deleteOne({
           _id: ctx.session.category
         });
       }
 
-      switch (ctx.callbackQuery.data) {
+      switch (data) {
         case 'hide':
           update = {
             $set: {
