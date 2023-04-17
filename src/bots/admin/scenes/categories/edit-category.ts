@@ -253,16 +253,15 @@ EditCategory.action(
   async (ctx, next) => {
     try {
       const data: string = ctx.callbackQuery['data'];
-      if (data !== 'parent') {
-        next();
-        return;
-      }
-
       if (!ctx.session.editCategoryActions) {
         throw new Error('Ошибка во время выполнения изменений');
       }
 
       ctx.session.editCategoryActions.action = 'cb';
+      if (data !== 'parent') {
+        next();
+        return;
+      }
 
       const current = await Category.findById(ctx.session.category);
       if (!current) {
@@ -325,8 +324,6 @@ EditCategory.action(
 EditCategory.action(
   /(do|set-parent:[a-z0-9]+)/i,
   (ctx, next) => {
-    console.log(ctx.session.editCategoryActions);
-
     if (!ctx.session.editCategoryActions || ctx.session.editCategoryActions.action !== 'cb') {
       return;
     }
