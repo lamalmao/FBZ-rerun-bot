@@ -59,7 +59,7 @@ EditItem.enterHandler = async function (ctx: AdminBot) {
 
 EditItem.on('message', deleteMessage);
 
-EditItem.action('exit', (ctx) => ctx.scene.leave(), jumpBack());
+EditItem.action('exit', jumpBack());
 EditItem.action('cancel', (ctx) => {
   if (ctx.session.message && ctx.chat) {
     ctx.telegram.deleteMessage(ctx.chat.id, ctx.session.message).catch(() => null);
@@ -199,7 +199,7 @@ EditItem.on(
 
       popUp(
         ctx,
-        'Изменения успешно сохранены' + (extra ? `*${extra}*` : ''),
+        'Изменения успешно сохранены\n' + (extra ? `*${extra}*` : ''),
         {
           parse_mode: 'MarkdownV2'
         },
@@ -242,7 +242,7 @@ EditItem.on(
       }
 
       await replyAndDeletePrevious(ctx, 'Качаю изображение...', {});
-      ctx.sendChatAction('typing').catch(() => null);
+      await ctx.sendChatAction('upload_photo').catch(() => null);
       const imageFileName = crypto.randomBytes(8).toString('hex');
       const imageFilePath = path.join(CONSTANTS.IMAGES, imageFileName + '.jpg');
 
@@ -274,9 +274,18 @@ EditItem.on(
       }
 
       await replyAndDeletePrevious(ctx, 'Перерисовываю обложки...', {});
-      ctx.sendChatAction('typing').catch(() => null);
+      await ctx.sendChatAction('upload_photo');
 
       await Render.renderItemCovers(ctx.session.item);
+      Item.findById(ctx.session.item, {
+        category: 1
+      })
+        .then((item) => {
+          if (item && item.category) {
+            Render.renderCategoryCovers(item.category);
+          }
+        })
+        .catch((error) => errorLogger.error(error.message));
 
       popUp(ctx, 'Готово!', undefined, 1500);
       ctx.scene.reenter();
@@ -324,5 +333,25 @@ EditItem.action(
     }
   }
 );
+
+EditItem.action('redraw', async (ctx) => {
+  try {
+    if (!ctx.session.editItemActions || !ctx.session.item) {
+      throw new Error('Не получилось загрузить данные');
+    }
+
+    await replyAndDeletePrevious(ctx, 'Перерисовываю обложки...', undefined);
+    await ctx.sendChatAction('upload_photo');
+
+    await Render.renderItemCovers(ctx.session.item);
+
+    popUp(ctx, 'Готово!');
+    ctx.scene.reenter();
+  } catch (error: any) {
+    errorLogger.error(error.message);
+    popUp(ctx, error.message);
+    ctx.scene.reenter();
+  }
+});
 
 export default EditItem;
