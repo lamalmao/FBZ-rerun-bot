@@ -8,6 +8,7 @@ import {
 } from '../../tools.js';
 import Item from '../../../../models/goods.js';
 import { errorLogger } from '../../../../logger.js';
+import { HOST } from '../../../../properties.js';
 
 const EditItem = new Scenes.BaseScene<AdminBot>('edit-item');
 EditItem.enterHandler = async function (ctx: AdminBot) {
@@ -32,7 +33,7 @@ EditItem.enterHandler = async function (ctx: AdminBot) {
         reply_markup: messageData[1].reply_markup,
         parse_mode: 'MarkdownV2'
       },
-      item.cover.images.ru
+      `${HOST}/${item.cover.images.ru}`
     );
   } catch (error: any) {
     errorLogger.error(error.message);
