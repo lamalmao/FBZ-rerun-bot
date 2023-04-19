@@ -246,7 +246,7 @@ EditItem.on(
       const imageFileName = crypto.randomBytes(8).toString('hex');
       const imageFilePath = path.join(CONSTANTS.IMAGES, imageFileName + '.jpg');
 
-      const photoId = ctx.message.photo[2].file_id;
+      const photoId = ctx.message.photo[ctx.message.photo.length - 1].file_id;
       const photoLink = await ctx.telegram.getFileLink(photoId);
 
       const res = await fetch(photoLink);
@@ -283,6 +283,7 @@ EditItem.on(
     } catch (error: any) {
       errorLogger.error(error.message);
       popUp(ctx, error.message, undefined, 3000);
+      ctx.scene.reenter();
     }
   }
 );
