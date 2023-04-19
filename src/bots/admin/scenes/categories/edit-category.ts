@@ -72,17 +72,6 @@ EditCategory.enterHandler = async function (ctx: AdminBot) {
   }
 };
 
-EditCategory.command('start', async (ctx) => {
-  try {
-    await ctx.scene.leave();
-    await ctx.scene.reset();
-
-    await jumpBack()(ctx);
-  } catch (error: any) {
-    errorLogger.error(error.message);
-  }
-});
-
 EditCategory.leaveHandler = async function (ctx: AdminBot, next: CallableFunction) {
   if (ctx.session.editCategoryActions) {
     ctx.session.editCategoryActions = undefined;

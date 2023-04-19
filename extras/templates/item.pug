@@ -10,7 +10,7 @@ html
   body
     .item
       -
-        var image = fs.readFileSync(images + '/' + item.icon)
+        var image = fs.readFileSync(images + '/' + item.icon + '.jpg')
         var base64Image = new Buffer.from(image).toString('base64')
         var dataURI = 'data:image/jpeg;base64,' + base64Image
         var description = item.cover.description ? item.cover.description.replace(/\n/gm, '<br>') : null

@@ -11,7 +11,7 @@ html
 		each item in items
 			.item
 				-
-					var image = fs.readFileSync(images + '/' + item.icon)
+					var image = fs.readFileSync(images + '/' + item.icon + '.jpg')
 					var base64Image = new Buffer.from(image).toString('base64')
 					var dataURI = 'data:image/jpeg;base64,' + base64Image
 					var fontSize = 'font-size: ' + item.cover.catalogueTitleFontSize + 'px !important;'
