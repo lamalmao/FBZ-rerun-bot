@@ -6,8 +6,15 @@ import { Render } from './render.js';
 import { ImageSecureHost } from './image-static.js';
 import adminBot from './bots/admin/admin-bot.js';
 
-ImageSecureHost.listen(Settings.host.port, '0.0.0.0', () => console.log('Image server launched'));
-Render.init(CONSTANTS.TEMPLATES, CONSTANTS.IMAGES, CONSTANTS.RAW_COVERS, Settings.saveTemplates);
+ImageSecureHost.listen(Settings.host.port, '0.0.0.0', () =>
+  console.log('Image server launched')
+);
+Render.init(
+  CONSTANTS.TEMPLATES,
+  CONSTANTS.IMAGES,
+  CONSTANTS.RAW_COVERS,
+  Settings.saveTemplates
+);
 console.log('Connecting to "' + Settings.db + '" ...');
 mongoose
   .connect(Settings.db)

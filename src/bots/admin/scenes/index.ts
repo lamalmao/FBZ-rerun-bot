@@ -6,8 +6,16 @@ import { jumpBack } from '../tools.js';
 import { errorLogger } from '../../../logger.js';
 import EditCategory from './categories/edit-category.js';
 import CategoriesList from './categories/categories-list.js';
+import CreateItem from './goods/create-item.js';
+import EditItem from './goods/edit-item.js';
 
-const AdminStage = new Scenes.Stage<AdminBot>([CreateCategory, EditCategory, CategoriesList]);
+const AdminStage = new Scenes.Stage<AdminBot>([
+  CreateCategory,
+  EditCategory,
+  CategoriesList,
+  CreateItem,
+  EditItem
+]);
 
 //debug
 AdminStage.use((ctx, next) => {

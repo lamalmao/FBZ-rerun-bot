@@ -1,11 +1,13 @@
 import { FmtString } from 'telegraf/format';
 import { errorLogger } from '../../logger.js';
-import User, { IUser, ROLES } from '../../models/users.js';
+import User, { IUser, REGIONS, ROLES } from '../../models/users.js';
 import adminBot, { AdminBot } from './admin-bot.js';
 import { adminKeyboard, managerKeyboard } from './keyboard.js';
 import Category, { ICategory } from '../../models/categories.js';
 import { Markup } from 'telegraf';
 import { InlineKeyboardMarkup } from 'telegraf/types';
+import { IItem, currencies } from '../../models/goods.js';
+import moment from 'moment';
 
 export function getUsername(ctx: AdminBot): string {
   let username, old: string | undefined;
@@ -38,7 +40,9 @@ export function getUsername(ctx: AdminBot): string {
   return username;
 }
 
-export function getUserTo(where: 'context' | 'session'): (ctx: AdminBot, next: CallableFunction) => Promise<void> {
+export function getUserTo(
+  where: 'context' | 'session'
+): (ctx: AdminBot, next: CallableFunction) => Promise<void> {
   async function getUser(ctx: AdminBot, next: CallableFunction) {
     try {
       if (!ctx || !ctx.from) {
@@ -61,9 +65,13 @@ export function getUserTo(where: 'context' | 'session'): (ctx: AdminBot, next: C
   return getUser;
 }
 
-export function userIs(roles: Array<string>): (ctx: AdminBot, next: CallableFunction) => Promise<void> {
+export function userIs(
+  roles: Array<string>
+): (ctx: AdminBot, next: CallableFunction) => Promise<void> {
   async function check(ctx: AdminBot, next: CallableFunction) {
-    const user: IUser | undefined = ctx.userInstance ? ctx.userInstance : ctx.session.userInstance;
+    const user: IUser | undefined = ctx.userInstance
+      ? ctx.userInstance
+      : ctx.session.userInstance;
     if (!user || !roles.includes(user.role)) {
       await ctx.reply('У вас недостаточно прав');
       return;
@@ -73,7 +81,12 @@ export function userIs(roles: Array<string>): (ctx: AdminBot, next: CallableFunc
   return check;
 }
 
-export async function replyAndDeletePrevious(ctx: AdminBot, text: string | FmtString, extra, image?: string) {
+export async function replyAndDeletePrevious(
+  ctx: AdminBot,
+  text: string | FmtString,
+  extra,
+  image?: string
+) {
   let message;
   if (image) {
     extra.caption = text;
@@ -146,7 +159,9 @@ export async function genCategoryEditingMenu(
     let nestingData = 'Вложена в ';
     if (category.parent) {
       const parent = await Category.findById(category.parent);
-      nestingData += `"${parent ? parent._id + ':' + parent.title : 'Неизвестная категория'}"`;
+      nestingData += `"${
+        parent ? parent._id + ':' + parent.title : 'Неизвестная категория'
+      }"`;
     } else {
       nestingData = 'Не вложена';
     }
@@ -158,8 +173,16 @@ export async function genCategoryEditingMenu(
     [Markup.button.callback('Изменить название', pre + 'title')],
     [Markup.button.callback('Изменить описание', pre + 'description')],
     [
-      Markup.button.callback('Изменить изображение', pre + 'image', category.type !== 'main'),
-      Markup.button.callback('Перерисовать обложки', 'redraw-category-covers', category.type !== 'sub')
+      Markup.button.callback(
+        'Изменить изображение',
+        pre + 'image',
+        category.type !== 'main'
+      ),
+      Markup.button.callback(
+        'Перерисовать обложки',
+        'redraw-category-covers',
+        category.type !== 'sub'
+      )
     ],
     [
       Markup.button.callback('Скрыть', 'hide', category.hidden),
@@ -210,8 +233,93 @@ export async function popUp(ctx: AdminBot, text: string, extra = {}, timeout = 5
     .reply('⚠️ ' + text, extra)
     .then((message) => {
       setInterval(() => {
-        adminBot.telegram.deleteMessage(message.chat.id, message.message_id).catch(() => null);
+        adminBot.telegram
+          .deleteMessage(message.chat.id, message.message_id)
+          .catch(() => null);
       }, timeout);
     })
     .catch((error) => errorLogger.error(error.message));
+}
+
+export async function genItemEditingMenu(
+  item: IItem
+): Promise<[string, Markup.Markup<InlineKeyboardMarkup>]> {
+  let text = `\`${item._id}\`\n"${item.title}"\n\nСкидка: ${item.discount}%\nЦена: ${item.price} руб\nРегиональные цены с учетом скидки: `;
+  for (const currency of Object.values(REGIONS)) {
+    text += `${item.getRealPriceIn(currency)} ${currencies[currency]} `;
+  }
+
+  let deliveryType: string;
+  switch (item.type) {
+    case 'manual':
+      deliveryType = 'менеджером';
+      break;
+    case 'auto':
+      deliveryType = 'ключ';
+      break;
+    case 'skipProceed':
+      deliveryType = 'мгновенная';
+      break;
+    default:
+      deliveryType = 'неизвестно';
+      break;
+  }
+
+  text += `\n\nИгра: ;${item.game}\n*Сценарий продажи:* "${item.scenario}"\n*Тип доставки:* ${deliveryType}`;
+
+  const root = await Category.findById(item.category, {
+    title: 1
+  });
+  if (root) {
+    text += `\n\nВложен в категорию \`${root._id}\`:${root.title}`;
+  } else {
+    text += '\n\nНе вложен ни в какую из категорий';
+  }
+
+  text += `\n\n*_Параметры обложки:*\n_размер шрифта описания:_ ${item.cover.descriptionFontSize}\n_размер шрифта заголовка обложки товара:_ ${item.cover.titleFontSize}\n_размер шрифта заголовка в обложке категории:_ ${item.cover.catalogueTitleFontSize}`;
+
+  if (item.extraOptions) {
+    text += `\n\n*Дополнительные опции:*\n_вопрос:_ ${item.extraOptions.title}\n*Ответы:*`;
+    for (let i = 0; i < item.extraOptions.values.length; i++) {
+      text += '\n' + item.extraOptions.values[i];
+    }
+  }
+
+  text += `\n\n_Создан ${moment(item.created).format('dd.MM.YYYY [в] hh:mm')}_`;
+
+  const keyboard = Markup.inlineKeyboard([
+    [Markup.button.callback('Изменить название', 'title')],
+    [Markup.button.callback('Изменить описание под сообщением', 'description')],
+    [Markup.button.callback('Изменить описание на обложке', 'coverDescription')],
+    [
+      Markup.button.callback('Изменить иконку', 'icon'),
+      Markup.button.callback('Перерисовать обложку', 'redraw')
+    ],
+    [Markup.button.callback('Изменить сценарий продажи', 'scenario')],
+    [Markup.button.callback('Изменить тип доставки', 'type')],
+    [Markup.button.callback('Изменить игру', 'game')],
+    [Markup.button.callback('Изменить платформы', 'platform')],
+    [Markup.button.callback('Изменить цену', 'price')],
+    [Markup.button.callback('Изменить скидку', 'discount')],
+    [Markup.button.callback('Изменить шрифт заголовка обложки', 'titleFontSize')],
+    [
+      Markup.button.callback(
+        'Изменить шрифт заголовка в категории',
+        'catalogueTitleFontSize'
+      )
+    ],
+    [Markup.button.callback('Изменить шрифт описания в обложке', 'coverDescription')],
+    [
+      Markup.button.callback('Скрыть', 'hide', item.properties.hidden),
+      Markup.button.callback('Открыть', 'show', !item.properties.hidden)
+    ],
+    [Markup.button.callback('Поместить в категорию', 'move')],
+    [Markup.button.callback('Удалить', 'delete')],
+    [
+      Markup.button.callback('Назад', 'exit'),
+      Markup.button.callback('Обновить', 'update')
+    ]
+  ]);
+
+  return [text, keyboard];
 }
