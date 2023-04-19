@@ -51,7 +51,10 @@ class ScenarioButton {
 
     if (this.type != SCENARIO_BUTTONS_TYPES.CANCEL) {
       data = this.type + '#' + this.pointer;
-    } else if (this.type === SCENARIO_BUTTONS_TYPES.CANCEL || this.type === SCENARIO_BUTTONS_TYPES.SELL) {
+    } else if (
+      this.type === SCENARIO_BUTTONS_TYPES.CANCEL ||
+      this.type === SCENARIO_BUTTONS_TYPES.SELL
+    ) {
       data = this.type + '#' + itemId.toString();
     } else {
       data = this.type;
@@ -96,11 +99,15 @@ class ScenarioAct {
 
     if (type === SCENARIO_ACTS_TYPES.DATA) {
       if (typeof validate === 'undefined') {
-        throw new Error('Для шагов запроса информации необходимо указать необходимость проверки информации');
+        throw new Error(
+          'Для шагов запроса информации необходимо указать необходимость проверки информации'
+        );
       }
 
       if (!next) {
-        throw new Error('Для шагов запроса информации обязательно указывать следующий шаг в теле акта');
+        throw new Error(
+          'Для шагов запроса информации обязательно указывать следующий шаг в теле акта'
+        );
       }
 
       if (!dataType || !Object.values(SCENARIO_DATA_TYPES).includes(dataType)) {
@@ -115,7 +122,9 @@ class ScenarioAct {
     this.type = type;
   }
 
-  public getTelegramKeyboardMarkup(itemId: MongooseTypes.ObjectId): Markup.Markup<InlineKeyboardMarkup> {
+  public getTelegramKeyboardMarkup(
+    itemId: MongooseTypes.ObjectId
+  ): Markup.Markup<InlineKeyboardMarkup> {
     const keyboardArray = new Array<Array<InlineKeyboardButton>>();
 
     this.buttons.forEach((line) => {
@@ -145,7 +154,9 @@ export class Scenario {
   }
 
   public static readFromFile(filename: string): Scenario {
-    const file = JSON.parse(fs.readFileSync(path.join(CONSTANTS.SCENARIOS, filename)).toString());
+    const file = JSON.parse(
+      fs.readFileSync(path.join(CONSTANTS.SCENARIOS, filename)).toString()
+    );
 
     const name: string = file['name'];
     const acts: Array<any> = file['acts'];
@@ -157,7 +168,9 @@ export class Scenario {
       buttons.forEach((line) => {
         const parsedLine: Array<ScenarioButton> = [];
         line.forEach((button: { [x: string]: any }) => {
-          parsedLine.push(new ScenarioButton(button['content'], button['type'], button['pointer']));
+          parsedLine.push(
+            new ScenarioButton(button['content'], button['type'], button['pointer'])
+          );
         });
         parsedButtons.push(parsedLine);
       });
@@ -193,7 +206,9 @@ export class Scenario {
         Scenario.LoadedScenarios.set(newScenario.name, newScenario);
         infoLogger.info(`Сценарий ${newScenario.name} успешно загружен`);
       } catch (e) {
-        errorLogger.error(`Ошибка во время загрузки сценария из файла: ${scenarioFile}\n\n${e}`);
+        errorLogger.error(
+          `Ошибка во время загрузки сценария из файла: ${scenarioFile}\n\n${e}`
+        );
       }
     });
   }

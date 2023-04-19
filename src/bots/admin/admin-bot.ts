@@ -11,16 +11,23 @@ import {
   categoriesMainMenu,
   categoriesMainMenuButtons
 } from './keyboard.js';
-import { getUserTo, jumpBack, popUp, replyAndDeletePrevious, userIs, deleteMessage } from './tools.js';
+import {
+  getUserTo,
+  jumpBack,
+  popUp,
+  replyAndDeletePrevious,
+  userIs,
+  deleteMessage
+} from './tools.js';
 import AdminStage from './scenes/index.js';
-import { IItem } from '../../models/goods.js';
 import { Types } from 'mongoose';
 
 export interface SessionData {
   userInstance?: IUser;
   previousMessage?: number;
-  newItem?: IItem;
+  item?: Types.ObjectId;
   category?: Types.ObjectId;
+
   editCategoryActions?: {
     action: 'none' | 'text' | 'photo' | 'cb' | string;
     target?: string;
@@ -96,7 +103,9 @@ adminBot.hears(Back, deleteMessage, userIs([ROLES.ADMIN, ROLES.MANAGER]), jumpBa
 
 adminBot.command('admin', deleteMessage, userIs([ROLES.ADMIN]), async (ctx) => {
   try {
-    const username = ctx.session.userInstance ? ctx.session.userInstance.username : ctx.from.username;
+    const username = ctx.session.userInstance
+      ? ctx.session.userInstance.username
+      : ctx.from.username;
 
     await replyAndDeletePrevious(ctx, `Панель администратора *${username}*`, {
       parse_mode: 'MarkdownV2',
@@ -122,24 +131,35 @@ adminBot.command('logs', deleteMessage, userIs([ROLES.ADMIN]), async (ctx) => {
   }
 });
 
-adminBot.hears(adminKeyboardButtons.categories, deleteMessage, userIs([ROLES.ADMIN]), async (ctx) => {
-  try {
-    await replyAndDeletePrevious(ctx, 'Меню управления *категориями*', {
-      parse_mode: 'MarkdownV2',
-      reply_markup: categoriesMainMenu.reply_markup
-    });
-  } catch (error: any) {
-    errorLogger.error(error.message);
-    ctx.reply('Что-то пошло не так').catch();
+adminBot.hears(
+  adminKeyboardButtons.categories,
+  deleteMessage,
+  userIs([ROLES.ADMIN]),
+  async (ctx) => {
+    try {
+      await replyAndDeletePrevious(ctx, 'Меню управления *категориями*', {
+        parse_mode: 'MarkdownV2',
+        reply_markup: categoriesMainMenu.reply_markup
+      });
+    } catch (error: any) {
+      errorLogger.error(error.message);
+      ctx.reply('Что-то пошло не так').catch();
+    }
   }
-});
-
-adminBot.hears(categoriesMainMenuButtons.create, deleteMessage, userIs([ROLES.ADMIN]), (ctx) =>
-  ctx.scene.enter('create-category')
 );
 
-adminBot.hears(categoriesMainMenuButtons.list, deleteMessage, userIs([ROLES.ADMIN]), (ctx) =>
-  ctx.scene.enter('categories-list')
+adminBot.hears(
+  categoriesMainMenuButtons.create,
+  deleteMessage,
+  userIs([ROLES.ADMIN]),
+  (ctx) => ctx.scene.enter('create-category')
+);
+
+adminBot.hears(
+  categoriesMainMenuButtons.list,
+  deleteMessage,
+  userIs([ROLES.ADMIN]),
+  (ctx) => ctx.scene.enter('categories-list')
 );
 
 export default adminBot;

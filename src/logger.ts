@@ -11,7 +11,10 @@ export const errorLogger = winston.createLogger({
   transports: [
     new winston.transports.File({
       filename: errorLogsFile,
-      format: format.printf((data) => `${data.level}|${moment().format('DD-MM-YYYY hh:mm:ss')}: ${data.message}`)
+      format: format.printf(
+        (data) =>
+          `${data.level}|${moment().format('DD-MM-YYYY hh:mm:ss')}: ${data.message}`
+      )
     })
   ]
 });

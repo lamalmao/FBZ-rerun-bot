@@ -27,8 +27,8 @@ const EditCategory = new Scenes.BaseScene<AdminBot>('edit-category');
 EditCategory.enterHandler = async function (ctx: AdminBot) {
   try {
     if (!ctx.session.category) {
-      replyAndDeletePrevious(ctx, 'Не найден идентификатор категории', {}).catch((error) =>
-        errorLogger.error(error.message)
+      replyAndDeletePrevious(ctx, 'Не найден идентификатор категории', {}).catch(
+        (error) => errorLogger.error(error.message)
       );
       ctx.scene.leave().catch((error) => errorLogger.error(error.message));
       return;
@@ -40,7 +40,9 @@ EditCategory.enterHandler = async function (ctx: AdminBot) {
       _id: new Types.ObjectId(ctx.session.category)
     });
     if (!category) {
-      replyAndDeletePrevious(ctx, 'Не найдена категория', {}).catch((error) => errorLogger.error(error.message));
+      replyAndDeletePrevious(ctx, 'Не найдена категория', {}).catch((error) =>
+        errorLogger.error(error.message)
+      );
       ctx.scene.leave().catch((error) => errorLogger.error(error.message));
       return;
     }
@@ -94,7 +96,9 @@ EditCategory.action('cancel', (ctx) => {
     ctx.session.editCategoryActions.action = 'none';
   }
   if (ctx.chat && ctx.callbackQuery.message) {
-    ctx.telegram.deleteMessage(ctx.chat.id, ctx.callbackQuery.message.message_id).catch(() => null);
+    ctx.telegram
+      .deleteMessage(ctx.chat.id, ctx.callbackQuery.message.message_id)
+      .catch(() => null);
   }
   ctx.scene.reenter()?.catch((err) => errorLogger.error(err));
 });
@@ -164,7 +168,10 @@ EditCategory.on(
       return;
     }
 
-    if (ctx.session.editCategoryActions.action !== 'photo' || ctx.session.editCategoryActions.target !== 'image') {
+    if (
+      ctx.session.editCategoryActions.action !== 'photo' ||
+      ctx.session.editCategoryActions.target !== 'image'
+    ) {
       return;
     }
 
@@ -208,47 +215,56 @@ EditCategory.on(
   }
 );
 
-EditCategory.action(new RegExp(EDIT_CATEGORY_PRE + '(title|description|image)', 'i'), async (ctx) => {
-  try {
-    console.log(1);
-    const data: string = ctx.callbackQuery['data'];
-    const check = new RegExp(EDIT_CATEGORY_PRE + '(title|description|image)', 'i').exec(data);
+EditCategory.action(
+  new RegExp(EDIT_CATEGORY_PRE + '(title|description|image)', 'i'),
+  async (ctx) => {
+    try {
+      console.log(1);
+      const data: string = ctx.callbackQuery['data'];
+      const check = new RegExp(EDIT_CATEGORY_PRE + '(title|description|image)', 'i').exec(
+        data
+      );
 
-    if (!check) {
-      await ctx.answerCbQuery('Неизвестное поле');
+      if (!check) {
+        await ctx.answerCbQuery('Неизвестное поле');
+        ctx.scene.reenter();
+        return;
+      }
+
+      const target = check[1];
+      ctx.session.editCategoryActions = {
+        action: target === 'image' ? 'photo' : 'text',
+        target
+      };
+
+      let text;
+      switch (target) {
+        case 'image':
+          text = 'Отправьте новое изображение как фото';
+          break;
+        case 'title':
+          text = 'Отправьте новое название категории';
+          break;
+        case 'description':
+          text = 'Отправьте новое описание категории';
+          break;
+      }
+      const message = await ctx.reply(text, {
+        reply_markup: Markup.inlineKeyboard([
+          [Markup.button.callback('Отмена', 'cancel')]
+        ]).reply_markup
+      });
+
+      ctx.session.message = message.message_id;
+    } catch (error: any) {
+      errorLogger.error(error.message);
+      ctx
+        .answerCbQuery('Что-то пошло не так')
+        .catch((err) => errorLogger.error(err.message));
       ctx.scene.reenter();
-      return;
     }
-
-    const target = check[1];
-    ctx.session.editCategoryActions = {
-      action: target === 'image' ? 'photo' : 'text',
-      target
-    };
-
-    let text;
-    switch (target) {
-      case 'image':
-        text = 'Отправьте новое изображение как фото';
-        break;
-      case 'title':
-        text = 'Отправьте новое название категории';
-        break;
-      case 'description':
-        text = 'Отправьте новое описание категории';
-        break;
-    }
-    const message = await ctx.reply(text, {
-      reply_markup: Markup.inlineKeyboard([[Markup.button.callback('Отмена', 'cancel')]]).reply_markup
-    });
-
-    ctx.session.message = message.message_id;
-  } catch (error: any) {
-    errorLogger.error(error.message);
-    ctx.answerCbQuery('Что-то пошло не так').catch((err) => errorLogger.error(err.message));
-    ctx.scene.reenter();
   }
-});
+);
 
 EditCategory.action(
   /^(?!set-parent)(parent|hide|show|make-main|make-sub|delete-category)/i,
@@ -286,7 +302,9 @@ EditCategory.action(
 
       for (let i = 0; i < parents.length; i++) {
         const parent = parents[i];
-        parentsButtons.push([Markup.button.callback(parent.title, 'set-parent:' + parent._id)]);
+        parentsButtons.push([
+          Markup.button.callback(parent.title, 'set-parent:' + parent._id)
+        ]);
       }
       parentsButtons.push([Markup.button.callback('Отмена', 'cancel')]);
 
@@ -324,7 +342,10 @@ EditCategory.action(
 EditCategory.action(
   /(do|set-parent:[a-z0-9]+)/i,
   (ctx, next) => {
-    if (!ctx.session.editCategoryActions || ctx.session.editCategoryActions.action !== 'cb') {
+    if (
+      !ctx.session.editCategoryActions ||
+      ctx.session.editCategoryActions.action !== 'cb'
+    ) {
       return;
     }
 
@@ -339,7 +360,10 @@ EditCategory.action(
   },
   async (ctx, next) => {
     try {
-      if (!ctx.session.editCategoryActions || ctx.session.editCategoryActions.target !== 'delete-category') {
+      if (
+        !ctx.session.editCategoryActions ||
+        ctx.session.editCategoryActions.target !== 'delete-category'
+      ) {
         next();
         return;
       }
@@ -353,7 +377,9 @@ EditCategory.action(
       });
 
       if (result.deletedCount > 0) {
-        ctx.answerCbQuery('Категория успешно удалена').catch((error) => errorLogger.error(error));
+        ctx
+          .answerCbQuery('Категория успешно удалена')
+          .catch((error) => errorLogger.error(error));
       }
 
       ctx.scene.leave();
@@ -397,7 +423,9 @@ EditCategory.action(
       );
 
       if (result.modifiedCount > 1) {
-        ctx.answerCbQuery('Родитель успешно изменен').catch((error) => errorLogger.error(error.message));
+        ctx
+          .answerCbQuery('Родитель успешно изменен')
+          .catch((error) => errorLogger.error(error.message));
       }
 
       await ctx.scene.reenter();
@@ -460,7 +488,9 @@ EditCategory.action(
       );
 
       if (result.modifiedCount > 1) {
-        ctx.answerCbQuery('Изменения успешно внесены').catch((error) => errorLogger.error(error.message));
+        ctx
+          .answerCbQuery('Изменения успешно внесены')
+          .catch((error) => errorLogger.error(error.message));
       }
 
       await ctx.scene.reenter();

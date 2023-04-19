@@ -42,8 +42,12 @@ export abstract class Render {
         throw new Error('Some of template files not found');
       }
 
-      const itemTemplateStyles = fs.readFileSync(path.join(templatesDirectory, 'item.css')).toString();
-      const catalogueTemplateStyles = fs.readFileSync(path.join(templatesDirectory, 'catalogue.css')).toString();
+      const itemTemplateStyles = fs
+        .readFileSync(path.join(templatesDirectory, 'item.css'))
+        .toString();
+      const catalogueTemplateStyles = fs
+        .readFileSync(path.join(templatesDirectory, 'catalogue.css'))
+        .toString();
 
       this.itemTemplate = {
         styles: itemTemplateStyles,
@@ -78,68 +82,76 @@ export abstract class Render {
       // проходимся циклом по всем валютам
       for (const currency of Object.values(REGIONS)) {
         // создаем promise, который асинхронно сгенерирует html шаблон, после чего отрендерит его в изображение и сохранит
-        const renderTask: Promise<[boolean, string]> = new Promise<[boolean, string]>(async (resolve, reject) => {
-          try {
-            const template = this.itemTemplate.template({
-              item,
-              currency,
-              fs,
-              images: CONSTANTS.IMAGES,
-              styles: this.itemTemplate.styles,
-              currencyText: currencies[currency]
-            });
+        const renderTask: Promise<[boolean, string]> = new Promise<[boolean, string]>(
+          async (resolve, reject) => {
+            try {
+              const template = this.itemTemplate.template({
+                item,
+                currency,
+                fs,
+                images: CONSTANTS.IMAGES,
+                styles: this.itemTemplate.styles,
+                currencyText: currencies[currency]
+              });
 
-            // если при инициализации флаг saveTemplates был установлен в true, то html шаблон сохранится в файл
-            if (this.saveTemplates) {
-              const templateFile = `${item.title}_${currency}_${new Date().toLocaleTimeString(
-                'ru-RU'
-              )}.html`.replaceAll(/[\ \:]/g, '_');
-              const templateFilePath = path.join(this.rawTemplates, templateFile);
-              fs.writeFile(templateFilePath, template, (err) => {
-                if (err) {
-                  errorLogger.error(err.message);
-                  return;
+              // если при инициализации флаг saveTemplates был установлен в true, то html шаблон сохранится в файл
+              if (this.saveTemplates) {
+                const templateFile = `${
+                  item.title
+                }_${currency}_${new Date().toLocaleTimeString('ru-RU')}.html`.replaceAll(
+                  /[\ \:]/g,
+                  '_'
+                );
+                const templateFilePath = path.join(this.rawTemplates, templateFile);
+                fs.writeFile(templateFilePath, template, (err) => {
+                  if (err) {
+                    errorLogger.error(err.message);
+                    return;
+                  }
+                });
+              }
+
+              // рендерим изображение из шаблона и сохраняем в файл
+              const imageFile = crypto.randomBytes(8).toString('hex');
+              await nodeHtmlToImage({
+                output: path.join(this.destination, imageFile + '.jpg'),
+                html: template,
+                puppeteerArgs: {
+                  args: ['--no-sandbox']
                 }
               });
-            }
 
-            // рендерим изображение из шаблона и сохраняем в файл
-            const imageFile = crypto.randomBytes(8).toString('hex');
-            await nodeHtmlToImage({
-              output: path.join(this.destination, imageFile + '.jpg'),
-              html: template,
-              puppeteerArgs: {
-                args: ['--no-sandbox']
-              }
-            });
-
-            // сохраняем новую обложку в соответствующее поле
-            await Item.updateOne(
-              {
-                _id: item._id
-              },
-              {
-                $set: {
-                  ['cover.images.' + currency]: imageFile
+              // сохраняем новую обложку в соответствующее поле
+              await Item.updateOne(
+                {
+                  _id: item._id
+                },
+                {
+                  $set: {
+                    ['cover.images.' + currency]: imageFile
+                  }
                 }
+              );
+
+              // Удаление старой обложки
+              if (oldImages[currency] !== DEFAULT_ITEM_COVER) {
+                fs.unlink(
+                  path.join(CONSTANTS.IMAGES, oldImages[currency] + '.jpg'),
+                  (err) => {
+                    if (err) {
+                      errorLogger.error(err.message);
+                    }
+                  }
+                );
               }
-            );
 
-            // Удаление старой обложки
-            if (oldImages[currency] !== DEFAULT_ITEM_COVER) {
-              fs.unlink(path.join(CONSTANTS.IMAGES, oldImages[currency] + '.jpg'), (err) => {
-                if (err) {
-                  errorLogger.error(err.message);
-                }
-              });
+              resolve([true, currency]);
+            } catch (error: any) {
+              // в случае ошибки возвращаем кортеж, содержащий саму ошибку и валюту на которой она случилась
+              reject([error, currency]);
             }
-
-            resolve([true, currency]);
-          } catch (error: any) {
-            // в случае ошибки возвращаем кортеж, содержащий саму ошибку и валюту на которой она случилась
-            reject([error, currency]);
           }
-        });
+        );
 
         // добавляем промис в массив промисов
         renderTasks.push(renderTask);
@@ -173,67 +185,75 @@ export abstract class Render {
       // проходимся циклом по всем валютам
       for (const currency of Object.values(REGIONS)) {
         // создаем promise, который асинхронно сгенерирует html шаблон, после чего отрендерит его в изображение и сохранит
-        const renderTask: Promise<[boolean, string]> = new Promise<[boolean, string]>(async (resolve, reject) => {
-          try {
-            const template = this.catalogueTemplate.template({
-              items,
-              currency,
-              fs,
-              images: CONSTANTS.IMAGES,
-              styles: this.catalogueTemplate.styles,
-              currencyText: currencies[currency]
-            });
+        const renderTask: Promise<[boolean, string]> = new Promise<[boolean, string]>(
+          async (resolve, reject) => {
+            try {
+              const template = this.catalogueTemplate.template({
+                items,
+                currency,
+                fs,
+                images: CONSTANTS.IMAGES,
+                styles: this.catalogueTemplate.styles,
+                currencyText: currencies[currency]
+              });
 
-            // если при инициализации флаг saveTemplates был установлен в true, то html шаблон сохранится в файл
-            if (this.saveTemplates) {
-              const templateFile = `${category.title}_${currency}_${new Date().toLocaleTimeString(
-                'ru-RU'
-              )}.html`.replaceAll(/[\ \:]/g, '_');
-              const templateFilePath = path.join(this.rawTemplates, templateFile);
-              fs.writeFile(templateFilePath, template, (err) => {
-                if (err) {
-                  errorLogger.error(err.message);
-                  return;
+              // если при инициализации флаг saveTemplates был установлен в true, то html шаблон сохранится в файл
+              if (this.saveTemplates) {
+                const templateFile = `${
+                  category.title
+                }_${currency}_${new Date().toLocaleTimeString('ru-RU')}.html`.replaceAll(
+                  /[\ \:]/g,
+                  '_'
+                );
+                const templateFilePath = path.join(this.rawTemplates, templateFile);
+                fs.writeFile(templateFilePath, template, (err) => {
+                  if (err) {
+                    errorLogger.error(err.message);
+                    return;
+                  }
+                });
+              }
+
+              // рендерим изображение из шаблона и сохраняем в файл
+              const imageFile = crypto.randomBytes(8).toString('hex');
+              await nodeHtmlToImage({
+                output: path.join(this.destination, imageFile + '.jpg'),
+                html: template,
+                puppeteerArgs: {
+                  args: ['--no-sandbox']
                 }
               });
-            }
 
-            // рендерим изображение из шаблона и сохраняем в файл
-            const imageFile = crypto.randomBytes(8).toString('hex');
-            await nodeHtmlToImage({
-              output: path.join(this.destination, imageFile + '.jpg'),
-              html: template,
-              puppeteerArgs: {
-                args: ['--no-sandbox']
-              }
-            });
-
-            // сохраняем новую обложку в соответствующее поле
-            await Category.updateOne(
-              {
-                _id: categoryId
-              },
-              {
-                $set: {
-                  ['covers.' + currency]: imageFile
+              // сохраняем новую обложку в соответствующее поле
+              await Category.updateOne(
+                {
+                  _id: categoryId
+                },
+                {
+                  $set: {
+                    ['covers.' + currency]: imageFile
+                  }
                 }
+              );
+
+              if (oldImages && oldImages[currency] !== CATEGORY_BLANK) {
+                fs.unlink(
+                  path.join(CONSTANTS.IMAGES, oldImages[currency] + '.jpg'),
+                  (err) => {
+                    if (err) {
+                      errorLogger.error(err.message);
+                    }
+                  }
+                );
               }
-            );
 
-            if (oldImages && oldImages[currency] !== CATEGORY_BLANK) {
-              fs.unlink(path.join(CONSTANTS.IMAGES, oldImages[currency] + '.jpg'), (err) => {
-                if (err) {
-                  errorLogger.error(err.message);
-                }
-              });
+              resolve([true, currency]);
+            } catch (error) {
+              // в случае ошибки возвращаем кортеж, содержащий саму ошибку и валюту на которой она случилась
+              reject([error, currency]);
             }
-
-            resolve([true, currency]);
-          } catch (error) {
-            // в случае ошибки возвращаем кортеж, содержащий саму ошибку и валюту на которой она случилась
-            reject([error, currency]);
           }
-        });
+        );
 
         // добавляем промис в массив промисов
         renderTasks.push(renderTask);

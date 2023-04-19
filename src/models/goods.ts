@@ -1,4 +1,4 @@
-import { Schema, SchemaTypes, Types, model } from 'mongoose';
+import { Schema, SchemaTypes, Types, model, Document } from 'mongoose';
 import { Region } from './users.js';
 
 export const DEFAULT_ITEM_COVER = 'item_cover';
@@ -22,8 +22,7 @@ export const PLATFORMS = {
   PC: 'PC',
   ANDROID: 'android',
   XBOX: 'xbox',
-  NINTENDO: 'nintendo',
-  NONE: 'none'
+  NINTENDO: 'nintendo'
 };
 
 export const GAMES = {
@@ -40,11 +39,12 @@ export const ITEM_TYPES = {
   SKIP_PROCEED: 'skipProceed'
 };
 
-export interface IItem {
+export interface IItem extends Document {
   title: string;
-  itemType: string;
+  type: string;
+  scenario: string;
   category?: Types.ObjectId;
-  game?: string;
+  game: string;
   description?: string;
   icon: string;
   price: number;
@@ -72,8 +72,8 @@ export interface IItem {
     VBucks?: boolean;
   };
 
-  getPriceIn(currency: Region): number;
-  getRealPriceIn(currency: Region): number;
+  getPriceIn(currency: Region | string): number;
+  getRealPriceIn(currency: Region | string): number;
   getRealPrice(): number;
 }
 
@@ -83,7 +83,7 @@ const ItemSchema = new Schema<IItem>(
       type: String,
       required: true
     },
-    itemType: {
+    type: {
       type: String,
       required: true,
       enum: {
@@ -91,6 +91,11 @@ const ItemSchema = new Schema<IItem>(
         message: 'Недоступный тип товара: {VALUE}'
       },
       default: ITEM_TYPES.MANUAL
+    },
+    scenario: {
+      type: String,
+      required: true,
+      default: 'template-scenario'
     },
     category: {
       type: SchemaTypes.ObjectId,
@@ -135,18 +140,14 @@ const ItemSchema = new Schema<IItem>(
       hidden: {
         type: Boolean,
         required: true,
-        default: false
+        default: true
       },
       platforms: {
         type: [String],
         required: true,
-        default: Object.values(PLATFORMS).slice(0, -1),
+        default: Object.values(PLATFORMS),
         validate: {
           validator(platforms: Array<string>) {
-            if (platforms.includes(PLATFORMS.NONE) && platforms.length > 1) {
-              return false;
-            }
-
             const platformsList = Object.values(PLATFORMS);
             let check = true;
             for (const item of platforms) {
@@ -158,7 +159,8 @@ const ItemSchema = new Schema<IItem>(
 
             return check;
           },
-          message: 'Указана недоступная платформа или вместе с None было передано еще какое-либо значение'
+          message:
+            'Указана недоступная платформа или вместе с None было передано еще какое-либо значение'
         }
       },
       VBucks: Boolean

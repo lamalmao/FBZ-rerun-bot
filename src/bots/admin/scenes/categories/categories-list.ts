@@ -36,7 +36,9 @@ CategoriesList.enterHandler = async function (ctx: AdminBot) {
     const buttons: Array<Array<InlineKeyboardButton>> = [];
     for (let i = 0; i < categoriesCount; i++) {
       const category = categories[i];
-      buttons.push([Markup.button.callback(category.title, 'edit-category:' + category._id)]);
+      buttons.push([
+        Markup.button.callback(category.title, 'edit-category:' + category._id)
+      ]);
     }
     buttons.push([Markup.button.callback('Назад', 'back')]);
 
