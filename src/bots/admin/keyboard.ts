@@ -35,3 +35,13 @@ export const managerKeyboard = Markup.keyboard([
   [managerKeyboardButtons.takeOrder, managerKeyboardButtons.retakeOrder],
   [Back]
 ]).resize(true);
+
+export const goodsKeyboardButtons = {
+  create: 'Добавить товар',
+  list: 'Список товаров'
+};
+
+export const goodsKeyboard = Markup.keyboard([
+  [goodsKeyboardButtons.create, goodsKeyboardButtons.list],
+  [Back]
+]);

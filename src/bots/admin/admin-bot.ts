@@ -9,7 +9,9 @@ import {
   adminKeyboard,
   adminKeyboardButtons,
   categoriesMainMenu,
-  categoriesMainMenuButtons
+  categoriesMainMenuButtons,
+  goodsKeyboard,
+  goodsKeyboardButtons
 } from './keyboard.js';
 import {
   getUserTo,
@@ -143,7 +145,7 @@ adminBot.hears(
       });
     } catch (error: any) {
       errorLogger.error(error.message);
-      ctx.reply('Что-то пошло не так').catch();
+      popUp(ctx, 'Что-то пошло не так');
     }
   }
 );
@@ -160,6 +162,27 @@ adminBot.hears(
   deleteMessage,
   userIs([ROLES.ADMIN]),
   (ctx) => ctx.scene.enter('categories-list')
+);
+
+adminBot.hears(
+  adminKeyboardButtons.goods,
+  deleteMessage,
+  userIs([ROLES.ADMIN]),
+  async (ctx) => {
+    try {
+      await replyAndDeletePrevious(ctx, 'Меню управления *товарами*', {
+        parse_mode: 'MarkdownV2',
+        reply_markup: goodsKeyboard.resize(true)
+      });
+    } catch (error: any) {
+      errorLogger.error(error.message);
+      popUp(ctx, 'Что-то пошло не так');
+    }
+  }
+);
+
+adminBot.hears(goodsKeyboardButtons.create, deleteMessage, userIs([ROLES.ADMIN]), (ctx) =>
+  ctx.scene.enter('create-item')
 );
 
 export default adminBot;
