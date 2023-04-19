@@ -5,9 +5,7 @@ import { Scenario } from './scenarios.js';
 import { Render } from './render.js';
 import { ImageSecureHost } from './image-static.js';
 import adminBot from './bots/admin/admin-bot.js';
-import moment from 'moment';
 
-moment.locale('ru');
 ImageSecureHost.listen(Settings.host.port, '0.0.0.0', () =>
   console.log('Image server launched')
 );
