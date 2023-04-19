@@ -265,7 +265,7 @@ export async function genItemEditingMenu(
       break;
   }
 
-  text += `\nИгра: ${item.game}\n*Сценарий продажи:* "${item.scenario}"\n*Тип доставки:* ${deliveryType}`;
+  text += `\n*Игра*: ${item.game}\n*Сценарий продажи:* "${item.scenario}"\n*Тип доставки:* ${deliveryType}`;
 
   const root = await Category.findById(item.category, {
     title: 1
@@ -285,7 +285,6 @@ export async function genItemEditingMenu(
     }
   }
 
-  moment.locale('ru');
   text += `\n\n_Создан ${moment(item.created).format('DD.MM.YYYY [в] hh:mm')}_`;
 
   const keyboard = Markup.inlineKeyboard([
@@ -309,7 +308,7 @@ export async function genItemEditingMenu(
         'catalogueTitleFontSize'
       )
     ],
-    [Markup.button.callback('Изменить шрифт описания в обложке', 'coverDescription')],
+    [Markup.button.callback('Изменить шрифт описания в обложке', 'descriptionFontSize')],
     [
       Markup.button.callback('Скрыть', 'hide', item.properties.hidden),
       Markup.button.callback('Открыть', 'show', !item.properties.hidden)

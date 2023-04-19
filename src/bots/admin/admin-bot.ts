@@ -29,11 +29,15 @@ export interface SessionData {
   previousMessage?: number;
   item?: Types.ObjectId;
   category?: Types.ObjectId;
-
   editCategoryActions?: {
     action: 'none' | 'text' | 'photo' | 'cb' | string;
     target?: string;
   };
+  editItemActions?: {
+    action: 'none' | 'text' | 'photo' | 'cb' | string;
+    target?: string;
+  };
+
   message?: number;
 }
 

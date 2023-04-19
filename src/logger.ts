@@ -26,7 +26,7 @@ export const infoLogger = winston.createLogger({
     new winston.transports.File({
       filename: infoLogsFile,
       format: format.printf(
-        (data) => `${moment().format('DD-MM-YYYY hh:mm:ss')}: ${data.message}`
+        (data) => `${moment().format('DD-MM-YYYY HH:mm:ss')}: ${data.message}`
       )
     })
   ]
