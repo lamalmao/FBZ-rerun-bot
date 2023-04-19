@@ -6,6 +6,7 @@ import moment from 'moment';
 const errorLogsFile = path.join(CONSTANTS.LOGS, 'errors.log');
 const infoLogsFile = path.join(CONSTANTS.LOGS, 'story.log');
 
+moment.locale('ru');
 export const errorLogger = winston.createLogger({
   level: 'error',
   transports: [
@@ -24,11 +25,8 @@ export const infoLogger = winston.createLogger({
   transports: [
     new winston.transports.File({
       filename: infoLogsFile,
-      format: format.combine(
-        format.json(),
-        format.timestamp({
-          format: 'DD-MM-YYYY HH:mm:ss.SSSS'
-        })
+      format: format.printf(
+        (data) => `${moment().format('DD-MM-YYYY hh:mm:ss')}: ${data.message}`
       )
     })
   ]
