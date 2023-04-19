@@ -6,7 +6,7 @@ import { errorLogger } from '../../../../logger.js';
 import Category, { CATEGORY_TYPES } from '../../../../models/categories.js';
 import {
   EDIT_CATEGORY_PRE,
-  // deleteMessage,
+  deleteMessage,
   genCategoryEditingMenu,
   getUserTo,
   jumpBack,
@@ -77,17 +77,17 @@ EditCategory.leaveHandler = async function (ctx: AdminBot, next: CallableFunctio
   next();
 };
 
-// EditCategory.action(
-//   'exit',
-//   (ctx, next) => {
-//     if (ctx.session.editCategoryActions) {
-//       ctx.session.editCategoryActions.action = 'none';
-//     }
-//     ctx.scene.leave().catch((err) => errorLogger.error(err));
-//     next();
-//   },
-//   jumpBack
-// );
+EditCategory.action(
+  'exit',
+  (ctx, next) => {
+    if (ctx.session.editCategoryActions) {
+      ctx.session.editCategoryActions.action = 'none';
+    }
+    ctx.scene.leave().catch((err) => errorLogger.error(err));
+    next();
+  },
+  jumpBack
+);
 
 EditCategory.action('cancel', (ctx) => {
   if (ctx.session.editCategoryActions) {
@@ -103,6 +103,7 @@ EditCategory.use(getUserTo('context'), userIs([ROLES.ADMIN]));
 
 EditCategory.on(
   message('text'),
+  deleteMessage,
   (ctx, next) => {
     if (!ctx.session.editCategoryActions) {
       return;
