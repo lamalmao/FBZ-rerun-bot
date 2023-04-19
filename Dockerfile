@@ -1,5 +1,8 @@
 FROM debian:11.6
 
+ENV TZ=Europe/Moscow
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
 RUN apt-get -y update; apt-get -y install curl
 RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - &&\
   apt-get install -y nodejs
