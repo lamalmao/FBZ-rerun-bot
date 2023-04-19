@@ -1,7 +1,7 @@
 import { Schema, SchemaTypes, Types, model, Document } from 'mongoose';
 import { Region } from './users.js';
 
-export const DEFAULT_ITEM_COVER = 'item_cover';
+export const DEFAULT_ITEM_COVER = 'default_item';
 
 export const courses = {
   ru: 1,
