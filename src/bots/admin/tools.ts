@@ -285,7 +285,7 @@ export async function genItemEditingMenu(
     }
   }
 
-  text += `\n\n_Создан ${moment(item.created).format('DD.MM.YYYY [в] hh:mm')}_`;
+  text += `\n\n_Создан ${moment(item.created).format('DD.MM.YYYY [в] HH:mm')}_`;
 
   const keyboard = Markup.inlineKeyboard([
     [Markup.button.callback('Изменить название', 'title')],
