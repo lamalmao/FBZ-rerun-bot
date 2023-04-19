@@ -315,6 +315,7 @@ export async function genItemEditingMenu(
     ],
     [Markup.button.callback('Поместить в категорию', 'move')],
     [Markup.button.callback('Удалить', 'delete')],
+    [Markup.button.callback('Показать описание', 'show-description')],
     [
       Markup.button.callback('Назад', 'exit'),
       Markup.button.callback('Обновить', 'update')
