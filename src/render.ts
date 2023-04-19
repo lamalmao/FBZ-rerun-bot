@@ -149,6 +149,7 @@ export abstract class Render {
             } catch (error: any) {
               // в случае ошибки возвращаем кортеж, содержащий саму ошибку и валюту на которой она случилась
               reject([error, currency]);
+              errorLogger.error(error.message);
             }
           }
         );
@@ -248,9 +249,10 @@ export abstract class Render {
               }
 
               resolve([true, currency]);
-            } catch (error) {
+            } catch (error: any) {
               // в случае ошибки возвращаем кортеж, содержащий саму ошибку и валюту на которой она случилась
               reject([error, currency]);
+              errorLogger.error(error.message);
             }
           }
         );
