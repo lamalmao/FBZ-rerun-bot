@@ -244,9 +244,9 @@ export async function popUp(ctx: AdminBot, text: string, extra = {}, timeout = 5
 export async function genItemEditingMenu(
   item: IItem
 ): Promise<[string, Markup.Markup<InlineKeyboardMarkup>]> {
-  let text = `\`${item._id}\`\n"${item.title}"\n\nСкидка: ${item.discount}%\nЦена: ${item.price} руб\nРегиональные цены с учетом скидки: `;
+  let text = `\`${item._id}\`\n__*${item.title}*__\n\n*Скидка:* ${item.discount}%\n*Цена:* ${item.price} руб\n*Региональные цены с учетом скидки:*\т`;
   for (const currency of Object.values(REGIONS)) {
-    text += `${item.getRealPriceIn(currency)} ${currencies[currency]} `;
+    text += `${item.getRealPriceIn(currency)} ${currencies[currency]}\n`;
   }
 
   let deliveryType: string;
@@ -265,7 +265,7 @@ export async function genItemEditingMenu(
       break;
   }
 
-  text += `\n\nИгра: ;${item.game}\n*Сценарий продажи:* "${item.scenario}"\n*Тип доставки:* ${deliveryType}`;
+  text += `\nИгра: ${item.game}\n*Сценарий продажи:* "${item.scenario}"\n*Тип доставки:* ${deliveryType}`;
 
   const root = await Category.findById(item.category, {
     title: 1
