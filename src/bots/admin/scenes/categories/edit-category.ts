@@ -72,6 +72,8 @@ EditCategory.enterHandler = async function (ctx: AdminBot) {
   }
 };
 
+EditCategory.command('sos', jumpBack());
+
 EditCategory.leaveHandler = async function (ctx: AdminBot, next: CallableFunction) {
   if (ctx.session.editCategoryActions) {
     ctx.session.editCategoryActions = undefined;

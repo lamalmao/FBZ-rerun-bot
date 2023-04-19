@@ -57,6 +57,7 @@ EditItem.enterHandler = async function (ctx: AdminBot) {
   }
 };
 
+EditItem.command('sos', jumpBack());
 EditItem.on('message', deleteMessage);
 
 EditItem.action('exit', jumpBack());
@@ -336,7 +337,7 @@ EditItem.action(
 
 EditItem.action('redraw', async (ctx) => {
   try {
-    if (!ctx.session.editItemActions || !ctx.session.item) {
+    if (!ctx.session.item) {
       throw new Error('Не получилось загрузить данные');
     }
 
