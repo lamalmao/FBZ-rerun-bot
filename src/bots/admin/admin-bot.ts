@@ -172,7 +172,7 @@ adminBot.hears(
     try {
       await replyAndDeletePrevious(ctx, 'Меню управления *товарами*', {
         parse_mode: 'MarkdownV2',
-        reply_markup: goodsKeyboard.resize(true)
+        reply_markup: goodsKeyboard.reply_markup
       });
     } catch (error: any) {
       errorLogger.error(error.message);
