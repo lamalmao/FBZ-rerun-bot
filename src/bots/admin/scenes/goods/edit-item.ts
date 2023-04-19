@@ -174,7 +174,7 @@ EditItem.on(
 
           update = {
             $set: {
-              [target]: parsedValue
+              ['covers.' + target]: parsedValue
             }
           };
 
