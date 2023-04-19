@@ -58,6 +58,16 @@ EditItem.enterHandler = async function (ctx: AdminBot) {
 };
 
 EditItem.on('message', deleteMessage);
+EditItem.command('start', async (ctx) => {
+  try {
+    await ctx.scene.leave();
+    await ctx.scene.reset();
+
+    await jumpBack()(ctx);
+  } catch (error: any) {
+    errorLogger.error(error.message);
+  }
+});
 
 EditItem.action('exit', (ctx) => ctx.scene.leave(), jumpBack());
 EditItem.action('cancel', (ctx) => {
