@@ -3,12 +3,12 @@ import { errorLogger } from './logger.js';
 import fs from 'fs';
 import pug from 'pug';
 import { Types } from 'mongoose';
-import Item, { currencies } from './models/goods.js';
+import Item, { DEFAULT_ITEM_COVER, currencies } from './models/goods.js';
 import { REGIONS } from './models/users.js';
 import crypto from 'crypto';
 import { CONSTANTS } from './properties.js';
 import nodeHtmlToImage from 'node-html-to-image';
-import Category from './models/categories.js';
+import Category, { CATEGORY_BLANK } from './models/categories.js';
 
 interface ITemplate {
   styles: string;
@@ -72,6 +72,7 @@ export abstract class Render {
       if (!item) {
         throw new Error(`Item "${itemId.toString()}" was not found`);
       }
+      const oldImages = item.cover.images;
 
       const renderTasks: Array<Promise<[boolean, string]>> = [];
       // проходимся циклом по всем валютам
@@ -93,7 +94,6 @@ export abstract class Render {
               const templateFile = `${item.title}_${currency}_${new Date().toLocaleTimeString(
                 'ru-RU'
               )}.html`.replaceAll(/[\ \:]/g, '_');
-              console.log();
               const templateFilePath = path.join(this.rawTemplates, templateFile);
               fs.writeFile(templateFilePath, template, (err) => {
                 if (err) {
@@ -104,12 +104,14 @@ export abstract class Render {
             }
 
             // рендерим изображение из шаблона и сохраняем в файл
-            const imageFile = crypto.randomBytes(8).toString('hex') + '.jpg';
+            const imageFile = crypto.randomBytes(8).toString('hex');
             await nodeHtmlToImage({
-              output: path.join(this.destination, imageFile),
-              html: template
+              output: path.join(this.destination, imageFile + '.jpg'),
+              html: template,
+              puppeteerArgs: {
+                args: ['--no-sandbox']
+              }
             });
-            console.log(imageFile);
 
             // сохраняем новую обложку в соответствующее поле
             await Item.updateOne(
@@ -123,8 +125,17 @@ export abstract class Render {
               }
             );
 
+            // Удаление старой обложки
+            if (oldImages[currency] !== DEFAULT_ITEM_COVER) {
+              fs.unlink(path.join(CONSTANTS.IMAGES, oldImages[currency] + '.jpg'), (err) => {
+                if (err) {
+                  errorLogger.error(err.message);
+                }
+              });
+            }
+
             resolve([true, currency]);
-          } catch (error) {
+          } catch (error: any) {
             // в случае ошибки возвращаем кортеж, содержащий саму ошибку и валюту на которой она случилась
             reject([error, currency]);
           }
@@ -136,6 +147,7 @@ export abstract class Render {
 
       // ждем завершения всех промисов вне зависимости от результата
       const result = await Promise.allSettled(renderTasks);
+
       return result.every((p) => p.status === 'fulfilled');
     } catch (e: any) {
       errorLogger.error(e.message);
@@ -152,6 +164,7 @@ export abstract class Render {
       if (category.type === 'main') {
         throw new Error('Category must be sub for rendering covers');
       }
+      const oldImages = category.covers;
 
       const items = await Item.find({
         category: categoryId
@@ -186,10 +199,13 @@ export abstract class Render {
             }
 
             // рендерим изображение из шаблона и сохраняем в файл
-            const imageFile = crypto.randomBytes(8).toString('hex') + '.jpg';
+            const imageFile = crypto.randomBytes(8).toString('hex');
             await nodeHtmlToImage({
-              output: path.join(this.destination, imageFile),
-              html: template
+              output: path.join(this.destination, imageFile + '.jpg'),
+              html: template,
+              puppeteerArgs: {
+                args: ['--no-sandbox']
+              }
             });
 
             // сохраняем новую обложку в соответствующее поле
@@ -204,6 +220,14 @@ export abstract class Render {
               }
             );
 
+            if (oldImages && oldImages[currency] !== CATEGORY_BLANK) {
+              fs.unlink(path.join(CONSTANTS.IMAGES, oldImages[currency] + '.jpg'), (err) => {
+                if (err) {
+                  errorLogger.error(err.message);
+                }
+              });
+            }
+
             resolve([true, currency]);
           } catch (error) {
             // в случае ошибки возвращаем кортеж, содержащий саму ошибку и валюту на которой она случилась
@@ -217,6 +241,7 @@ export abstract class Render {
 
       // ждем завершения всех промисов вне зависимости от результата
       const result = await Promise.allSettled(renderTasks);
+
       return result.every((p) => p.status === 'fulfilled');
     } catch (e: any) {
       errorLogger.error(e.message);

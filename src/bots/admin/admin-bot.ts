@@ -11,7 +11,7 @@ import {
   categoriesMainMenu,
   categoriesMainMenuButtons
 } from './keyboard.js';
-import { getUserTo, jumpBack, popUp, replyAndDeletePrevious, userIs } from './tools.js';
+import { getUserTo, jumpBack, popUp, replyAndDeletePrevious, userIs, deleteMessage } from './tools.js';
 import AdminStage from './scenes/index.js';
 import { IItem } from '../../models/goods.js';
 import { Types } from 'mongoose';
@@ -88,7 +88,6 @@ adminBot.start(deleteMessage, async (ctx) => {
     errorLogger.error(error.message);
   }
 });
-
 
 adminBot.use(getUserTo('session'));
 adminBot.use(AdminStage.middleware());

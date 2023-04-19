@@ -70,18 +70,12 @@ EditCategory.enterHandler = async function (ctx: AdminBot) {
   }
 };
 
-
 EditCategory.leaveHandler = async function (ctx: AdminBot, next: CallableFunction) {
   if (ctx.session.editCategoryActions) {
     ctx.session.editCategoryActions = undefined;
   }
   next();
-}
-
-EditCategory.on(callbackQuery('data'), (ctx, next) => {
-  ctx.reply(ctx.callbackQuery.data).catch((e) => console.log(e));
-  next();
-});
+};
 
 // EditCategory.action(
 //   'exit',
@@ -100,16 +94,13 @@ EditCategory.action('cancel', (ctx) => {
     ctx.session.editCategoryActions.action = 'none';
   }
   if (ctx.chat && ctx.callbackQuery.message) {
-    ctx.telegram
-      .deleteMessage(ctx.chat.id, ctx.callbackQuery.message.message_id)
-      .catch((error) => errorLogger.error(error.message));
+    ctx.telegram.deleteMessage(ctx.chat.id, ctx.callbackQuery.message.message_id).catch(() => null);
   }
   ctx.scene.reenter()?.catch((err) => errorLogger.error(err));
 });
 
 EditCategory.use(getUserTo('context'), userIs([ROLES.ADMIN]));
 
-// EditCategory.on('message', deleteMessage);
 EditCategory.on(
   message('text'),
   (ctx, next) => {
@@ -154,7 +145,7 @@ EditCategory.on(
         }
       );
       if (ctx.session.message) {
-        ctx.telegram.deleteMessage(ctx.chat.id, ctx.session.message).catch((err) => errorLogger.error(err));
+        ctx.telegram.deleteMessage(ctx.chat.id, ctx.session.message).catch(() => null);
       }
       await ctx.scene.reenter();
     } catch (error: any) {
@@ -204,7 +195,7 @@ EditCategory.on(
       );
 
       if (ctx.session.message) {
-        ctx.telegram.deleteMessage(ctx.chat.id, ctx.session.message).catch((error) => errorLogger.error(error.message));
+        ctx.telegram.deleteMessage(ctx.chat.id, ctx.session.message).catch(() => null);
       }
 
       await ctx.scene.reenter();
@@ -339,7 +330,7 @@ EditCategory.action(
   },
   (ctx, next) => {
     if (ctx.chat && ctx.session.message) {
-      ctx.telegram.deleteMessage(ctx.chat.id, ctx.session.message).catch((error) => errorLogger.error(error));
+      ctx.telegram.deleteMessage(ctx.chat.id, ctx.session.message).catch(() => null);
     }
 
     next();

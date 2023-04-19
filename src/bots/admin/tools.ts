@@ -84,7 +84,7 @@ export async function replyAndDeletePrevious(ctx: AdminBot, text: string | FmtSt
   }
 
   if (ctx.session.previousMessage) {
-    ctx.deleteMessage(ctx.session.previousMessage).catch((error) => errorLogger.error(error.message));
+    ctx.deleteMessage(ctx.session.previousMessage).catch(() => null);
   }
 
   ctx.session.previousMessage = message.message_id;
@@ -92,7 +92,7 @@ export async function replyAndDeletePrevious(ctx: AdminBot, text: string | FmtSt
 }
 
 export async function deleteMessage(ctx: AdminBot, next: CallableFunction) {
-  ctx.deleteMessage().catch((error) => errorLogger.error(error.message));
+  ctx.deleteMessage().catch(() => null);
   next();
 }
 
@@ -199,9 +199,7 @@ export async function popUp(ctx: AdminBot, text: string, extra = {}, timeout = 5
     .reply('⚠️ ' + text, extra)
     .then((message) => {
       setInterval(() => {
-        adminBot.telegram
-          .deleteMessage(message.chat.id, message.message_id)
-          .catch((error) => errorLogger.error(error.message));
+        adminBot.telegram.deleteMessage(message.chat.id, message.message_id).catch(() => null);
       }, timeout);
     })
     .catch((error) => errorLogger.error(error.message));
