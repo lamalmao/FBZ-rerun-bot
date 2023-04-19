@@ -110,6 +110,9 @@ EditItem.on(
               title: value
             }
           };
+
+          extra =
+            'Не забудьте перерисовать обложку товара, чтобы увидеть изменения на ней';
           break;
         case 'description':
           if (value.length >= 3096) {
@@ -197,7 +200,9 @@ EditItem.on(
       popUp(
         ctx,
         'Изменения успешно сохранены' + (extra ? `*${extra}*` : ''),
-        undefined,
+        {
+          parse_mode: 'MarkdownV2'
+        },
         10000
       );
       if (ctx.session.message) {
@@ -236,14 +241,7 @@ EditItem.on(
         ctx.telegram.deleteMessage(ctx.from.id, ctx.session.message).catch(() => null);
       }
 
-      if (ctx.session.previousMessage) {
-        await ctx.telegram.editMessageCaption(
-          ctx.from.id,
-          ctx.session.previousMessage,
-          undefined,
-          'Качаю изображение...'
-        );
-      }
+      await replyAndDeletePrevious(ctx, 'Качаю изображение...', {});
       ctx.sendChatAction('typing').catch(() => null);
       const imageFileName = crypto.randomBytes(8).toString('hex');
       const imageFilePath = path.join(CONSTANTS.IMAGES, imageFileName + '.jpg');
@@ -275,15 +273,9 @@ EditItem.on(
         return;
       }
 
-      if (ctx.session.previousMessage) {
-        await ctx.telegram.editMessageCaption(
-          ctx.from.id,
-          ctx.session.previousMessage,
-          undefined,
-          'Перерисовываю обложки...'
-        );
-        ctx.sendChatAction('typing').catch(() => null);
-      }
+      await replyAndDeletePrevious(ctx, 'Перерисовываю обложки...', {});
+      ctx.sendChatAction('typing').catch(() => null);
+
       await Render.renderItemCovers(ctx.session.item);
 
       popUp(ctx, 'Готово!', undefined, 1500);
