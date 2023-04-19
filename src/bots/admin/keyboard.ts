@@ -44,4 +44,4 @@ export const goodsKeyboardButtons = {
 export const goodsKeyboard = Markup.keyboard([
   [goodsKeyboardButtons.create, goodsKeyboardButtons.list],
   [Back]
-]);
+]).resize(true);
