@@ -134,7 +134,8 @@ const ItemSchema = new Schema<IItem>(
     },
     icon: {
       type: String,
-      required: true
+      required: true,
+      default: DEFAULT_ITEM_COVER
     },
     properties: {
       hidden: {

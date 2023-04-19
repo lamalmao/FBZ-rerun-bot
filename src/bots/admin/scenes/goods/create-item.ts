@@ -3,6 +3,7 @@ import { AdminBot } from '../../admin-bot.js';
 import { errorLogger } from '../../../../logger.js';
 import { jumpBack, popUp } from '../../tools.js';
 import Item, { GAMES, ITEM_TYPES } from '../../../../models/goods.js';
+import { Types } from 'mongoose';
 
 const CreateItem = new Scenes.BaseScene<AdminBot>('create-item');
 CreateItem.enterHandler = async function (ctx: AdminBot) {
@@ -13,7 +14,8 @@ CreateItem.enterHandler = async function (ctx: AdminBot) {
       description: 'Описание товара',
       game: GAMES.FORTNITE,
       price: 100,
-      type: ITEM_TYPES.MANUAL
+      type: ITEM_TYPES.MANUAL,
+      category: new Types.ObjectId(0)
     });
 
     ctx.session.item = item._id;
