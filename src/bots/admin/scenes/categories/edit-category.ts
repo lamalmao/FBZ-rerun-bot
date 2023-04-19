@@ -86,7 +86,7 @@ EditCategory.action(
     ctx.scene.leave().catch((err) => errorLogger.error(err));
     next();
   },
-  jumpBack
+  jumpBack('categories-list')
 );
 
 EditCategory.action('cancel', (ctx) => {
@@ -158,6 +158,7 @@ EditCategory.on(
 
 EditCategory.on(
   message('photo'),
+  deleteMessage,
   (ctx, next) => {
     if (!ctx.session.editCategoryActions || !ctx.session.editCategoryActions.target) {
       return;
@@ -356,7 +357,7 @@ EditCategory.action(
       }
 
       ctx.scene.leave();
-      await jumpBack(ctx);
+      await jumpBack()(ctx);
     } catch (error: any) {
       if (ctx.session.editCategoryActions) {
         ctx.session.editCategoryActions.action = 'none';

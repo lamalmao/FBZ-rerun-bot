@@ -92,7 +92,7 @@ adminBot.start(deleteMessage, async (ctx) => {
 adminBot.use(getUserTo('session'));
 adminBot.use(AdminStage.middleware());
 
-adminBot.hears(Back, deleteMessage, userIs([ROLES.ADMIN, ROLES.MANAGER]), jumpBack);
+adminBot.hears(Back, deleteMessage, userIs([ROLES.ADMIN, ROLES.MANAGER]), jumpBack());
 
 adminBot.command('admin', deleteMessage, userIs([ROLES.ADMIN]), async (ctx) => {
   try {

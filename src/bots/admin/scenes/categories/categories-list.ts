@@ -29,7 +29,7 @@ CategoriesList.enterHandler = async function (ctx: AdminBot) {
         },
         10000
       );
-      jumpBack(ctx);
+      jumpBack()(ctx);
       return;
     }
 
@@ -51,7 +51,7 @@ CategoriesList.enterHandler = async function (ctx: AdminBot) {
 };
 
 CategoriesList.use(userIs([ROLES.ADMIN]));
-CategoriesList.action('back', jumpBack);
+CategoriesList.action('back', jumpBack());
 
 CategoriesList.on(callbackQuery('data'), async (ctx) => {
   try {

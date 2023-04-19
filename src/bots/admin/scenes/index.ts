@@ -27,7 +27,7 @@ AdminStage.use((ctx, next) => {
 AdminStage.command('start', async (ctx) => {
   try {
     await ctx.scene.leave();
-    await jumpBack(ctx);
+    await jumpBack()(ctx);
   } catch (error: any) {
     errorLogger.error(error.message);
   }

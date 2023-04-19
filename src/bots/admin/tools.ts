@@ -96,32 +96,43 @@ export async function deleteMessage(ctx: AdminBot, next: CallableFunction) {
   next();
 }
 
-export async function jumpBack(ctx: AdminBot) {
-  try {
-    const user = ctx.userInstance ? ctx.userInstance : ctx.session.userInstance;
-    if (!user) {
-      throw new Error('Пользователь не найден');
+export function jumpBack(scene?: string) {
+  async function result(ctx: AdminBot) {
+    try {
+      const user = ctx.userInstance ? ctx.userInstance : ctx.session.userInstance;
+      if (!user) {
+        throw new Error('Пользователь не найден');
+      }
+
+      let keyboard, text;
+      const username = getUsername(ctx);
+
+      if (!scene) {
+        if (user.role === ROLES.ADMIN) {
+          keyboard = adminKeyboard;
+          text = `Меню администратора *${username}*`;
+        } else {
+          keyboard = managerKeyboard;
+          text = `Меню менеджера *${username}*`;
+        }
+
+        await replyAndDeletePrevious(ctx, text, {
+          parse_mode: 'MarkdownV2',
+          reply_markup: keyboard.reply_markup
+        });
+
+        ctx.scene.leave();
+        return;
+      }
+
+      ctx.scene.enter(scene);
+    } catch (error: any) {
+      errorLogger.error(error.message);
+      ctx.reply('Что-то пошло не так').catch((error) => errorLogger.error(error.message));
     }
-
-    let keyboard, text;
-    const username = getUsername(ctx);
-
-    if (user.role === ROLES.ADMIN) {
-      keyboard = adminKeyboard;
-      text = `Меню администратора *${username}*`;
-    } else {
-      keyboard = managerKeyboard;
-      text = `Меню менеджера *${username}*`;
-    }
-
-    await replyAndDeletePrevious(ctx, text, {
-      parse_mode: 'MarkdownV2',
-      reply_markup: keyboard.reply_markup
-    });
-  } catch (error: any) {
-    errorLogger.error(error.message);
-    ctx.reply('Что-то пошло не так').catch((error) => errorLogger.error(error.message));
   }
+
+  return result;
 }
 
 export const EDIT_CATEGORY_PRE = 'edit-category-';
