@@ -276,7 +276,7 @@ export async function genItemEditingMenu(
     text += '\n\nНе вложен ни в какую из категорий';
   }
 
-  text += `\n\n*_Параметры обложки:*\n_размер шрифта описания:_ ${item.cover.descriptionFontSize}\n_размер шрифта заголовка обложки товара:_ ${item.cover.titleFontSize}\n_размер шрифта заголовка в обложке категории:_ ${item.cover.catalogueTitleFontSize}`;
+  text += `\n\n*Параметры обложки:*\n_размер шрифта описания:_ ${item.cover.descriptionFontSize}\n_размер шрифта заголовка обложки товара:_ ${item.cover.titleFontSize}\n_размер шрифта заголовка в обложке категории:_ ${item.cover.catalogueTitleFontSize}`;
 
   if (item.extraOptions) {
     text += `\n\n*Дополнительные опции:*\n_вопрос:_ ${item.extraOptions.title}\n*Ответы:*`;
