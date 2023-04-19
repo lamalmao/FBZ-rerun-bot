@@ -24,7 +24,7 @@ EditItem.enterHandler = async function (ctx: AdminBot) {
     const messageData = await genItemEditingMenu(item);
     await replyAndDeletePrevious(
       ctx,
-      messageData[0],
+      messageData[0].replaceAll(/\-/g, '\\-').replaceAll(/\!/g, '\\!'),
       {
         reply_markup: messageData[1].reply_markup,
         parse_mode: 'MarkdownV2'
