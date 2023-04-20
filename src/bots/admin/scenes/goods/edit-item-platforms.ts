@@ -164,3 +164,5 @@ EditItemPlatforms.action('save', async (ctx) => {
     jumpBack('edit-category')(ctx);
   }
 });
+
+export default EditItemPlatforms;
