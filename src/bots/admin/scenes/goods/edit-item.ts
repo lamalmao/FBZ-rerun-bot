@@ -57,10 +57,24 @@ EditItem.enterHandler = async function (ctx: AdminBot) {
   }
 };
 
-EditItem.command('sos', jumpBack());
+EditItem.command(
+  'sos',
+  (ctx, next) => {
+    ctx.session.item = undefined;
+    next();
+  },
+  jumpBack()
+);
 EditItem.on('message', deleteMessage);
 
-EditItem.action('exit', jumpBack());
+EditItem.action(
+  'exit',
+  (ctx, next) => {
+    ctx.session.item = undefined;
+    next();
+  },
+  jumpBack()
+);
 EditItem.action('cancel', (ctx) => {
   if (ctx.session.message && ctx.chat) {
     ctx.telegram.deleteMessage(ctx.chat.id, ctx.session.message).catch(() => null);
@@ -174,7 +188,7 @@ EditItem.on(
 
           update = {
             $set: {
-              ['covers.' + target]: parsedValue
+              ['cover.' + target]: parsedValue
             }
           };
 
@@ -355,4 +369,123 @@ EditItem.action('redraw', async (ctx) => {
   }
 });
 
+EditItem.action('show-description', async (ctx) => {
+  try {
+    if (!ctx.session.item) {
+      throw new Error('ID товара не найден');
+    }
+
+    const item = await Item.findById(ctx.session.item, {
+      description: 1
+    });
+    if (!item) {
+      throw new Error('Товар не найден в базе');
+    }
+
+    await ctx.reply(item.description === '-' ? item.description : '*Описания нет*', {
+      parse_mode: 'MarkdownV2',
+      reply_markup: Markup.inlineKeyboard([[Markup.button.callback('Закрыть', 'close')]])
+        .reply_markup
+    });
+  } catch (error: any) {
+    errorLogger.error(error.message);
+    popUp(ctx, error.message);
+    ctx.scene.reenter();
+  }
+});
+
+EditItem.action('close', (ctx) => {
+  ctx.deleteMessage().catch(() => null);
+});
+
+EditItem.action(/(hide|show|delete)/, async (ctx) => {
+  try {
+    if (!ctx.session.item) {
+      throw new Error('ID товара не найден');
+    }
+    const data: string = ctx.callbackQuery['data'];
+
+    ctx.session.editItemActions = {
+      action: 'cb',
+      target: data
+    };
+
+    await ctx.reply('Вы уверены, что хотите выполнить данное действие?', {
+      reply_markup: Markup.inlineKeyboard([
+        [Markup.button.callback('Да', 'do'), Markup.button.callback('Нет', 'cancel')]
+      ]).reply_markup
+    });
+  } catch (error: any) {
+    errorLogger.error(error.message);
+    popUp(ctx, error.message);
+    ctx.scene.reenter();
+  }
+});
+
+EditItem.action('do', async (ctx) => {
+  try {
+    if (
+      !ctx.session.editItemActions ||
+      !ctx.session.editItemActions.action ||
+      !ctx.session.editItemActions.target
+    ) {
+      throw new Error('Ошибка во время получения задания');
+    }
+
+    if (!ctx.session.item) {
+      throw new Error('Не найден ID товара');
+    }
+
+    const target = ctx.session.editCategoryActions?.target;
+
+    if (target === 'delete') {
+      const result = await Item.deleteOne({
+        _id: ctx.session.item
+      });
+
+      const text =
+        result.deletedCount > 0 ? 'Товар успешно удален' : 'Товар не был удален';
+      popUp(ctx, text);
+      jumpBack()(ctx);
+      return;
+    }
+
+    let update = {};
+    switch (ctx.session.editItemActions.target) {
+      case 'hide':
+        update = {
+          $set: {
+            ['properties.hidden']: true
+          }
+        };
+        break;
+      case 'show':
+        update = {
+          $set: {
+            ['properties.hidden']: false
+          }
+        };
+        break;
+    }
+
+    const result = await Item.updateOne(
+      {
+        _id: ctx.session.item
+      },
+      update
+    );
+
+    const text =
+      result.modifiedCount > 1 ? 'Успешно' : 'Что-то пошло не так во время сохранения';
+    popUp(ctx, text);
+
+    ctx.scene.reenter();
+  } catch (error: any) {
+    errorLogger.error(error.message);
+    popUp(ctx, error.message);
+    ctx.scene.reenter();
+  }
+});
+
+EditItem.action('platform', (ctx) => ctx.scene.enter('edit-item-platforms'));
 export default EditItem;

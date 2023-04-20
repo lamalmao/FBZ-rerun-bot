@@ -36,6 +36,7 @@ export interface SessionData {
   editItemActions?: {
     action: 'none' | 'text' | 'photo' | 'cb' | string;
     target?: string;
+    platforms?: Array<string>;
   };
 
   message?: number;
