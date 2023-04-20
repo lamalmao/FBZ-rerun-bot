@@ -45,7 +45,7 @@ export interface IItem extends Document {
   scenario: string;
   category?: Types.ObjectId;
   game: string;
-  description?: string;
+  description: string;
   icon: string;
   price: number;
   discount: number;

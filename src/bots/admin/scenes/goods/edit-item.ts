@@ -382,7 +382,7 @@ EditItem.action('show-description', async (ctx) => {
       throw new Error('Товар не найден в базе');
     }
 
-    await ctx.reply(item.description === '-' ? item.description : '*Описания нет*', {
+    await ctx.reply(item.description !== '-' ? item.description : '*Описания нет*', {
       parse_mode: 'MarkdownV2',
       reply_markup: Markup.inlineKeyboard([[Markup.button.callback('Закрыть', 'close')]])
         .reply_markup
