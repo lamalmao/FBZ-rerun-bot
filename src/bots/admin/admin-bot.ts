@@ -190,4 +190,8 @@ adminBot.hears(goodsKeyboardButtons.create, deleteMessage, userIs([ROLES.ADMIN])
   ctx.scene.enter('create-item')
 );
 
+adminBot.hears(goodsKeyboardButtons.list, deleteMessage, userIs([ROLES.ADMIN]), (ctx) =>
+  ctx.scene.enter('items-list')
+);
+
 export default adminBot;
