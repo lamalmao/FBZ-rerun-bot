@@ -360,6 +360,27 @@ EditItem.action('redraw', async (ctx) => {
       throw new Error('Не получилось загрузить данные');
     }
 
+    const current = ctx;
+    Item.findById(ctx.session.item, {
+      category: 1
+    })
+      .then(async (item) => {
+        if (!item) {
+          return;
+        }
+
+        try {
+          if (!item.category) {
+            return;
+          }
+          await Render.renderCategoryCovers(item.category);
+          popUp(current, `Обложка родительской категории перерисована`);
+        } catch (error: any) {
+          errorLogger.error(error.message);
+        }
+      })
+      .catch((error) => errorLogger.error(error.message));
+
     await replyAndDeletePrevious(ctx, 'Перерисовываю обложки...', undefined);
     await ctx.sendChatAction('upload_photo');
 
