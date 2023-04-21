@@ -58,7 +58,7 @@ ItemsList.action('homeless', async (ctx) => {
     const items = await Item.find(
       {
         category: {
-          $exists: false
+          $eq: null
         }
       },
       {
@@ -111,6 +111,7 @@ ItemsList.action(/get:[a-b0-9]+/i, async (ctx) => {
 
     const buttons: Array<any> = [];
     for (const item of items) {
+      console.log(item);
       buttons.push(Markup.button.callback(item.title, 'item:' + item._id));
     }
     const keyboard = makeColumnsKeyboard(buttons);
