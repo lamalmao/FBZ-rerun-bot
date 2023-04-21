@@ -86,14 +86,13 @@ ItemsList.action('homeless', async (ctx) => {
 
 ItemsList.action(/get:[a-b0-9]+/i, async (ctx) => {
   try {
-    const data: string = ctx.session['data'];
+    const data: string = ctx.callbackQuery['data'];
     const categoryData = /([a-z0-9]+$)/i.exec(data);
     if (!categoryData) {
       throw new Error('Не найден ID категории');
     }
 
     const categoryId = new Types.ObjectId(categoryData[0]);
-    console.log('ID:' + categoryId);
     const category = await Category.findById(categoryId, {
       title: 1
     });
