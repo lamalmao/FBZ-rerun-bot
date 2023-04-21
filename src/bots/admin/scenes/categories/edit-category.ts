@@ -22,6 +22,7 @@ import path from 'path';
 import { writeFile } from 'fs/promises';
 import fetch from 'node-fetch';
 import Item from '../../../../models/goods.js';
+import { Render } from '../../../../render.js';
 
 const EditCategory = new Scenes.BaseScene<AdminBot>('edit-category');
 
@@ -518,5 +519,23 @@ EditCategory.action(
     }
   }
 );
+
+EditCategory.action('redraw-category-covers', async (ctx) => {
+  try {
+    if (!ctx.session.category) {
+      throw new Error('ID категории не найден');
+    }
+
+    await replyAndDeletePrevious(ctx, 'Перерисовываю обложки', {});
+    await ctx.sendChatAction('upload_photo');
+    await Render.renderCategoryCovers(ctx.session.category);
+    popUp(ctx, 'Готово!');
+  } catch (error: any) {
+    errorLogger.error(error.message);
+    popUp(ctx, error.message);
+  } finally {
+    ctx.scene.reenter();
+  }
+});
 
 export default EditCategory;
