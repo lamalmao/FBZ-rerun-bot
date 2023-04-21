@@ -302,6 +302,7 @@ export async function genItemEditingMenu(
     [Markup.button.callback('Изменить цену', 'price')],
     [Markup.button.callback('Изменить скидку', 'discount')],
     [Markup.button.callback('Изменить шрифт заголовка обложки', 'titleFontSize')],
+    [Markup.button.callback('Изменить дополнительные опции', 'extra')],
     [
       Markup.button.callback(
         'Изменить шрифт заголовка в категории',
@@ -323,4 +324,30 @@ export async function genItemEditingMenu(
   ]);
 
   return [text, keyboard];
+}
+
+export function makeColumnsKeyboard(
+  buttons: Array<any>,
+  backButton = 'back'
+): Array<Array<any>> {
+  const linesCount = Math.ceil(buttons.length / 2);
+
+  const keyboard: Array<any> = [];
+  for (let lineIndex = 0; lineIndex < linesCount; lineIndex++) {
+    const line: Array<any> = [];
+    for (let item = lineIndex * 2; item < (lineIndex + 1) * 2; item++) {
+      try {
+        line.push(buttons[item]);
+      } catch (e) {
+        continue;
+      }
+    }
+    keyboard.push(line);
+  }
+
+  if (backButton) {
+    keyboard.push([Markup.button.callback('Назад', backButton)]);
+  }
+
+  return keyboard;
 }

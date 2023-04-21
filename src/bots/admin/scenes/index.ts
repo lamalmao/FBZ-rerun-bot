@@ -7,6 +7,7 @@ import CategoriesList from './categories/categories-list.js';
 import CreateItem from './goods/create-item.js';
 import EditItem from './goods/edit-item.js';
 import EditItemPlatforms from './goods/edit-item-platforms.js';
+import ItemsList from './goods/items-list.js';
 
 const AdminStage = new Scenes.Stage<AdminBot>([
   CreateCategory,
@@ -14,7 +15,8 @@ const AdminStage = new Scenes.Stage<AdminBot>([
   CategoriesList,
   CreateItem,
   EditItem,
-  EditItemPlatforms
+  EditItemPlatforms,
+  ItemsList
 ]);
 
 //debug

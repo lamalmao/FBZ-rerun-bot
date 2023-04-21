@@ -99,7 +99,8 @@ const ItemSchema = new Schema<IItem>(
     },
     category: {
       type: SchemaTypes.ObjectId,
-      required: true
+      required: false,
+      default: undefined
     },
     created: {
       type: Date,

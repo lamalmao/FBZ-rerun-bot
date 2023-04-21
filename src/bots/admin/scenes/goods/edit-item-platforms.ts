@@ -45,6 +45,7 @@ EditItemPlatforms.enterHandler = async function (ctx: AdminBot) {
   }
 };
 
+EditItemPlatforms.command('sos', jumpBack());
 EditItemPlatforms.use(getUserTo('context'), userIs([ROLES.ADMIN]));
 
 EditItemPlatforms.action(
@@ -56,7 +57,7 @@ EditItemPlatforms.action(
   jumpBack('edit-item')
 );
 
-EditItemPlatforms.action(/^(?!back|save)/, async (ctx) => {
+EditItemPlatforms.action(/^(?!back|save|drop)/, async (ctx) => {
   try {
   } catch (error: any) {
     if (!ctx.session.editItemActions || !ctx.session.editItemActions.platforms) {
@@ -71,9 +72,6 @@ EditItemPlatforms.action(/^(?!back|save)/, async (ctx) => {
     switch (data) {
       case 'all':
         ctx.session.editItemActions.platforms = Object.values(PLATFORMS);
-        break;
-      case 'drop':
-        ctx.session.editItemActions.platforms = [];
         break;
       default:
         ctx.session.editItemActions.platforms.push(data);
