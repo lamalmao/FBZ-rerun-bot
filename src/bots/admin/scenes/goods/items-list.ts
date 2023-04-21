@@ -115,8 +115,7 @@ ItemsList.action(/get:[a-b0-9]+/i, async (ctx) => {
     }
     const keyboard = makeColumnsKeyboard(buttons);
 
-    await replyAndDeletePrevious(ctx, `Товары из категории __${category.title}__`, {
-      parse_mode: 'MarkdownV2',
+    await replyAndDeletePrevious(ctx, `Товары из категории ${category.title}`, {
       reply_markup: Markup.inlineKeyboard(keyboard).reply_markup
     });
   } catch (error: any) {

@@ -21,6 +21,7 @@ import crypto from 'crypto';
 import path from 'path';
 import { writeFile } from 'fs/promises';
 import fetch from 'node-fetch';
+import Item from '../../../../models/goods.js';
 
 const EditCategory = new Scenes.BaseScene<AdminBot>('edit-category');
 
@@ -383,6 +384,17 @@ EditCategory.action(
         ctx
           .answerCbQuery('Категория успешно удалена')
           .catch((error) => errorLogger.error(error));
+
+        Item.updateMany(
+          {
+            category: ctx.session.category._id
+          },
+          {
+            $set: {
+              category: null
+            }
+          }
+        );
       }
 
       ctx.scene.leave();
