@@ -26,12 +26,12 @@ ItemsList.enterHandler = async function (ctx: AdminBot) {
 
     const keyboard: any = [];
     for (const category of categories) {
-      keyboard.push(Markup.button.callback(category.title, 'get:' + category._id));
+      keyboard.push([Markup.button.callback(category.title, 'get:' + category._id)]);
     }
-    keyboard.push([
+    keyboard.push(
       [Markup.button.callback('Товары без категорий', 'homeless')],
       [Markup.button.callback('Назад', 'exit')]
-    ]);
+    );
 
     await replyAndDeletePrevious(
       ctx,
