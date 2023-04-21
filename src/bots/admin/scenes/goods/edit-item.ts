@@ -492,7 +492,7 @@ EditItem.action('do', async (ctx) => {
   }
 });
 
-EditItem.action('category', async (ctx) => {
+EditItem.action('move', async (ctx) => {
   try {
     const subCategories = await Category.find(
       {
