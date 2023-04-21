@@ -66,6 +66,7 @@ ItemsList.action('homeless', async (ctx) => {
       }
     );
 
+    console.log(items);
     const buttons: Array<any> = [];
     for (const item of items) {
       buttons.push(Markup.button.callback(item.title, 'item:' + item._id));
