@@ -59,7 +59,6 @@ EditItemPlatforms.action(
 
 EditItemPlatforms.action(/^(?!back|save|drop)/, async (ctx) => {
   try {
-  } catch (error: any) {
     if (!ctx.session.editItemActions || !ctx.session.editItemActions.platforms) {
       throw new Error('Ошибка во время получения данных из сессии');
     }
@@ -111,7 +110,7 @@ EditItemPlatforms.action(/^(?!back|save|drop)/, async (ctx) => {
         reply_markup: Markup.inlineKeyboard(buttons).reply_markup
       }
     );
-
+  } catch (error: any) {
     errorLogger.error(error.message);
     popUp(ctx, error.message);
     ctx.scene.reenter();
@@ -159,7 +158,7 @@ EditItemPlatforms.action('save', async (ctx) => {
     popUp(ctx, error.message);
   } finally {
     ctx.deleteMessage().catch(() => null);
-    jumpBack('edit-category')(ctx);
+    jumpBack('edit-item')(ctx);
   }
 });
 
