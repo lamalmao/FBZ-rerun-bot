@@ -338,7 +338,7 @@ export function makeColumnsKeyboard(
     for (let item = lineIndex * 2; item < (lineIndex + 1) * 2; item++) {
       const itemObj = buttons[item];
       if (itemObj) {
-        line.push(item);
+        line.push(itemObj);
       }
     }
     keyboard.push(line);
