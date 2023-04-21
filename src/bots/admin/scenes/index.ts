@@ -31,7 +31,7 @@ AdminStage.use((ctx, next) => {
     console.log(ctx.callbackQuery['data']);
   }
 
-  console.log(ctx.session.editItemActions);
+  console.log(ctx.session.item);
 
   next();
 });
