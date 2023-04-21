@@ -93,6 +93,7 @@ ItemsList.action(/get:[a-b0-9]+/i, async (ctx) => {
     }
 
     const categoryId = new Types.ObjectId(categoryData[0]);
+    console.log(categoryId);
     const category = await Category.findById(categoryId, {
       title: 1
     });
