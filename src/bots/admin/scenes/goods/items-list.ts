@@ -11,14 +11,16 @@ import {
 } from '../../tools.js';
 import Item from '../../../../models/goods.js';
 import { Types } from 'mongoose';
-import Category from '../../../../models/categories.js';
+import Category, { CATEGORY_TYPES } from '../../../../models/categories.js';
 import { ROLES } from '../../../../models/users.js';
 
 const ItemsList = new Scenes.BaseScene<AdminBot>('items-list');
 ItemsList.enterHandler = async function (ctx: AdminBot) {
   try {
     const categories = await Category.find(
-      {},
+      {
+        type: CATEGORY_TYPES.SUB
+      },
       {
         title: 1
       }

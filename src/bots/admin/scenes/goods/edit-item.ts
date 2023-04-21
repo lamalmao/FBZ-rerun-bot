@@ -19,6 +19,8 @@ import { errorLogger } from '../../../../logger.js';
 import { CONSTANTS, HOST } from '../../../../properties.js';
 import { ROLES } from '../../../../models/users.js';
 import { Render } from '../../../../render.js';
+import Category, { CATEGORY_TYPES } from '../../../../models/categories.js';
+import { Types } from 'mongoose';
 
 const EditItem = new Scenes.BaseScene<AdminBot>('edit-item');
 EditItem.enterHandler = async function (ctx: AdminBot) {
@@ -79,10 +81,7 @@ EditItem.action('cancel', (ctx) => {
   if (ctx.session.message && ctx.chat) {
     ctx.telegram.deleteMessage(ctx.chat.id, ctx.session.message).catch(() => null);
     ctx.session.message = undefined;
-    ctx.session.editCategoryActions = {
-      action: 'none',
-      target: undefined
-    };
+    ctx.scene.reenter();
   }
 });
 
@@ -485,6 +484,73 @@ EditItem.action('do', async (ctx) => {
       result.modifiedCount > 1 ? 'Успешно' : 'Что-то пошло не так во время сохранения';
     popUp(ctx, text);
 
+    ctx.scene.reenter();
+  } catch (error: any) {
+    errorLogger.error(error.message);
+    popUp(ctx, error.message);
+    ctx.scene.reenter();
+  }
+});
+
+EditItem.action('category', async (ctx) => {
+  try {
+    const subCategories = await Category.find(
+      {
+        type: CATEGORY_TYPES.SUB
+      },
+      {
+        title: 1
+      }
+    );
+
+    const buttons: Array<any> = [];
+    for (const category of subCategories) {
+      buttons.push([
+        Markup.button.callback(category.title, 'set-category:' + category._id)
+      ]);
+    }
+    buttons.push([Markup.button.callback('Назад', 'cancel')]);
+
+    await replyAndDeletePrevious(ctx, 'Выберите новую категорию', {
+      reply_markup: Markup.inlineKeyboard(buttons).reply_markup
+    });
+  } catch (error: any) {
+    errorLogger.error(error.message);
+    popUp(ctx, error.message);
+    ctx.scene.reenter();
+  }
+});
+
+EditItem.action(/set-category/i, async (ctx) => {
+  try {
+    if (!ctx.session.item) {
+      throw new Error('ID товара не найден');
+    }
+
+    const data: string = ctx.callbackQuery['data'];
+    const parsedData = /([a-z0-9]+)$/i.exec(data);
+    if (!parsedData) {
+      throw new Error('Ошибка во время получения ID категории');
+    }
+
+    const categoryId = new Types.ObjectId(parsedData[0]);
+    const result = await Item.updateOne(
+      {
+        _id: ctx.session.item
+      },
+      {
+        $set: {
+          category: categoryId
+        }
+      }
+    );
+
+    const text =
+      result.modifiedCount > 0
+        ? 'Товар успешно перемещен'
+        : 'Что-то пошло не так, не удалось сохранить изменения';
+
+    popUp(ctx, text);
     ctx.scene.reenter();
   } catch (error: any) {
     errorLogger.error(error.message);
