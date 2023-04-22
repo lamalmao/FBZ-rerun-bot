@@ -37,6 +37,10 @@ export interface SessionData {
     action: 'none' | 'text' | 'photo' | 'cb' | string;
     target?: string;
     platforms?: Array<string>;
+    extra?: {
+      title: string;
+      values: Array<string>;
+    };
   };
 
   message?: number;
