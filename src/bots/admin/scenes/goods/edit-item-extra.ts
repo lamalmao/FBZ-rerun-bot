@@ -183,7 +183,9 @@ EditItemExtra.on(
       }
 
       const target = ctx.session.editItemActions.target;
-      ctx.session.editItemActions.extra[target] = ctx.message.text;
+      const value = target === 'title' ? ctx.message.text : ctx.message.text.split('\n');
+
+      ctx.session.editItemActions.extra[target] = value;
 
       ctx.session.editItemActions.target = undefined;
       ctx.session.editItemActions.action = 'none';
