@@ -386,7 +386,7 @@ EditCategory.action(
 
         Item.updateMany(
           {
-            category: ctx.session.category._id
+            category: ctx.session.category
           },
           {
             $set: {
