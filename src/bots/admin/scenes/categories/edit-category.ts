@@ -36,8 +36,6 @@ EditCategory.enterHandler = async function (ctx: AdminBot) {
       return;
     }
 
-    console.log('Entering editing category');
-
     const category = await Category.findOne({
       _id: new Types.ObjectId(ctx.session.category)
     });
