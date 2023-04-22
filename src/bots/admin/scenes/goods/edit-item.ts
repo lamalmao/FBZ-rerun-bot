@@ -360,6 +360,14 @@ EditItem.action('redraw', async (ctx) => {
       throw new Error('Не получилось загрузить данные');
     }
 
+    await replyAndDeletePrevious(ctx, 'Перерисовываю обложки...', undefined);
+    await ctx.sendChatAction('upload_photo');
+
+    await Render.renderItemCovers(ctx.session.item);
+
+    popUp(ctx, 'Готово!');
+    ctx.scene.reenter();
+
     const current = ctx;
     Item.findById(ctx.session.item, {
       category: 1
@@ -368,7 +376,6 @@ EditItem.action('redraw', async (ctx) => {
         if (!item) {
           return;
         }
-
         try {
           if (!item.category) {
             return;
@@ -380,14 +387,6 @@ EditItem.action('redraw', async (ctx) => {
         }
       })
       .catch((error) => errorLogger.error(error.message));
-
-    await replyAndDeletePrevious(ctx, 'Перерисовываю обложки...', undefined);
-    await ctx.sendChatAction('upload_photo');
-
-    await Render.renderItemCovers(ctx.session.item);
-
-    popUp(ctx, 'Готово!');
-    ctx.scene.reenter();
   } catch (error: any) {
     errorLogger.error(error.message);
     popUp(ctx, error.message);
@@ -581,4 +580,5 @@ EditItem.action(/set-category/i, async (ctx) => {
 });
 
 EditItem.action('platform', (ctx) => ctx.scene.enter('edit-item-platforms'));
+EditItem.action('extra', (ctx) => ctx.scene.enter('edit-item-extra'));
 export default EditItem;
