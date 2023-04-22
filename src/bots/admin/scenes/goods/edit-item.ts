@@ -716,7 +716,7 @@ EditItem.action('scenario', async (ctx) => {
   }
 });
 
-EditItem.action(/^(?!scenario)set-scenario:[a-z]+$/i, async (ctx) => {
+EditItem.action(/^(?!scenario)set-scenario:[a-z\-\ ]+$/i, async (ctx) => {
   try {
     ctx.deleteMessage().catch(() => null);
 
