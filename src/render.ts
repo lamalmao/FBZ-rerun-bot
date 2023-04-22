@@ -180,7 +180,8 @@ export abstract class Render {
       const oldImages = category.covers;
 
       const items = await Item.find({
-        category: categoryId
+        category: categoryId,
+        ['properties.hidden']: false
       });
       const renderTasks: Array<Promise<[boolean, string]>> = [];
       // проходимся циклом по всем валютам
