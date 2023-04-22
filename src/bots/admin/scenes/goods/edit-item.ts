@@ -14,13 +14,14 @@ import {
   replyAndDeletePrevious,
   userIs
 } from '../../tools.js';
-import Item from '../../../../models/goods.js';
+import Item, { GAMES, ITEM_TYPES } from '../../../../models/goods.js';
 import { errorLogger } from '../../../../logger.js';
 import { CONSTANTS, HOST } from '../../../../properties.js';
 import { ROLES } from '../../../../models/users.js';
 import { Render } from '../../../../render.js';
 import Category, { CATEGORY_TYPES } from '../../../../models/categories.js';
 import { Types } from 'mongoose';
+import { Scenario } from '../../../../scenarios.js';
 
 const EditItem = new Scenes.BaseScene<AdminBot>('edit-item');
 EditItem.enterHandler = async function (ctx: AdminBot) {
@@ -570,6 +571,180 @@ EditItem.action(/set-category/i, async (ctx) => {
         ? 'Товар успешно перемещен'
         : 'Что-то пошло не так, не удалось сохранить изменения';
 
+    popUp(ctx, text);
+    ctx.scene.reenter();
+  } catch (error: any) {
+    errorLogger.error(error.message);
+    popUp(ctx, error.message);
+    ctx.scene.reenter();
+  }
+});
+
+EditItem.action('game', async (ctx) => {
+  try {
+    const buttons: Array<any> = [];
+    for (const game of Object.values(GAMES)) {
+      buttons.push([Markup.button.callback(game, 'set-game:' + game)]);
+    }
+    buttons.push([Markup.button.callback('Отмена', 'close')]);
+
+    const message = await ctx.reply('Выберите игру', {
+      reply_markup: Markup.inlineKeyboard(buttons).reply_markup
+    });
+    ctx.session.message = message.message_id;
+  } catch (error: any) {
+    errorLogger.error(error.message);
+    popUp(ctx, error.message);
+    ctx.scene.reenter();
+  }
+});
+
+EditItem.action(/^(?!game)set-game:[a-z]+$/i, async (ctx) => {
+  try {
+    ctx.deleteMessage().catch(() => null);
+
+    if (!ctx.session.item) {
+      throw new Error('ID товара не найден');
+    }
+
+    const data = /([a-z]+)$/i.exec(ctx.callbackQuery['data']);
+    if (!data) {
+      throw new Error('Ошибка во время получения информации об игре');
+    }
+
+    const game = data[1];
+    const result = await Item.updateOne(
+      {
+        _id: ctx.session.item
+      },
+      {
+        $set: {
+          game
+        }
+      }
+    );
+
+    const text =
+      result.modifiedCount > 0
+        ? 'Изменения успешно сохранены'
+        : 'Ошибка во время сохранения';
+    popUp(ctx, text);
+    ctx.scene.reenter();
+  } catch (error: any) {
+    errorLogger.error(error.message);
+    popUp(ctx, error.message);
+    ctx.scene.reenter();
+  }
+});
+
+EditItem.action('type', async (ctx) => {
+  try {
+    const keyboard = Markup.inlineKeyboard([
+      [Markup.button.callback('Менеджером', 'set-type:' + ITEM_TYPES.MANUAL)],
+      [Markup.button.callback('Ключ', 'set-type:' + ITEM_TYPES.AUTO)],
+      [Markup.button.callback('Мгновенно', 'set-type:' + ITEM_TYPES.SKIP_PROCEED)],
+      [Markup.button.callback('Отмена', 'close')]
+    ]);
+
+    const message = await ctx.reply('Выберите новый тип доставки товара', {
+      reply_markup: keyboard.reply_markup
+    });
+    ctx.session.message = message.message_id;
+  } catch (error: any) {
+    errorLogger.error(error.message);
+    popUp(ctx, error.message);
+    ctx.scene.reenter();
+  }
+});
+
+EditItem.action(/^(?!type)set-type:[a-z]+$/i, async (ctx) => {
+  try {
+    ctx.deleteMessage().catch(() => null);
+
+    if (!ctx.session.item) {
+      throw new Error('ID товара не найден');
+    }
+
+    const data = /([a-z]+)$/i.exec(ctx.callbackQuery['data']);
+    if (!data) {
+      throw new Error('Ошибка во время получения информации о типе доставки');
+    }
+
+    const type = data[1];
+    const result = await Item.updateOne(
+      {
+        _id: ctx.session.item
+      },
+      {
+        $set: {
+          type
+        }
+      }
+    );
+
+    const text =
+      result.modifiedCount > 0
+        ? 'Изменения успешно сохранены'
+        : 'Ошибка во время сохранения';
+    popUp(ctx, text);
+    ctx.scene.reenter();
+  } catch (error: any) {
+    errorLogger.error(error.message);
+    popUp(ctx, error.message);
+    ctx.scene.reenter();
+  }
+});
+
+EditItem.action('scenario', async (ctx) => {
+  try {
+    const buttons: Array<any> = [];
+    for (const scenario of Scenario.LoadedScenarios.values()) {
+      buttons.push([
+        Markup.button.callback(scenario.name, 'set-scenario:' + scenario.name)
+      ]);
+    }
+    buttons.push([Markup.button.callback('Отмена', 'close')]);
+
+    const message = await ctx.reply('Выберите сценарий продажи', {
+      reply_markup: Markup.inlineKeyboard(buttons).reply_markup
+    });
+    ctx.session.message = message.message_id;
+  } catch (error: any) {
+    errorLogger.error(error.message);
+    popUp(ctx, error.message);
+    ctx.scene.reenter();
+  }
+});
+
+EditItem.action(/^(?!scenario)set-scenario:[a-z]+$/i, async (ctx) => {
+  try {
+    ctx.deleteMessage().catch(() => null);
+
+    if (!ctx.session.item) {
+      throw new Error('ID товара не найден');
+    }
+
+    const data = /([a-z]+)$/i.exec(ctx.callbackQuery['data']);
+    if (!data) {
+      throw new Error('Ошибка во время получения информации о сценарии продажи');
+    }
+
+    const scenario = data[1];
+    const result = await Item.updateOne(
+      {
+        _id: ctx.session.item
+      },
+      {
+        $set: {
+          scenario
+        }
+      }
+    );
+
+    const text =
+      result.modifiedCount > 0
+        ? 'Изменения успешно сохранены'
+        : 'Ошибка во время сохранения';
     popUp(ctx, text);
     ctx.scene.reenter();
   } catch (error: any) {
