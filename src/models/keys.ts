@@ -4,7 +4,7 @@ import { DATA } from '../properties.js';
 
 interface IKey extends Document {
   item: Types.ObjectId;
-  value: string;
+  content: string;
   added: Date;
   busy: boolean;
   sold: boolean;
@@ -18,7 +18,7 @@ const KeySchema = new Schema<IKey>({
     type: SchemaTypes.ObjectId,
     required: true
   },
-  value: {
+  content: {
     type: String,
     required: true
   },

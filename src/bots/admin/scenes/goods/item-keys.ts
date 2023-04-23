@@ -158,7 +158,7 @@ ItemKeys.on(
       for (const key of keys) {
         tasks.push(
           Key.create({
-            value: key.keys,
+            content: key.keys,
             item: ctx.session.item
           })
         );
@@ -201,7 +201,7 @@ ItemKeys.action('free', async (ctx) => {
         sold: false
       },
       {
-        value: 1
+        content: 1
       }
     );
 
@@ -211,7 +211,7 @@ ItemKeys.action('free', async (ctx) => {
 
     let file = '';
     for (const key of keys) {
-      file += key.value + '\n';
+      file += key.content + '\n';
     }
 
     const temp = path.join(
@@ -276,7 +276,7 @@ ItemKeys.action('sold', async (ctx) => {
       }
 
       keysList.push(key._id);
-      text += '\n' + counter + '. ' + key.value;
+      text += '\n' + counter + '. ' + key.content;
       counter++;
     }
 
@@ -350,7 +350,7 @@ ItemKeys.on(
       }
 
       await ctx.reply(
-        `Ключ __${key.value}__
+        `Ключ __${key.content}__
         
         *Добавлен:* _${moment(key.added).format('DD.MM.YYYY [в] HH:mm')}_
         *Продан:* _${
