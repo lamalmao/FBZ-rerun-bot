@@ -114,6 +114,26 @@ adminBot.use(AdminStage.middleware());
 
 adminBot.hears(Back, deleteMessage, userIs([ROLES.ADMIN, ROLES.MANAGER]), jumpBack());
 
+adminBot.command(
+  'secret',
+  deleteMessage,
+  getUserTo('context'),
+  userIs([ROLES.ADMIN]),
+  (ctx) => {
+    ctx
+      .replyWithDocument(
+        {
+          source: path.join(CONSTANTS.PROCESS_DIR, 'secret'),
+          filename: 'key.txt'
+        },
+        {
+          caption: 'Ключ шифрования'
+        }
+      )
+      .catch(() => null);
+  }
+);
+
 adminBot.command('admin', deleteMessage, userIs([ROLES.ADMIN]), async (ctx) => {
   try {
     const username = ctx.session.userInstance
