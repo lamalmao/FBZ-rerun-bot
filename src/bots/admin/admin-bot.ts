@@ -29,6 +29,8 @@ export interface SessionData {
   previousMessage?: number;
   item?: Types.ObjectId;
   category?: Types.ObjectId;
+  keys?: Array<Types.ObjectId>;
+  keysMessages?: Array<number>;
   editCategoryActions?: {
     action: 'none' | 'text' | 'photo' | 'cb' | string;
     target?: string;

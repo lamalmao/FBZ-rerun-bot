@@ -6,7 +6,7 @@ import { adminKeyboard, managerKeyboard } from './keyboard.js';
 import Category, { ICategory } from '../../models/categories.js';
 import { Markup } from 'telegraf';
 import { InlineKeyboardMarkup } from 'telegraf/types';
-import { IItem, currencies } from '../../models/goods.js';
+import { IItem, ITEM_TYPES, currencies } from '../../models/goods.js';
 import moment from 'moment';
 
 export function getUsername(ctx: AdminBot): string {
@@ -309,6 +309,7 @@ export async function genItemEditingMenu(
         'catalogueTitleFontSize'
       )
     ],
+    [Markup.button.callback('Ключи', 'keys', item.type !== ITEM_TYPES.AUTO)],
     [Markup.button.callback('Изменить шрифт описания в обложке', 'descriptionFontSize')],
     [
       Markup.button.callback('Скрыть', 'hide', item.properties.hidden),

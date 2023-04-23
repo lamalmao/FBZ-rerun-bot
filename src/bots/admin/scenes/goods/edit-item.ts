@@ -754,6 +754,7 @@ EditItem.action(/^(?!scenario)set-scenario:[a-z\-\ ]+$/i, async (ctx) => {
   }
 });
 
+EditItem.action('keys', (ctx) => ctx.scene.enter('item-keys'));
 EditItem.action('platform', (ctx) => ctx.scene.enter('edit-item-platforms'));
 EditItem.action('extra', (ctx) => ctx.scene.enter('edit-item-extra'));
 export default EditItem;

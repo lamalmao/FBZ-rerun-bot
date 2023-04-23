@@ -14,3 +14,4 @@ extras/images/**.*
 logs
 
 *.pem
+secret
