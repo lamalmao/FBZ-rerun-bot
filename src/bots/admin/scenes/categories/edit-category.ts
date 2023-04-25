@@ -384,16 +384,25 @@ EditCategory.action(
           .answerCbQuery('Категория успешно удалена')
           .catch((error) => errorLogger.error(error));
 
-        Item.updateMany(
+        Item.find(
           {
             category: ctx.session.category
           },
           {
-            $set: {
-              category: null
-            }
+            category: 1
           }
-        );
+        )
+          .then((items) => {
+            if (items.length === 0) {
+              return;
+            }
+
+            for (const item of items) {
+              item.set('category', null);
+              item.save().catch((error) => errorLogger.error(error.message));
+            }
+          })
+          .catch((error) => errorLogger.error(error.message));
       }
 
       ctx.scene.leave();
