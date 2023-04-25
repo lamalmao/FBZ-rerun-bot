@@ -262,7 +262,6 @@ ItemKeys.action('sold', async (ctx) => {
       throw new Error('Ключей нет');
     }
 
-    console.log(keys);
     if (keys.length === 0) {
       throw new Error('Проданных ключей нет');
     }
@@ -285,6 +284,10 @@ ItemKeys.action('sold', async (ctx) => {
       keysList.push(key._id);
       text += '\n' + counter + '. ' + key.content;
       counter++;
+    }
+
+    if (pages.length === 0) {
+      pages.push(text);
     }
 
     const messages: Array<number> = [];
