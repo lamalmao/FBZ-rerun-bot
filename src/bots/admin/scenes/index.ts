@@ -38,4 +38,9 @@ AdminStage.use((ctx, next) => {
   next();
 });
 
+AdminStage.on('callback_query', (ctx, next) => {
+  ctx.answerCbQuery().catch(() => null);
+  next();
+});
+
 export default AdminStage;

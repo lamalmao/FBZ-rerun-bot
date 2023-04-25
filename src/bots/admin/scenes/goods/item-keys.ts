@@ -95,7 +95,7 @@ ItemKeys.command('sos', jumpBack('edit-item'));
 ItemKeys.action('exit', jumpBack('edit-item'));
 ItemKeys.use(getUserTo('context'), userIs([ROLES.ADMIN]));
 
-ItemKeys.action('cancel', (ctx) => {
+ItemKeys.action('close', (ctx) => {
   if (ctx.session.message && ctx.from) {
     ctx.deleteMessage().catch(() => null);
   }
@@ -119,7 +119,7 @@ ItemKeys.action('load', async (ctx) => {
               'Пример',
               'https://docs.google.com/spreadsheets/d/1ZP3rAY7a87Db1a-wXMRkxRdTURGVlE1XJ-uIfhsma-s/edit?usp=sharing'
             ),
-            Markup.button.callback('Отмена', 'cancel')
+            Markup.button.callback('Отмена', 'close')
           ]
         ]).reply_markup
       }
@@ -361,15 +361,8 @@ ItemKeys.on(
       }
 
       await ctx.reply(
-        `Ключ __${key.content}__
-        
-        *Добавлен:* _${moment(key.added).format('DD.MM.YYYY [в] HH:mm')}_
-        *Продан:* _${
-          key.activated
-            ? moment(key.activated).format('DD.MM.YYYY [в] HH:mm')
-            : 'не продан'
-        }_
-        `.replaceAll(/\./g, '\\.'),
+        // prettier-ignore
+        `Ключ __${key.content}__\n\n*Добавлен:* _${moment(key.added).format('DD.MM.YYYY [в] HH:mm')}_\n*Продан:* _${key.activated ? moment(key.activated).format('DD.MM.YYYY [в] HH:mm') : 'не продан'}_`.replaceAll(/\./g, '\\.'),
         {
           reply_markup: Markup.inlineKeyboard([
             [Markup.button.callback('Закрыть', 'close')]
