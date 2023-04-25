@@ -8,6 +8,7 @@ import path from 'path';
 import fs from 'fs';
 import crypto from 'crypto';
 import {
+  deleteMessage,
   getUserTo,
   jumpBack,
   popUp,
@@ -134,6 +135,7 @@ ItemKeys.action('load', async (ctx) => {
 
 ItemKeys.on(
   message('document'),
+  deleteMessage,
   (ctx, next) => {
     if (ctx.session.editItemActions?.action === 'file') {
       next();
@@ -260,6 +262,11 @@ ItemKeys.action('sold', async (ctx) => {
       throw new Error('Ключей нет');
     }
 
+    console.log(keys);
+    if (keys.length === 0) {
+      throw new Error('Проданных ключей нет');
+    }
+
     const pages: Array<string> = [];
     let page = 0,
       counter = 1;
@@ -279,7 +286,6 @@ ItemKeys.action('sold', async (ctx) => {
       text += '\n' + counter + '. ' + key.content;
       counter++;
     }
-    console.log(pages);
 
     const messages: Array<number> = [];
     const length = pages.length;
@@ -320,6 +326,7 @@ ItemKeys.action('collapse', (ctx) => {
 
 ItemKeys.on(
   message('text'),
+  deleteMessage,
   (ctx, next) => {
     if (ctx.session.editItemActions && ctx.session.editItemActions.action === 'text') {
       next();
