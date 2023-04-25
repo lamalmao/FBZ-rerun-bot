@@ -279,6 +279,7 @@ ItemKeys.action('sold', async (ctx) => {
       text += '\n' + counter + '. ' + key.content;
       counter++;
     }
+    console.log(pages);
 
     const messages: Array<number> = [];
     const length = pages.length;
