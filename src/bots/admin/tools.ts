@@ -1,15 +1,16 @@
 import { FmtString } from 'telegraf/format';
 import { errorLogger } from '../../logger.js';
 import User, { IUser, REGIONS, ROLES } from '../../models/users.js';
-import adminBot, { AdminBot } from './admin-bot.js';
+import { AdminBot } from './admin-bot.js';
 import { adminKeyboard, managerKeyboard } from './keyboard.js';
 import Category, { ICategory } from '../../models/categories.js';
 import { Markup } from 'telegraf';
 import { InlineKeyboardMarkup } from 'telegraf/types';
 import { IItem, ITEM_TYPES, currencies } from '../../models/goods.js';
 import moment from 'moment';
+import { ShopBot } from '../shop/shop-bot.js';
 
-export function getUsername(ctx: AdminBot): string {
+export function getUsername(ctx: AdminBot | ShopBot): string {
   let username, old: string | undefined;
   if (ctx.userInstance) {
     old = ctx.userInstance.username;
@@ -42,8 +43,8 @@ export function getUsername(ctx: AdminBot): string {
 
 export function getUserTo(
   where: 'context' | 'session'
-): (ctx: AdminBot, next: CallableFunction) => Promise<void> {
-  async function getUser(ctx: AdminBot, next: CallableFunction) {
+): (ctx: AdminBot | ShopBot, next: CallableFunction) => Promise<void> {
+  async function getUser(ctx: AdminBot | ShopBot, next: CallableFunction) {
     try {
       if (!ctx || !ctx.from) {
         return;
@@ -67,8 +68,8 @@ export function getUserTo(
 
 export function userIs(
   roles: Array<string>
-): (ctx: AdminBot, next: CallableFunction) => Promise<void> {
-  async function check(ctx: AdminBot, next: CallableFunction) {
+): (ctx: AdminBot | ShopBot, next: CallableFunction) => Promise<void> {
+  async function check(ctx: AdminBot | ShopBot, next: CallableFunction) {
     const user: IUser | undefined = ctx.userInstance
       ? ctx.userInstance
       : ctx.session.userInstance;
@@ -228,12 +229,18 @@ export function cbFilter(filter: string | RegExp) {
   return result;
 }
 
-export async function popUp(ctx: AdminBot, text: string, extra = {}, timeout = 5000) {
+export async function popUp(
+  ctx: AdminBot | ShopBot,
+  text: string,
+  extra = {},
+  timeout = 5000
+) {
+  const instance = ctx;
   ctx
     .reply('⚠️ ' + text, extra)
     .then((message) => {
       setInterval(() => {
-        adminBot.telegram
+        instance.telegram
           .deleteMessage(message.chat.id, message.message_id)
           .catch(() => null);
       }, timeout);
