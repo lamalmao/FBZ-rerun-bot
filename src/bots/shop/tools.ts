@@ -1,5 +1,5 @@
 import { errorLogger } from '../../logger.js';
-import User, { REGIONS } from '../../models/users.js';
+import User, { REGIONS, STATUSES } from '../../models/users.js';
 import { HOST } from '../../properties.js';
 import { AdminBot } from '../admin/admin-bot.js';
 import { popUp } from '../admin/tools.js';
@@ -16,7 +16,7 @@ export async function checkAccess(
       return;
     }
 
-    if (ctx.session.userInstance.status === 'blocked') {
+    if (ctx.session.userInstance.status === STATUSES.BLOCKED) {
       popUp(ctx, 'Ваш аккаунт заблокирован', undefined, 15000).catch(() => null);
       return;
     }
