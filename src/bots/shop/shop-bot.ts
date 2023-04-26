@@ -1,7 +1,5 @@
 import { Context, Markup, Scenes, Telegraf } from 'telegraf';
-import { CONSTANTS, HOST, Settings } from '../../properties.js';
-import LocalSession from 'telegraf-session-local';
-import path from 'path';
+import { HOST, Settings } from '../../properties.js';
 import { errorLogger } from '../../logger.js';
 import User, { IUser, REGIONS, ROLES, STATUSES } from '../../models/users.js';
 import { deleteMessage, getUserTo, makeColumnsKeyboard, popUp } from '../admin/tools.js';
@@ -17,25 +15,13 @@ export interface SessionData {
 }
 
 export type BotContext = Context & Scenes.SceneContext;
-export type BotSession = SessionData & Scenes.SceneSession<Scenes.SceneSessionData>;
 
 export interface ShopBot extends BotContext {
-  session: BotSession;
   userInstance?: IUser;
+  previousMessage?: number;
 }
 
 const shopBot = new Telegraf<ShopBot>(Settings.bots.shop.token);
-
-const shopSession = new LocalSession({
-  database: path.join(CONSTANTS.PROCESS_DIR, 'shop-session.json'),
-  property: 'session',
-  format: {
-    serialize: (obj) => JSON.stringify(obj, null, 2),
-    deserialize: (str) => JSON.parse(str)
-  }
-});
-
-shopBot.use(shopSession.middleware());
 
 shopBot.start(deleteMessage, getUserTo('context'), appear, checkAccess, async (ctx) => {
   try {

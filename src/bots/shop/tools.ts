@@ -43,7 +43,6 @@ export async function appear(
           }
         }
       ).catch((error) => errorLogger.error(error.message));
-      console.log('User appeared');
     }
   } catch (error: any) {
     errorLogger.error(error.message);
@@ -67,7 +66,7 @@ export async function editPrevious(
   photo?: string
 ): Promise<void> {
   try {
-    if (!ctx.session.previousMessage) {
+    if (!ctx.previousMessage) {
       throw new Error('Message not found');
     }
 
@@ -76,23 +75,18 @@ export async function editPrevious(
     }
 
     if (photo) {
-      await ctx.telegram.editMessageMedia(
-        ctx.from.id,
-        ctx.session.previousMessage,
-        undefined,
-        {
-          type: 'photo',
-          media: {
-            url: photo
-          }
+      await ctx.telegram.editMessageMedia(ctx.from.id, ctx.previousMessage, undefined, {
+        type: 'photo',
+        media: {
+          url: photo
         }
-      );
+      });
     }
 
     if (text) {
       await ctx.telegram.editMessageCaption(
         ctx.from.id,
-        ctx.session.previousMessage,
+        ctx.previousMessage,
         undefined,
         text,
         extra
@@ -111,7 +105,7 @@ export async function editPrevious(
 
 export async function showMenu(ctx: ShopBot): Promise<void> {
   try {
-    if (ctx.session.previousMessage) {
+    if (ctx.previousMessage) {
       await editPrevious(
         ctx,
         'Главное меню',
@@ -125,7 +119,7 @@ export async function showMenu(ctx: ShopBot): Promise<void> {
         reply_markup: mainMenuKeyboard.reply_markup,
         caption: 'Главное меню'
       });
-      ctx.session.previousMessage = message.message_id;
+      ctx.previousMessage = message.message_id;
     }
   } catch (error: any) {
     errorLogger.error(error.message);
