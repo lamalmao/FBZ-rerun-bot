@@ -233,3 +233,5 @@ shopBot.action(/sub-category:[a-z0-9]+$/, async (ctx) => {
     errorLogger.error(error.message);
   }
 });
+
+export default shopBot;
