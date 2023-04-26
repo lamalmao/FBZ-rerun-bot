@@ -40,9 +40,8 @@ export interface IUser extends Document {
   lastAction?: Date;
   status: UserStatus;
   statistics?: IManagerStatisticsField;
-  refills?: number;
   games?: Array<string>;
-  region?: Region;
+  region: Region;
 }
 
 const ManagerStatisticsSchema = new Schema<IManagerStatisticsField>({
@@ -104,12 +103,6 @@ const UserSchema = new Schema<IUser>({
   statistics: {
     type: [ManagerStatisticsSchema],
     default: []
-  },
-  refills: {
-    type: Number,
-    required: true,
-    default: 0,
-    min: 0
   },
   games: {
     type: [String]
