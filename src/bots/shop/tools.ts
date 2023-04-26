@@ -11,12 +11,12 @@ export async function checkAccess(
   next: CallableFunction
 ): Promise<void> {
   try {
-    if (!ctx.session.userInstance) {
+    if (!ctx.userInstance) {
       next();
       return;
     }
 
-    if (ctx.session.userInstance.status === STATUSES.BLOCKED) {
+    if (ctx.userInstance.status === STATUSES.BLOCKED) {
       popUp(ctx, 'Ваш аккаунт заблокирован', undefined, 15000).catch(() => null);
       return;
     }
