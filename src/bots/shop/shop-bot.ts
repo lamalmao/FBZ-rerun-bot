@@ -90,7 +90,7 @@ shopBot.action('shop', async (ctx) => {
 
     ctx
       .editMessageReplyMarkup(Markup.inlineKeyboard(keyboard).reply_markup)
-      .catch(() => null);
+      .catch((error) => errorLogger.error(error.message));
     ctx
       .editMessageMedia({
         type: 'photo',
@@ -98,7 +98,7 @@ shopBot.action('shop', async (ctx) => {
           url: HOST + '/default_shop'
         }
       })
-      .catch(() => null);
+      .catch((error) => errorLogger.error(error.message));
   } catch (error: any) {
     errorLogger.error(error.message);
   }
@@ -153,7 +153,7 @@ shopBot.action(/main-category:[a-z0-9]+$/i, async (ctx) => {
           url: HOST + '/' + mainCategory.image
         }
       })
-      .catch(() => null);
+      .catch((error) => errorLogger.error(error.message));
     ctx
       .editMessageCaption(
         `__${mainCategory.title}__` + mainCategory.description !== '-'
@@ -164,7 +164,7 @@ shopBot.action(/main-category:[a-z0-9]+$/i, async (ctx) => {
           reply_markup: Markup.inlineKeyboard(keyboard).reply_markup
         }
       )
-      .catch(() => null);
+      .catch((error) => errorLogger.error(error.message));
   } catch (error: any) {
     errorLogger.error(error.message);
   }
@@ -217,7 +217,7 @@ shopBot.action(/sub-category:[a-z0-9]+$/, async (ctx) => {
           url: HOST + '/' + image
         }
       })
-      .catch(() => null);
+      .catch((error) => errorLogger.error(error.message));
     ctx
       .editMessageCaption(
         `__${category.title}__` + category.description !== '-'
@@ -228,7 +228,7 @@ shopBot.action(/sub-category:[a-z0-9]+$/, async (ctx) => {
           reply_markup: Markup.inlineKeyboard(keyboard).reply_markup
         }
       )
-      .catch(() => null);
+      .catch((error) => errorLogger.error(error.message));
   } catch (error: any) {
     errorLogger.error(error.message);
   }
