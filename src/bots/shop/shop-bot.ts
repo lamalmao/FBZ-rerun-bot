@@ -88,17 +88,13 @@ shopBot.action('shop', async (ctx) => {
     }
     const keyboard = makeColumnsKeyboard(buttons, 'menu');
 
-    ctx
-      .editMessageMedia({
-        type: 'photo',
-        media: {
-          url: HOST + '/default_shop'
-        }
-      })
-      .catch((error) => errorLogger.error(error.message));
-    ctx
-      .editMessageReplyMarkup(Markup.inlineKeyboard(keyboard).reply_markup)
-      .catch((error) => errorLogger.error(error.message));
+    await ctx.editMessageMedia({
+      type: 'photo',
+      media: {
+        url: HOST + '/default_shop'
+      }
+    });
+    await ctx.editMessageReplyMarkup(Markup.inlineKeyboard(keyboard).reply_markup);
   } catch (error: any) {
     errorLogger.error(error.message);
   }
@@ -146,25 +142,21 @@ shopBot.action(/main-category:[a-z0-9]+$/i, async (ctx) => {
     }
     const keyboard = makeColumnsKeyboard(buttons, 'main-category:' + parent);
 
-    ctx
-      .editMessageMedia({
-        type: 'photo',
-        media: {
-          url: HOST + '/' + mainCategory.image
-        }
-      })
-      .catch((error) => errorLogger.error(error.message));
-    ctx
-      .editMessageCaption(
-        `__${mainCategory.title}__` + mainCategory.description !== '-'
-          ? `\n\n${mainCategory.description}`
-          : '',
-        {
-          parse_mode: 'MarkdownV2',
-          reply_markup: Markup.inlineKeyboard(keyboard).reply_markup
-        }
-      )
-      .catch((error) => errorLogger.error(error.message));
+    await ctx.editMessageMedia({
+      type: 'photo',
+      media: {
+        url: HOST + '/' + mainCategory.image
+      }
+    });
+    await ctx.editMessageCaption(
+      `__${mainCategory.title}__` + mainCategory.description !== '-'
+        ? `\n\n${mainCategory.description}`
+        : '',
+      {
+        parse_mode: 'MarkdownV2',
+        reply_markup: Markup.inlineKeyboard(keyboard).reply_markup
+      }
+    );
   } catch (error: any) {
     errorLogger.error(error.message);
   }
@@ -210,25 +202,21 @@ shopBot.action(/sub-category:[a-z0-9]+$/, async (ctx) => {
     const keyboard = makeColumnsKeyboard(buttons, 'sub-category:' + categoryId);
 
     const image = category.covers[ctx.userInstance.region];
-    ctx
-      .editMessageMedia({
-        type: 'photo',
-        media: {
-          url: HOST + '/' + image
-        }
-      })
-      .catch((error) => errorLogger.error(error.message));
-    ctx
-      .editMessageCaption(
-        `__${category.title}__` + category.description !== '-'
-          ? `\n\n${category.description}`
-          : '',
-        {
-          parse_mode: 'MarkdownV2',
-          reply_markup: Markup.inlineKeyboard(keyboard).reply_markup
-        }
-      )
-      .catch((error) => errorLogger.error(error.message));
+    await ctx.editMessageMedia({
+      type: 'photo',
+      media: {
+        url: HOST + '/' + image
+      }
+    });
+    await ctx.editMessageCaption(
+      `__${category.title}__` + category.description !== '-'
+        ? `\n\n${category.description}`
+        : '',
+      {
+        parse_mode: 'MarkdownV2',
+        reply_markup: Markup.inlineKeyboard(keyboard).reply_markup
+      }
+    );
   } catch (error: any) {
     errorLogger.error(error.message);
   }
