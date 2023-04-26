@@ -42,7 +42,8 @@ export async function appear(
             lastAction: new Date()
           }
         }
-      );
+      ).catch((error) => errorLogger.error(error.message));
+      console.log('User appeared');
     }
   } catch (error: any) {
     errorLogger.error(error.message);
