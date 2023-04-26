@@ -1,5 +1,5 @@
 import { errorLogger } from '../../logger.js';
-import User, { REGIONS, STATUSES } from '../../models/users.js';
+import User, { IUser, REGIONS, STATUSES } from '../../models/users.js';
 import { HOST } from '../../properties.js';
 import { AdminBot } from '../admin/admin-bot.js';
 import { popUp } from '../admin/tools.js';
@@ -139,4 +139,37 @@ export function genNavigationRegExp(obj: object): RegExp {
   }
 
   return new RegExp(reg, 'i');
+}
+
+export function getUser(): (ctx: ShopBot, next: CallableFunction) => Promise<void> {
+  async function getUser(ctx: AdminBot | ShopBot, next: CallableFunction) {
+    try {
+      if (!ctx || !ctx.from) {
+        return;
+      }
+      const user: IUser | null = await User.findOne({
+        telegramId: ctx.from.id
+      });
+
+      ctx.userInstance = user ? user : undefined;
+      next();
+    } catch (error: any) {
+      errorLogger.error(error.message);
+    }
+  }
+  return getUser;
+}
+
+export function userIs(
+  roles: Array<string>
+): (ctx: ShopBot, next: CallableFunction) => Promise<void> {
+  async function check(ctx: AdminBot | ShopBot, next: CallableFunction) {
+    const user: IUser | undefined = ctx.userInstance;
+    if (!user || !roles.includes(user.role)) {
+      await ctx.reply('У вас недостаточно прав');
+      return;
+    }
+    next();
+  }
+  return check;
 }

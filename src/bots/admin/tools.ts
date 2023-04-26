@@ -10,7 +10,7 @@ import { IItem, ITEM_TYPES, currencies } from '../../models/goods.js';
 import moment from 'moment';
 import { ShopBot } from '../shop/shop-bot.js';
 
-export function getUsername(ctx: AdminBot | ShopBot): string {
+export function getUsername(ctx: AdminBot): string {
   let username, old: string | undefined;
   if (ctx.userInstance) {
     old = ctx.userInstance.username;
@@ -44,7 +44,7 @@ export function getUsername(ctx: AdminBot | ShopBot): string {
 export function getUserTo(
   where: 'context' | 'session'
 ): (ctx: AdminBot | ShopBot, next: CallableFunction) => Promise<void> {
-  async function getUser(ctx: AdminBot | ShopBot, next: CallableFunction) {
+  async function getUser(ctx: AdminBot, next: CallableFunction) {
     try {
       if (!ctx || !ctx.from) {
         return;
@@ -68,8 +68,8 @@ export function getUserTo(
 
 export function userIs(
   roles: Array<string>
-): (ctx: AdminBot | ShopBot, next: CallableFunction) => Promise<void> {
-  async function check(ctx: AdminBot | ShopBot, next: CallableFunction) {
+): (ctx: AdminBot, next: CallableFunction) => Promise<void> {
+  async function check(ctx: AdminBot, next: CallableFunction) {
     const user: IUser | undefined = ctx.userInstance
       ? ctx.userInstance
       : ctx.session.userInstance;
