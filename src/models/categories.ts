@@ -10,14 +10,14 @@ export const CATEGORY_TYPES = {
 
 export interface ICategory extends Document {
   title: string;
-  description?: string;
-  covers?: {
+  description: string;
+  covers: {
     ru: string;
     eu: string;
     by: string;
     ua: string;
   };
-  image?: string;
+  image: string;
   type: CategoryType;
   parent?: Types.ObjectId | undefined;
   hidden: boolean;
