@@ -95,13 +95,15 @@ ItemKeys.command('sos', jumpBack('edit-item'));
 ItemKeys.action('exit', jumpBack('edit-item'));
 ItemKeys.use(getUserTo('context'), userIs([ROLES.ADMIN]));
 
-ItemKeys.action('close', (ctx) => {
+ItemKeys.action('cancel', (ctx) => {
   if (ctx.session.message && ctx.from) {
     ctx.deleteMessage().catch(() => null);
   }
 
   ctx.scene.reenter();
 });
+
+ItemKeys.action('close', deleteMessage);
 
 ItemKeys.action('load', async (ctx) => {
   try {
@@ -119,7 +121,7 @@ ItemKeys.action('load', async (ctx) => {
               'Пример',
               'https://docs.google.com/spreadsheets/d/1ZP3rAY7a87Db1a-wXMRkxRdTURGVlE1XJ-uIfhsma-s/edit?usp=sharing'
             ),
-            Markup.button.callback('Отмена', 'close')
+            Markup.button.callback('Отмена', 'cancel')
           ]
         ]).reply_markup
       }

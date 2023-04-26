@@ -76,7 +76,7 @@ EditItem.action(
     ctx.session.item = undefined;
     next();
   },
-  jumpBack()
+  jumpBack('items-list')
 );
 EditItem.action('cancel', (ctx) => {
   if (ctx.session.message && ctx.chat) {
