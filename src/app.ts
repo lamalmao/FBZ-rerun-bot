@@ -5,6 +5,7 @@ import { Scenario } from './scenarios.js';
 import { Render } from './render.js';
 import { ImageSecureHost } from './image-static.js';
 import adminBot from './bots/admin/admin-bot.js';
+import shopBot from './bots/shop/shop-bot.js';
 
 ImageSecureHost.listen(Settings.host.port, '0.0.0.0', () =>
   console.log('Image server launched')
@@ -34,3 +35,5 @@ console.log('Scenarios successfully parsed: ' + scenarios);
 
 adminBot.launch();
 console.log('Admin bot launched');
+shopBot.launch();
+console.log('Shop bot launched');
