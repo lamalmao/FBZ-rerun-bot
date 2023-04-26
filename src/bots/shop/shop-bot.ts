@@ -89,15 +89,15 @@ shopBot.action('shop', async (ctx) => {
     const keyboard = makeColumnsKeyboard(buttons, 'menu');
 
     ctx
-      .editMessageReplyMarkup(Markup.inlineKeyboard(keyboard).reply_markup)
-      .catch((error) => errorLogger.error(error.message));
-    ctx
       .editMessageMedia({
         type: 'photo',
         media: {
           url: HOST + '/default_shop'
         }
       })
+      .catch((error) => errorLogger.error(error.message));
+    ctx
+      .editMessageReplyMarkup(Markup.inlineKeyboard(keyboard).reply_markup)
       .catch((error) => errorLogger.error(error.message));
   } catch (error: any) {
     errorLogger.error(error.message);
