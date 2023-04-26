@@ -44,7 +44,7 @@ shopBot.start(getUserTo('context'), appear, checkAccess, async (ctx) => {
     const region = ctx.from.language_code
       ? getRegion(ctx.from.language_code)
       : REGIONS.RU;
-    if (!ctx.session.userInstance) {
+    if (!ctx.userInstance) {
       await User.create({
         telegramId: ctx.from.id,
         username,
