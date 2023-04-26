@@ -26,17 +26,16 @@ export interface ShopBot extends BotContext {
 
 const shopBot = new Telegraf<ShopBot>(Settings.bots.shop.token);
 
-const adminSession = new LocalSession({
+const shopSession = new LocalSession({
   database: path.join(CONSTANTS.PROCESS_DIR, 'shop-session.json'),
   property: 'session',
-  storage: LocalSession.storageFileAsync,
   format: {
     serialize: (obj) => JSON.stringify(obj, null, 2),
     deserialize: (str) => JSON.parse(str)
   }
 });
 
-shopBot.use(adminSession.middleware());
+shopBot.use(shopSession.middleware());
 
 shopBot.start(deleteMessage, getUserTo('context'), appear, checkAccess, async (ctx) => {
   try {
