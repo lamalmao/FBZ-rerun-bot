@@ -252,9 +252,7 @@ shopBot.action(/item:[a-z0-9]+$/, getUser(), appear, checkAccess, async (ctx) =>
       throw new Error('Item not found');
     }
 
-    const image = HOST + '/' + item['cover.images.' + region];
-    console.log(image);
-
+    const image = HOST + '/' + item.cover.images[region];
     await ctx.editMessageMedia({
       type: 'photo',
       media: {
