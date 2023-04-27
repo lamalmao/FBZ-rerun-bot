@@ -316,7 +316,8 @@ shopBot.action(/buy:[a-z0-9]+/i, getUser(), appear, checkAccess, async (ctx) => 
         reply_markup: Markup.inlineKeyboard([
           [Markup.button.callback('Пополнить', `refill:${dif}#${user.region}`)],
           [Markup.button.callback('Назад', 'item:' + item._id)]
-        ]).reply_markup
+        ]).reply_markup,
+        parse_mode: 'MarkdownV2'
       });
       return;
     }
