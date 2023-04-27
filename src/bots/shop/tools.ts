@@ -191,3 +191,10 @@ export function userIs(
   }
   return check;
 }
+
+export function protectMarkdownString(target: string): string {
+  return target
+    .replaceAll(/\-/g, '\\-')
+    .replaceAll(/\./g, '\\.')
+    .replaceAll(/\!/g, '\\!');
+}
