@@ -2,7 +2,6 @@ import { errorLogger } from '../../logger.js';
 import User, { IUser, REGIONS, STATUSES } from '../../models/users.js';
 import { HOST } from '../../properties.js';
 import { AdminBot } from '../admin/admin-bot.js';
-import { managerKeyboard } from '../admin/keyboard.js';
 import { popUp } from '../admin/tools.js';
 import { mainMenuKeyboard } from './menus.js';
 import { ShopBot } from './shop-bot.js';
@@ -137,7 +136,7 @@ export async function showMenu(ctx: ShopBot): Promise<void> {
     ctx
       .replyWithPhoto(HOST + '/default_logo', {
         caption: 'Главное меню',
-        reply_markup: managerKeyboard.reply_markup
+        reply_markup: mainMenuKeyboard.reply_markup
       })
       .then((message) => (ctx.previousMessage = message.message_id))
       .catch(() => null);
