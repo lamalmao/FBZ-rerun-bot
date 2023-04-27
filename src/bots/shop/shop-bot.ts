@@ -45,6 +45,8 @@ shopBot.start(deleteMessage, getUser(), appear, checkAccess, async (ctx) => {
   }
 });
 
+shopBot.middleware();
+
 shopBot.action('menu', getUser(), appear, checkAccess, showMenu);
 shopBot.action('shop', getUser(), appear, checkAccess, async (ctx) => {
   try {
@@ -211,5 +213,7 @@ shopBot.action(/sub-category:[a-z0-9]+$/, getUser(), appear, checkAccess, async 
     errorLogger.error(error.message);
   }
 });
+
+shopBot.command('menu', getUser(), appear, checkAccess, showMenu);
 
 export default shopBot;

@@ -2,6 +2,7 @@ import { errorLogger } from '../../logger.js';
 import User, { IUser, REGIONS, STATUSES } from '../../models/users.js';
 import { HOST } from '../../properties.js';
 import { AdminBot } from '../admin/admin-bot.js';
+import { managerKeyboard } from '../admin/keyboard.js';
 import { popUp } from '../admin/tools.js';
 import { mainMenuKeyboard } from './menus.js';
 import { ShopBot } from './shop-bot.js';
@@ -71,7 +72,7 @@ export async function editPrevious(
     }
 
     if (!ctx.from) {
-      throw new Error('Не получен отправитель');
+      throw new Error('Sender not found');
     }
 
     if (photo) {
@@ -105,23 +106,41 @@ export async function editPrevious(
 
 export async function showMenu(ctx: ShopBot): Promise<void> {
   try {
-    if (ctx.previousMessage) {
-      await editPrevious(
-        ctx,
+    if (ctx.previousMessage && ctx.from) {
+      await ctx.telegram.editMessageMedia(ctx.from.id, ctx.previousMessage, undefined, {
+        type: 'photo',
+        media: {
+          url: HOST + '/default_logo'
+        }
+      });
+      await ctx.telegram.editMessageCaption(
+        ctx.from.id,
+        ctx.previousMessage,
+        undefined,
         'Главное меню',
         {
           reply_markup: mainMenuKeyboard.reply_markup
-        },
-        HOST + '/default_logo'
+        }
       );
     } else {
-      const message = await ctx.replyWithPhoto(HOST + '/default_logo', {
-        reply_markup: mainMenuKeyboard.reply_markup,
-        caption: 'Главное меню'
+      await ctx.editMessageMedia({
+        type: 'photo',
+        media: {
+          url: HOST + '/default_logo'
+        }
       });
-      ctx.previousMessage = message.message_id;
+      await ctx.editMessageCaption('Главное меню', {
+        reply_markup: mainMenuKeyboard.reply_markup
+      });
     }
   } catch (error: any) {
+    ctx
+      .replyWithPhoto(HOST + '/default_logo', {
+        caption: 'Главное меню',
+        reply_markup: managerKeyboard.reply_markup
+      })
+      .then((message) => (ctx.previousMessage = message.message_id))
+      .catch(() => null);
     errorLogger.error(error.message);
   }
 }
