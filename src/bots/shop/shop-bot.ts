@@ -8,6 +8,13 @@ import Category, { CATEGORY_TYPES } from '../../models/categories.js';
 import { Types } from 'mongoose';
 import Item from '../../models/goods.js';
 
+const CURRENCY_SIGNS = {
+  ru: '₽',
+  ua: '₴',
+  by: 'Br',
+  eu: '€'
+};
+
 export interface SessionData {
   userInstance?: IUser;
   previousMessage?: number;
@@ -82,6 +89,7 @@ shopBot.action('shop', getUser(), appear, checkAccess, async (ctx) => {
     await ctx.editMessageReplyMarkup(Markup.inlineKeyboard(keyboard).reply_markup);
   } catch (error: any) {
     errorLogger.error(error.message);
+    showMenu(ctx);
   }
 });
 
@@ -149,6 +157,7 @@ shopBot.action(
       );
     } catch (error: any) {
       errorLogger.error(error.message);
+      showMenu(ctx);
     }
   }
 );
@@ -211,6 +220,58 @@ shopBot.action(/sub-category:[a-z0-9]+$/, getUser(), appear, checkAccess, async 
     );
   } catch (error: any) {
     errorLogger.error(error.message);
+    showMenu(ctx);
+  }
+});
+
+shopBot.action(/item:[a-z0-9]+$/, getUser(), appear, checkAccess, async (ctx) => {
+  try {
+    if (!ctx.userInstance) {
+      throw new Error('User not found');
+    }
+
+    const data: string = ctx.callbackQuery['data'];
+    const parsedData = /([a-z0-9]+)$/i.exec(data);
+    if (!parsedData) {
+      popUp(ctx, 'ID товара не найден');
+      throw new Error('ID not found');
+    }
+
+    const region = ctx.userInstance.region;
+    const itemId = new Types.ObjectId(parsedData[0]);
+    const item = await Item.findById(itemId, {
+      title: 1,
+      description: 1,
+      price: 1,
+      discount: 1,
+      ['cover.' + region]: 1,
+      category: 1
+    });
+    if (!item) {
+      popUp(ctx, 'Данный товар не найден');
+      throw new Error('Item not found');
+    }
+
+    await ctx.editMessageMedia({
+      type: 'photo',
+      media: {
+        url: HOST + '/' + item['cover.' + region]
+      }
+    });
+    await ctx.editMessageCaption(
+      // prettier-ignore
+      `*Товар:* ${item.title}\n*Цена:* ${item.getRealPriceIn(region)} ${CURRENCY_SIGNS[region]}${item.description !== '-' ? '\n\n' + item.description : ''}`,
+      {
+        reply_markup: Markup.inlineKeyboard([
+          [Markup.button.callback('Купить', 'buy:' + itemId)],
+          [Markup.button.callback('Назад', 'sub-category:' + item.category)]
+        ]).reply_markup,
+        parse_mode: 'MarkdownV2'
+      }
+    );
+  } catch (error: any) {
+    errorLogger.error(error.message);
+    showMenu(ctx);
   }
 });
 
