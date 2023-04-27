@@ -255,7 +255,7 @@ shopBot.action(/item:[a-z0-9]+$/, getUser(), appear, checkAccess, async (ctx) =>
     await ctx.editMessageMedia({
       type: 'photo',
       media: {
-        url: HOST + '/' + item['cover.' + region]
+        url: HOST + '/' + item['cover.images.' + region]
       }
     });
     await ctx.editMessageCaption(
