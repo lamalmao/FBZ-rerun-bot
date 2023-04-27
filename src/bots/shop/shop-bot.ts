@@ -57,7 +57,7 @@ shopBot.start(deleteMessage, getUser(), appear, checkAccess, async (ctx) => {
     errorLogger.error(error.message);
   }
 });
-
+console.log(ShopStage.middleware());
 shopBot.use(ShopStage.middleware());
 
 shopBot.action('menu', getUser(), appear, checkAccess, showMenu);
