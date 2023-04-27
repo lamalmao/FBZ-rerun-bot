@@ -244,7 +244,7 @@ shopBot.action(/item:[a-z0-9]+$/, getUser(), appear, checkAccess, async (ctx) =>
       description: 1,
       price: 1,
       discount: 1,
-      ['cover.' + region]: 1,
+      ['cover.images.' + region]: 1,
       category: 1
     });
     if (!item) {
