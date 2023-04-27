@@ -15,6 +15,7 @@ import Category, { CATEGORY_TYPES } from '../../models/categories.js';
 import { Types } from 'mongoose';
 import Item from '../../models/goods.js';
 import ShopStage from './scenes/index.js';
+import LocalSession from 'telegraf-session-local';
 
 export const CURRENCY_SIGNS = {
   ru: '₽',
@@ -24,6 +25,7 @@ export const CURRENCY_SIGNS = {
 };
 
 export type BotContext = Context & Scenes.SceneContext;
+export type BotSession = Scenes.SceneSession<Scenes.SceneSessionData>;
 
 export interface ShopBot extends BotContext {
   userInstance?: IUser;
@@ -34,7 +36,13 @@ export interface ShopBot extends BotContext {
   };
 }
 
+const shopSession = new LocalSession({
+  property: 'session',
+  storage: LocalSession.storageMemory
+});
+
 const shopBot = new Telegraf<ShopBot>(Settings.bots.shop.token);
+shopBot.use(shopSession.middleware());
 shopBot.use(ShopStage.middleware());
 
 shopBot.start(deleteMessage, getUser(), appear, checkAccess, async (ctx) => {
@@ -352,7 +360,6 @@ shopBot.action(
         region
       };
 
-      console.log(ctx.scene);
       ctx.scene.enter('refill');
     } catch (error: any) {
       errorLogger.error(error.message);
