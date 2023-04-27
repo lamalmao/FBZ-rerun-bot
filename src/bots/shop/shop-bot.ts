@@ -353,6 +353,7 @@ shopBot.action(
         region
       };
 
+      console.log(ctx.scene);
       ctx.scene.enter('refill');
     } catch (error: any) {
       errorLogger.error(error.message);
