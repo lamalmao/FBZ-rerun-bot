@@ -1,31 +1,37 @@
 import { Context, Markup, Scenes, Telegraf } from 'telegraf';
 import { HOST, Settings } from '../../properties.js';
 import { errorLogger } from '../../logger.js';
-import User, { IUser, REGIONS, ROLES, STATUSES } from '../../models/users.js';
+import User, { IUser, REGIONS, ROLES, Region, STATUSES } from '../../models/users.js';
 import { deleteMessage, makeColumnsKeyboard, popUp } from '../admin/tools.js';
-import { appear, checkAccess, getRegion, getUser, showMenu } from './tools.js';
+import {
+  appear,
+  checkAccess,
+  getRegion,
+  getUser,
+  protectMarkdownString,
+  showMenu
+} from './tools.js';
 import Category, { CATEGORY_TYPES } from '../../models/categories.js';
 import { Types } from 'mongoose';
 import Item from '../../models/goods.js';
+import ShopStage from './scenes/index.js';
 
-const CURRENCY_SIGNS = {
+export const CURRENCY_SIGNS = {
   ru: '₽',
   ua: '₴',
   by: 'Br',
   eu: '€'
 };
 
-export interface SessionData {
-  userInstance?: IUser;
-  previousMessage?: number;
-  message?: number;
-}
-
 export type BotContext = Context & Scenes.SceneContext;
 
 export interface ShopBot extends BotContext {
   userInstance?: IUser;
   previousMessage?: number;
+  refill?: {
+    amount: number;
+    region: Region;
+  };
 }
 
 const shopBot = new Telegraf<ShopBot>(Settings.bots.shop.token);
@@ -52,7 +58,7 @@ shopBot.start(deleteMessage, getUser(), appear, checkAccess, async (ctx) => {
   }
 });
 
-shopBot.middleware();
+shopBot.use(ShopStage.middleware());
 
 shopBot.action('menu', getUser(), appear, checkAccess, showMenu);
 shopBot.action('shop', getUser(), appear, checkAccess, async (ctx) => {
@@ -275,6 +281,84 @@ shopBot.action(/item:[a-z0-9]+$/, getUser(), appear, checkAccess, async (ctx) =>
     showMenu(ctx);
   }
 });
+
+shopBot.action(/buy:[a-z0-9]+/i, getUser(), appear, checkAccess, async (ctx) => {
+  try {
+    const user = ctx.userInstance;
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    const data: string = ctx.callbackQuery['data'];
+    const parsedData = /([a-z0-9]+)$/i.exec(data);
+    if (!parsedData) {
+      throw new Error('Item ID not found');
+    }
+
+    const itemId = new Types.ObjectId(parsedData[0]);
+    const item = await Item.findById(itemId, {
+      title: 1,
+      price: 1,
+      discount: 1,
+      ['cover.images.' + user.region]: 1
+    });
+    if (!item) {
+      throw new Error('Item not found');
+    }
+
+    const realPrice = item.getRealPriceIn(user.region);
+    const userBalance = user.getBalanceIn(user.region);
+    if (realPrice > userBalance) {
+      const dif = realPrice - userBalance;
+      // prettier-ignore
+      await ctx.editMessageCaption(`На вашем счету не хватает *${dif} ${CURRENCY_SIGNS[user.region]}* для покупки __"${protectMarkdownString(item.title)}"__`,
+      {
+        reply_markup: Markup.inlineKeyboard([
+          [Markup.button.callback('Пополнить', `refill:${dif}#${user.region}`)],
+          [Markup.button.callback('Назад', 'item:' + item._id)]
+        ]).reply_markup
+      });
+      return;
+    }
+
+    // to be continued
+  } catch (error: any) {
+    errorLogger.error(error.message);
+    showMenu(ctx);
+  }
+});
+
+shopBot.action(
+  /refill:\d+#(ru|ua|eu|by)/i,
+  getUser(),
+  appear,
+  checkAccess,
+  async (ctx) => {
+    try {
+      if (!ctx.userInstance) {
+        throw new Error('Пользователь не найден');
+      }
+
+      const data: string = ctx.callbackQuery['data'];
+      const parsedData = /(\d+)#(ru|ua|eu|by)$/i.exec(data);
+      if (!parsedData) {
+        throw new Error('value not found');
+      }
+
+      const amount = Number(parsedData[1]);
+      const region = parsedData[2] as Region;
+      ctx.refill = {
+        amount,
+        region
+      };
+
+      ctx.scene.enter('refill');
+    } catch (error: any) {
+      errorLogger.error(error.message);
+      showMenu(ctx);
+    }
+  }
+);
 
 shopBot.command('menu', getUser(), appear, checkAccess, showMenu);
 
