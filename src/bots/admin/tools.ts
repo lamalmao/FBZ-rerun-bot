@@ -272,7 +272,13 @@ export async function genItemEditingMenu(
       break;
   }
 
+  let platforms = '*Список платформ:*';
+  for (const platform of item.properties.platforms) {
+    platforms += `\n${platform}`;
+  }
+
   text += `\n*Игра*: ${item.game}\n*Сценарий продажи:* "${item.scenario}"\n*Тип доставки:* ${deliveryType}`;
+  text += '\n' + platforms;
 
   const root = await Category.findById(item.category, {
     title: 1
@@ -308,8 +314,8 @@ export async function genItemEditingMenu(
     [Markup.button.callback('Изменить платформы', 'platform')],
     [Markup.button.callback('Изменить цену', 'price')],
     [Markup.button.callback('Изменить скидку', 'discount')],
-    [Markup.button.callback('Изменить шрифт заголовка обложки', 'titleFontSize')],
     [Markup.button.callback('Изменить дополнительные опции', 'extra')],
+    [Markup.button.callback('Изменить шрифт заголовка обложки', 'titleFontSize')],
     [
       Markup.button.callback(
         'Изменить шрифт заголовка в категории',
