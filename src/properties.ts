@@ -46,6 +46,10 @@ interface ISettings {
     address: string;
     port: number;
   };
+  anypay: {
+    token: string;
+    project: string;
+  };
 }
 
 const settingsFile = path.join(processDir, 'settings.json');
