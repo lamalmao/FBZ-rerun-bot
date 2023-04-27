@@ -35,6 +35,7 @@ export interface ShopBot extends BotContext {
 }
 
 const shopBot = new Telegraf<ShopBot>(Settings.bots.shop.token);
+shopBot.use(ShopStage.middleware());
 
 shopBot.start(deleteMessage, getUser(), appear, checkAccess, async (ctx) => {
   try {
@@ -57,8 +58,6 @@ shopBot.start(deleteMessage, getUser(), appear, checkAccess, async (ctx) => {
     errorLogger.error(error.message);
   }
 });
-console.log(ShopStage.middleware());
-shopBot.use(ShopStage.middleware());
 
 shopBot.action('menu', getUser(), appear, checkAccess, showMenu);
 shopBot.action('shop', getUser(), appear, checkAccess, async (ctx) => {
