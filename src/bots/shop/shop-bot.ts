@@ -252,6 +252,8 @@ shopBot.action(/item:[a-z0-9]+$/, getUser(), appear, checkAccess, async (ctx) =>
       throw new Error('Item not found');
     }
 
+    console.log(item.toObject());
+
     await ctx.editMessageMedia({
       type: 'photo',
       media: {
