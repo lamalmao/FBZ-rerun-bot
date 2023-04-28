@@ -11,7 +11,7 @@ import paymentServer from './payments-worker.js';
 ImageSecureHost.listen(Settings.host.port, '0.0.0.0', () =>
   console.log('Image server launched')
 );
-paymentServer.listen(Settings.payment.port, HOST + '/' + Settings.payment.node, () => {
+paymentServer.listen(Settings.payment.port, '0.0.0.0', () => {
   console.log('Payment server started');
 });
 

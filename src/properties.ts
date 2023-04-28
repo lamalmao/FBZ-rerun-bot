@@ -48,7 +48,6 @@ interface ISettings {
   };
   payment: {
     port: number;
-    node: string;
   };
   anypay: {
     token: string;
