@@ -41,10 +41,18 @@ async function paymentListener(req: http.IncomingMessage, res: http.ServerRespon
       body[key] = value;
     }
 
-    const signString = `${Settings.anypay.project}:${body.amount}:${body.pay_id}:${Settings.anypay.token}`;
+    const signData: Array<string | undefined> = [
+      Settings.anypay.project.toString(),
+      body.amount?.toString(),
+      body.pay_id?.toString(),
+      Settings.anypay.token
+    ];
+    // const signString = `${Settings.anypay.project}:${body.amount}:${body.pay_id}:${Settings.anypay.token}`;
+    const signString = signData.join(':');
     const sign = crypto.createHash('md5').update(signString).digest('hex');
 
     //debug
+    console.log(signString);
     console.log(sign, body.sign);
 
     if (sign !== body.sign) {
