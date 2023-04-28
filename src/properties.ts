@@ -46,6 +46,10 @@ interface ISettings {
     address: string;
     port: number;
   };
+  payment: {
+    port: number;
+    node: string;
+  };
   anypay: {
     token: string;
     project: string;
