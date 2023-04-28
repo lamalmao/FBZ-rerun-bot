@@ -4,6 +4,7 @@ import { CONSTANTS, Settings } from './properties.js';
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
+import Payment from './models/payments.js';
 
 const ALLOWED_IPS = ['185.162.128.38', '185.162.128.39', '185.162.128.88'];
 
@@ -47,16 +48,33 @@ async function paymentListener(req: http.IncomingMessage, res: http.ServerRespon
       body.pay_id?.toString(),
       Settings.anypay.token
     ];
-    // const signString = `${Settings.anypay.project}:${body.amount}:${body.pay_id}:${Settings.anypay.token}`;
     const signString = signData.join(':');
     const sign = crypto.createHash('md5').update(signString).digest('hex');
 
-    //debug
-    console.log(signString);
-    console.log(sign, body.sign);
-
     if (sign !== body.sign) {
       throw new Error('Wrong sign');
+    }
+
+    if (body.status !== 'paid') {
+      throw new Error('Unpaid');
+    }
+
+    const paymentId = Number(body.pay_id);
+    const result = await Payment.updateOne(
+      {
+        paymentId
+      },
+      {
+        $set: {
+          status: 'paid',
+          paymentDate: new Date(),
+          transactionId: Number(body.transaction_id)
+        }
+      }
+    );
+
+    if (result.modifiedCount < 1) {
+      throw new Error('Unmatched');
     }
 
     res.statusCode = 200;
