@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { CONSTANTS, HOST, Settings } from './properties.js';
+import { CONSTANTS, Settings } from './properties.js';
 import { errorLogger } from './logger.js';
 import { Scenario } from './scenarios.js';
 import { Render } from './render.js';
