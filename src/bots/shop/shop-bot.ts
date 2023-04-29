@@ -45,6 +45,12 @@ const shopBot = new Telegraf<ShopBot>(Settings.bots.shop.token);
 shopBot.use(shopSession.middleware());
 shopBot.use(ShopStage.middleware());
 
+//debug
+shopBot.on('callback_query', (ctx, next) => {
+  console.log(ctx.callbackQuery['data']);
+  next();
+});
+
 shopBot.start(deleteMessage, getUser(), appear, checkAccess, async (ctx) => {
   try {
     const username = ctx.from.username ? ctx.from.username : ctx.from.id.toString();
