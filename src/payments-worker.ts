@@ -62,24 +62,6 @@ async function paymentListener(req: http.IncomingMessage, res: http.ServerRespon
     }
 
     const paymentId = Number(body.pay_id);
-    const result = await Payment.updateOne(
-      {
-        paymentId,
-        status: 'waiting'
-      },
-      {
-        $set: {
-          status: 'paid',
-          paymentDate: new Date(),
-          transactionId: Number(body.transaction_id)
-        }
-      }
-    );
-
-    if (result.modifiedCount < 1) {
-      throw new Error('Unmatched');
-    }
-
     Payment.findOne(
       {
         paymentId
