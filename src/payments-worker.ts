@@ -64,15 +64,14 @@ async function paymentListener(req: http.IncomingMessage, res: http.ServerRespon
     const paymentId = Number(body.pay_id);
     const payment = await Payment.findOne({
       paymentId,
-      status: {
-        $ne: 'paid'
-      }
+      status: 'waiting'
     });
 
     if (!payment) {
       throw new Error('Payment not found');
     }
 
+    payment.isNew = false;
     const result = await payment.close();
     if (!result) {
       throw new Error('Payment not closed');

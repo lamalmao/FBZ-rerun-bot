@@ -67,6 +67,16 @@ const PaymentSchema = new Schema<IPayment>(
     platform: {
       type: String,
       required: true
+    },
+    status: {
+      type: String,
+      required: true,
+      default: 'waiting',
+      enum: ['waiting', 'paid']
+    },
+    telegramMessage: {
+      type: Number,
+      required: true
     }
   },
   {
@@ -81,6 +91,7 @@ const PaymentSchema = new Schema<IPayment>(
       async close(): Promise<boolean> {
         try {
           this.status = 'paid';
+          this.isNew = false;
           await this.save();
 
           const result = await User.updateOne(
