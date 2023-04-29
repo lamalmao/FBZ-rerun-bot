@@ -252,6 +252,7 @@ adminBot.command('load', getUserTo('context'), userIs([ROLES.ADMIN]), async (ctx
       },
       60000
     );
+    fs.unlinkSync(pathToArchive);
   } catch (error: any) {
     errorLogger.error(error.message);
     popUp(ctx, error.message);
