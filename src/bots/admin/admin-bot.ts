@@ -4,6 +4,8 @@ import LocalSession from 'telegraf-session-local';
 import path from 'path';
 import { errorLogger } from '../../logger.js';
 import User, { IUser, ROLES } from '../../models/users.js';
+import crypto from 'crypto';
+import fs from 'fs';
 import {
   Back,
   adminKeyboard,
@@ -23,6 +25,8 @@ import {
 } from './tools.js';
 import AdminStage from './scenes/index.js';
 import { Types } from 'mongoose';
+import moment from 'moment';
+import { spawn } from 'child_process';
 
 export interface SessionData {
   userInstance?: IUser;
@@ -148,6 +152,7 @@ adminBot.command('admin', deleteMessage, userIs([ROLES.ADMIN]), async (ctx) => {
     errorLogger.error(error.message);
   }
 });
+
 adminBot.command('logs', deleteMessage, userIs([ROLES.ADMIN]), async (ctx) => {
   try {
     await ctx.replyWithDocument(
@@ -219,5 +224,38 @@ adminBot.hears(goodsKeyboardButtons.create, deleteMessage, userIs([ROLES.ADMIN])
 adminBot.hears(goodsKeyboardButtons.list, deleteMessage, userIs([ROLES.ADMIN]), (ctx) =>
   ctx.scene.enter('items-list')
 );
+
+adminBot.command('load', getUserTo('context'), userIs([ROLES.ADMIN]), async (ctx) => {
+  try {
+    await ctx.sendChatAction('record_video');
+    const password = crypto.randomBytes(16).toString('hex');
+    const zipFileName =
+      'shot_' + moment(new Date()).format('DD_MM_YYYY_HH:mm:ss') + '.zip';
+
+    const zip = spawn('zip', ['-P', password, zipFileName, '-r', CONSTANTS.EXTRAS]);
+    const result = new Promise(function (resolve, reject) {
+      zip.addListener('exit', resolve);
+      zip.addListener('error', reject);
+    });
+
+    await result;
+    const pathToArchive = path.join(CONSTANTS.PROCESS_DIR, zipFileName);
+    await ctx.sendChatAction('upload_document');
+    await ctx.sendDocument({
+      source: pathToArchive
+    });
+    popUp(
+      ctx,
+      `Пароль к архиву: \`${password}\`n_Сообщение с паролем удалится через 1 минуту_`,
+      {
+        parse_mode: 'MarkdownV2'
+      },
+      60000
+    );
+  } catch (error: any) {
+    errorLogger.error(error.message);
+    popUp(ctx, error.message);
+  }
+});
 
 export default adminBot;
