@@ -1,7 +1,9 @@
 import { Schema, model } from 'mongoose';
-import { Region } from './users.js';
+import User, { Region } from './users.js';
 import crypto from 'crypto';
 import { Settings } from '../properties.js';
+import { errorLogger } from '../logger.js';
+import { courses } from './goods.js';
 
 export type PaymentStatus = 'waiting' | 'paid' | 'rejected';
 export const PAYMENT_STATUSES = {
@@ -29,6 +31,7 @@ export interface IPayment {
   paymentDate?: Date;
   transactionId?: number;
   genAnyPayLink(): string;
+  close(): Promise<boolean>;
 }
 
 const PaymentSchema = new Schema<IPayment>(
@@ -74,6 +77,28 @@ const PaymentSchema = new Schema<IPayment>(
 
         // prettier-ignore
         return `https://anypay.io/merchant?merchant_id=${Settings.anypay.project}&pay_id=${this.paymentId}&amount=${this.price.amount.toFixed(2)}&currency=RUB&sign=${sign}`
+      },
+      async close(): Promise<boolean> {
+        try {
+          this.status = 'paid';
+          await this.save();
+
+          const result = await User.updateOne(
+            {
+              telegramId: this.user
+            },
+            {
+              $inc: {
+                balance: Math.ceil(this.price.amount * courses[this.price.region])
+              }
+            }
+          );
+
+          return result.matchedCount > 0;
+        } catch (error: any) {
+          errorLogger.error(error.message);
+          return false;
+        }
       }
     }
   }

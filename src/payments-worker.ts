@@ -5,6 +5,8 @@ import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
 import Payment from './models/payments.js';
+import shopBot, { CURRENCY_SIGNS } from './bots/shop/shop-bot.js';
+import { errorLogger } from './logger.js';
 
 const ALLOWED_IPS = ['185.162.128.38', '185.162.128.39', '185.162.128.88'];
 
@@ -62,7 +64,8 @@ async function paymentListener(req: http.IncomingMessage, res: http.ServerRespon
     const paymentId = Number(body.pay_id);
     const result = await Payment.updateOne(
       {
-        paymentId
+        paymentId,
+        status: 'waiting'
       },
       {
         $set: {
@@ -76,6 +79,35 @@ async function paymentListener(req: http.IncomingMessage, res: http.ServerRespon
     if (result.modifiedCount < 1) {
       throw new Error('Unmatched');
     }
+
+    Payment.findOne(
+      {
+        paymentId
+      },
+      {
+        user: 1,
+        price: 1,
+        telegramMessage: 1
+      }
+    )
+      .then(async (payment) => {
+        try {
+          if (!payment) {
+            throw new Error('Payment not found');
+          }
+
+          const result = await payment.close();
+          if (!result) {
+            throw new Error('Payment not closed');
+          }
+
+          // prettier-ignore
+          await shopBot.telegram.editMessageCaption(payment.user, payment.telegramMessage, undefined, `Счёт на __${payment.price.amount} ${CURRENCY_SIGNS[payment.price.region]}__ оплачен\\.\nВаш баланс пополнен`);
+        } catch (error: any) {
+          errorLogger.error(error.message);
+        }
+      })
+      .catch((error) => errorLogger.error(error.message));
 
     res.statusCode = 200;
     res.end('OK');
