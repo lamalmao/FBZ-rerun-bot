@@ -230,9 +230,9 @@ adminBot.command('load', getUserTo('context'), userIs([ROLES.ADMIN]), async (ctx
     await ctx.sendChatAction('record_video');
     const password = crypto.randomBytes(16).toString('hex');
     const zipFileName =
-      'shot_' + moment(new Date()).format('DD_MM_YYYY_HH:mm:ss') + '.zip';
+      'shot_' + moment(new Date()).format('DD_MM_YYYY_HH_mm_ss') + '.zip';
 
-    const zip = spawn('zip', ['-P', password, zipFileName, '-r', CONSTANTS.EXTRAS]);
+    const zip = spawn('zip', ['-P', password, zipFileName, '-r', 'extras']);
     const result = new Promise(function (resolve, reject) {
       zip.addListener('exit', resolve);
       zip.addListener('error', reject);
@@ -246,7 +246,7 @@ adminBot.command('load', getUserTo('context'), userIs([ROLES.ADMIN]), async (ctx
     });
     popUp(
       ctx,
-      `Пароль к архиву: \`${password}\`n_Сообщение с паролем удалится через 1 минуту_`,
+      `Пароль к архиву: \`${password}\`\n_Сообщение с паролем удалится через 1 минуту_`,
       {
         parse_mode: 'MarkdownV2'
       },

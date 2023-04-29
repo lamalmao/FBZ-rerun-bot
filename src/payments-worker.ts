@@ -62,34 +62,25 @@ async function paymentListener(req: http.IncomingMessage, res: http.ServerRespon
     }
 
     const paymentId = Number(body.pay_id);
-    Payment.findOne(
-      {
-        paymentId
-      },
-      {
-        user: 1,
-        price: 1,
-        telegramMessage: 1
+    const payment = await Payment.findOne({
+      paymentId,
+      status: {
+        $ne: 'paid'
       }
-    )
-      .then(async (payment) => {
-        try {
-          if (!payment) {
-            throw new Error('Payment not found');
-          }
+    });
 
-          const result = await payment.close();
-          if (!result) {
-            throw new Error('Payment not closed');
-          }
+    if (!payment) {
+      throw new Error('Payment not found');
+    }
 
-          // prettier-ignore
-          await shopBot.telegram.editMessageCaption(payment.user, payment.telegramMessage, undefined, `Счёт на __${payment.price.amount} ${CURRENCY_SIGNS[payment.price.region]}__ оплачен\\.\nВаш баланс пополнен`);
-        } catch (error: any) {
-          errorLogger.error(error.message);
-        }
-      })
-      .catch((error) => errorLogger.error(error.message));
+    const result = await payment.close();
+    if (!result) {
+      throw new Error('Payment not closed');
+    }
+
+    // prettier-ignore
+    shopBot.telegram.editMessageCaption(payment.user, payment.telegramMessage, undefined, `Счёт на __${payment.price.amount} ${CURRENCY_SIGNS[payment.price.region]}__ оплачен\\.\nВаш баланс пополнен`)
+      .catch(error => errorLogger.error(error.message));
 
     res.statusCode = 200;
     res.end('OK');
