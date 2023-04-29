@@ -59,6 +59,7 @@ Refill.enterHandler = async function (ctx: ShopBot): Promise<void> {
     });
 
     refill.telegramMessage = refillMessage.message_id;
+    refill.isNew = false;
     refill.save().catch((error) => errorLogger.error(error.message));
   } catch (error: any) {
     errorLogger.error(error.message);

@@ -71,7 +71,6 @@ async function paymentListener(req: http.IncomingMessage, res: http.ServerRespon
       throw new Error('Payment not found');
     }
 
-    payment.isNew = false;
     const result = await payment.close();
     if (!result) {
       throw new Error('Payment not closed');

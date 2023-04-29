@@ -74,10 +74,7 @@ const PaymentSchema = new Schema<IPayment>(
       default: 'waiting',
       enum: ['waiting', 'paid']
     },
-    telegramMessage: {
-      type: Number,
-      required: true
-    }
+    telegramMessage: Number
   },
   {
     methods: {
