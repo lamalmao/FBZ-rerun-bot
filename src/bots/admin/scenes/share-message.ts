@@ -7,7 +7,7 @@ import User, { ROLES } from '../../../models/users.js';
 import { HOST } from '../../../properties.js';
 import shopBot from '../../shop/shop-bot.js';
 
-const ShareMessage = new Scenes.BaseScene<AdminBot>('share-scene');
+const ShareMessage = new Scenes.BaseScene<AdminBot>('share-message');
 ShareMessage.enterHandler = async function (ctx: AdminBot) {
   try {
     const message = await ctx.reply(
