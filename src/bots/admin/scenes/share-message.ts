@@ -55,6 +55,8 @@ ShareMessage.on(
   deleteMessage,
   async (ctx, next) => {
     try {
+      console.log(ctx.session.shareData);
+
       if (ctx.session.shareData?.action !== 'message') {
         next();
         return;
