@@ -51,7 +51,6 @@ ShareMessage.action('exit', jumpBack());
 ShareMessage.on(
   message('text'),
   deleteMessage,
-  getUserTo('context'),
   userIs[ROLES.ADMIN],
   async (ctx, next) => {
     try {
