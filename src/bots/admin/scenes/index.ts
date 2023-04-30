@@ -10,6 +10,7 @@ import EditItemPlatforms from './goods/edit-item-platforms.js';
 import ItemsList from './goods/items-list.js';
 import EditItemExtra from './goods/edit-item-extra.js';
 import ItemKeys from './goods/item-keys.js';
+import ShareMessage from './share-message.js';
 
 const AdminStage = new Scenes.Stage<AdminBot>([
   CreateCategory,
@@ -20,23 +21,24 @@ const AdminStage = new Scenes.Stage<AdminBot>([
   EditItemPlatforms,
   ItemsList,
   EditItemExtra,
-  ItemKeys
+  ItemKeys,
+  ShareMessage
 ]);
 
 //debug
-AdminStage.use((ctx, next) => {
-  console.log(`Scene ${ctx.scene.current?.id}:`);
+// AdminStage.use((ctx, next) => {
+//   console.log(`Scene ${ctx.scene.current?.id}:`);
 
-  if (ctx.message && ctx.message['text']) {
-    console.log(ctx.message['text']);
-  }
+//   if (ctx.message && ctx.message['text']) {
+//     console.log(ctx.message['text']);
+//   }
 
-  if (ctx.callbackQuery && ctx.callbackQuery['data']) {
-    console.log(ctx.callbackQuery['data']);
-  }
+//   if (ctx.callbackQuery && ctx.callbackQuery['data']) {
+//     console.log(ctx.callbackQuery['data']);
+//   }
 
-  next();
-});
+//   next();
+// });
 
 AdminStage.on('callback_query', (ctx, next) => {
   ctx.answerCbQuery().catch(() => null);

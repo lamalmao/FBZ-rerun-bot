@@ -44,6 +44,7 @@ export interface IUser extends Document {
   statistics?: IManagerStatisticsField;
   games?: Array<string>;
   region: Region;
+  blocked: boolean;
 
   getBalanceIn(region: Region): number;
 }
@@ -123,6 +124,10 @@ const UserSchema = new Schema<IUser>(
       type: String,
       required: true,
       enum: Object.values(REGIONS)
+    },
+    blocked: {
+      type: Boolean,
+      default: false
     }
   },
   {

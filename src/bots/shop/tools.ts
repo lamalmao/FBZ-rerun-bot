@@ -198,3 +198,10 @@ export function protectMarkdownString(target: string): string {
     .replaceAll(/\./g, '\\.')
     .replaceAll(/\!/g, '\\!');
 }
+
+export default function Format(target: string, ...matches): string {
+  const args = matches;
+  return target.replace(/{(\d+)}/g, function (match, number) {
+    return typeof args[number] !== 'undefined' ? args[number] : match;
+  });
+}

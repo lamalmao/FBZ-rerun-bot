@@ -6,6 +6,7 @@ import { errorLogger } from '../../logger.js';
 import User, { IUser, ROLES } from '../../models/users.js';
 import crypto from 'crypto';
 import fs from 'fs';
+import tp from 'typegram';
 import {
   Back,
   adminKeyboard,
@@ -48,7 +49,17 @@ export interface SessionData {
       values: Array<string>;
     };
   };
-
+  shareData?: {
+    action: 'message' | 'buttons' | 'photo' | 'text' | 'none';
+    entities?: Array<tp.MessageEntity>;
+    text?: string;
+    photo?: string;
+    preview?: number;
+    type?: 'text' | 'photo';
+    menu?: number;
+    extraMenu?: number;
+    keyboard?: Array<Array<any>>;
+  };
   message?: number;
 }
 
@@ -258,5 +269,12 @@ adminBot.command('load', getUserTo('context'), userIs([ROLES.ADMIN]), async (ctx
     popUp(ctx, error.message);
   }
 });
+
+adminBot.hears(
+  adminKeyboardButtons.spread,
+  getUserTo('context'),
+  userIs([ROLES.ADMIN]),
+  (ctx) => ctx.scene.enter('share-message')
+);
 
 export default adminBot;
