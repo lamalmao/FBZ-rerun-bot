@@ -289,7 +289,7 @@ ShareMessage.action(
 
       ctx.session.shareData.action = 'buttons';
       const extraMenu = await ctx.reply(
-        '__Отправьте список кнопок в формате:__\n_Текст Кнопки 1\\!data1, Текст Кнопки 2\\!data2\nТекст Кнопки 3\\!data3_\n\n__Вместо __data__ необходимо подставить один из вариантов ниже:_\nmenu \\- меню\nfaq \\- вопросы\nshop \\- магазин\nprofile \\- профиль\nguarantees \\- гарантии\nreviews \\- отзывы\nsupport \\- поддержка\nmain\\-category:id \\- основная категория\nsub\\-category:id \\- вложенная категория\nitem:id \\- товар_\nhttps://example.org \\- ссылка, ВАЖНО: ссылка обязательно должна начинаться с *http* или *https*\\!\n\n*Вместо id необходимо подставить id товара или категории на которую хотите ссылаться\nДанные кнопки НЕ будут работать внутри админ\\-бота*',
+        '__Отправьте список кнопок в формате:__\n_Текст Кнопки 1\\!data1, Текст Кнопки 2\\!data2\nТекст Кнопки 3\\!data3_\n\n__Вместо __data__ необходимо подставить один из вариантов ниже:_\nmenu \\- меню\nfaq \\- вопросы\nshop \\- магазин\nprofile \\- профиль\nguarantees \\- гарантии\nreviews \\- отзывы\nsupport \\- поддержка\nmain\\-category:id \\- основная категория\nsub\\-category:id \\- вложенная категория\nitem:id \\- товар_\nhttps://example\\.org \\- ссылка, ВАЖНО: ссылка обязательно должна начинаться с *http* или *https*\\!\n\n*Вместо id необходимо подставить id товара или категории на которую хотите ссылаться\nДанные кнопки НЕ будут работать внутри админ\\-бота*',
         {
           reply_markup: Markup.inlineKeyboard([
             [Markup.button.callback('Готово', 'done')]
@@ -366,32 +366,28 @@ ShareMessage.action('yes', getUserTo('context'), userIs([ROLES.ADMIN]), async (c
 
     const text = ctx.session.shareData.text;
     const entities = ctx.session.shareData.entities;
-    const photo = ctx.session.shareData.photo;
+    const photo = ctx.session.shareData.photo
+      ? ctx.session.shareData.photo
+      : {
+          url: HOST + '/default_logo'
+        };
     const reply_markup = ctx.session.shareData.keyboard
       ? Markup.inlineKeyboard(ctx.session.shareData.keyboard).reply_markup
       : undefined;
     const send =
       ctx.session.shareData.type === 'text'
-        ? async (user: number) =>
-            await shopBot.telegram.sendMessage(user, text, {
+        ? (user: number) =>
+            shopBot.telegram.sendMessage(user, text, {
               entities,
               reply_markup,
               disable_web_page_preview: true
             })
-        : async (user: number) =>
-            await shopBot.telegram.sendPhoto(
-              user,
-              photo
-                ? photo
-                : {
-                    url: HOST + '/default_logo'
-                  },
-              {
-                caption: text,
-                caption_entities: entities,
-                reply_markup
-              }
-            );
+        : (user: number) =>
+            shopBot.telegram.sendPhoto(user, photo, {
+              caption: text,
+              caption_entities: entities,
+              reply_markup
+            });
 
     const tasks: Array<Promise<void>> = [];
     for (const user of users) {
@@ -401,6 +397,7 @@ ShareMessage.action('yes', getUserTo('context'), userIs([ROLES.ADMIN]), async (c
             await send(user.telegramId);
             resolve();
           } catch (error: any) {
+            console.log(error.message);
             reject(error);
           }
         })
