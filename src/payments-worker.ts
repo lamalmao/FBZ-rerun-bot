@@ -77,7 +77,9 @@ async function paymentListener(req: http.IncomingMessage, res: http.ServerRespon
     }
 
     // prettier-ignore
-    shopBot.telegram.editMessageCaption(payment.user, payment.telegramMessage, undefined, `Счёт на __${payment.price.amount} ${CURRENCY_SIGNS[payment.price.region]}__ оплачен\\.\nВаш баланс пополнен`)
+    shopBot.telegram.editMessageCaption(payment.user, payment.telegramMessage, undefined, `Счёт на __${payment.price.amount} ${CURRENCY_SIGNS[payment.price.region]}__ оплачен\\.\nВаш баланс пополнен`, {
+      parse_mode: 'MarkdownV2'
+    })
       .catch(error => errorLogger.error(error.message));
 
     res.statusCode = 200;
