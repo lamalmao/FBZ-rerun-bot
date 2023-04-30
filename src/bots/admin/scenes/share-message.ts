@@ -51,11 +51,10 @@ ShareMessage.action('exit', jumpBack());
 ShareMessage.on(
   message('text'),
   deleteMessage,
-  userIs[ROLES.ADMIN],
+  getUserTo('context'),
+  userIs([ROLES.ADMIN]),
   async (ctx, next) => {
     try {
-      console.log(ctx.session.shareData);
-
       if (ctx.session.shareData?.action !== 'message') {
         next();
         return;
@@ -192,7 +191,7 @@ ShareMessage.action('done', getUserTo('context'), userIs([ROLES.ADMIN]), (ctx) =
 ShareMessage.on(
   message('photo'),
   getUserTo('context'),
-  userIs[ROLES.ADMIN],
+  userIs([ROLES.ADMIN]),
   deleteMessage,
   async (ctx, next) => {
     try {
