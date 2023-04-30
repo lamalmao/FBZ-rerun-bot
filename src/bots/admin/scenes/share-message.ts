@@ -50,8 +50,8 @@ ShareMessage.action('exit', jumpBack());
 
 ShareMessage.on(
   message('text'),
-  // getUserTo('context'),
-  // userIs[ROLES.ADMIN],
+  getUserTo('context'),
+  userIs[ROLES.ADMIN],
   deleteMessage,
   async (ctx, next) => {
     try {
@@ -70,7 +70,8 @@ ShareMessage.on(
       };
 
       const preview = await ctx.reply(ctx.message.text, {
-        entities: ctx.message.entities
+        entities: ctx.message.entities,
+        disable_web_page_preview: true
       });
       const menu = await ctx.reply('Редактирование сообщения на рассылку', {
         reply_markup: Markup.inlineKeyboard([
@@ -102,7 +103,7 @@ ShareMessage.on(
         const parsedLine: Array<any> = [];
         for (let item of line.split(',')) {
           item = item.trim();
-          const values: [string, string] = item.split(':') as [string, string];
+          const values: [string, string] = item.split('!') as [string, string];
           const buttonText = values[0].trimEnd();
           const buttonData = values[1].trimStart();
           if (buttonData.startsWith('http')) {
@@ -147,7 +148,8 @@ ShareMessage.on(
           text,
           {
             entities,
-            reply_markup
+            reply_markup,
+            disable_web_page_preview: true
           }
         );
       } else {
@@ -293,7 +295,8 @@ ShareMessage.action(
         {
           reply_markup: Markup.inlineKeyboard([
             [Markup.button.callback('Готово', 'done')]
-          ]).reply_markup
+          ]).reply_markup,
+          parse_mode: 'MarkdownV2'
         }
       );
       ctx.session.shareData.extraMenu = extraMenu.message_id;
@@ -374,7 +377,8 @@ ShareMessage.action('yes', getUserTo('context'), userIs([ROLES.ADMIN]), async (c
         ? async (user: number) =>
             await shopBot.telegram.sendMessage(user, text, {
               entities,
-              reply_markup
+              reply_markup,
+              disable_web_page_preview: true
             })
         : async (user: number) =>
             await shopBot.telegram.sendPhoto(

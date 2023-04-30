@@ -58,8 +58,10 @@ export function getUserTo(
       } else if (where === 'context') {
         ctx.userInstance = user ? user : undefined;
       }
+
       next();
     } catch (error: any) {
+      console.log(error.message);
       errorLogger.error(error.message);
     }
   }
@@ -74,8 +76,12 @@ export function userIs(
       ? ctx.userInstance
       : ctx.session.userInstance;
     if (!user || !roles.includes(user.role)) {
-      await ctx.reply('У вас недостаточно прав');
-      return;
+      try {
+        await ctx.reply('У вас недостаточно прав');
+        return;
+      } catch (error: any) {
+        errorLogger.error(error.message);
+      }
     }
     next();
   }
