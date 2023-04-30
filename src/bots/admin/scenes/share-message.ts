@@ -50,7 +50,7 @@ ShareMessage.action('exit', jumpBack());
 
 ShareMessage.on(
   message('text'),
-  getUserTo('context'),
+  getUserTo('session'),
   userIs[ROLES.ADMIN],
   deleteMessage,
   async (ctx, next) => {
@@ -172,7 +172,7 @@ ShareMessage.on(
   }
 );
 
-ShareMessage.action('done', getUserTo('context'), userIs([ROLES.ADMIN]), (ctx) => {
+ShareMessage.action('done', getUserTo('session'), userIs([ROLES.ADMIN]), (ctx) => {
   try {
     if (ctx.session.shareData) {
       ctx.session.shareData.action = 'none';
@@ -190,7 +190,7 @@ ShareMessage.action('done', getUserTo('context'), userIs([ROLES.ADMIN]), (ctx) =
 
 ShareMessage.on(
   message('photo'),
-  getUserTo('context'),
+  getUserTo('session'),
   userIs[ROLES.ADMIN],
   deleteMessage,
   async (ctx, next) => {
@@ -279,7 +279,7 @@ ShareMessage.on(
 
 ShareMessage.action(
   'edit-buttons',
-  getUserTo('context'),
+  getUserTo('session'),
   userIs([ROLES.ADMIN]),
   async (ctx) => {
     try {
@@ -306,7 +306,7 @@ ShareMessage.action(
 
 ShareMessage.action(
   'edit-text',
-  getUserTo('context'),
+  getUserTo('session'),
   userIs([ROLES.ADMIN]),
   async (ctx) => {
     if (!ctx.session.shareData) {
@@ -328,7 +328,7 @@ ShareMessage.action(
   }
 );
 
-ShareMessage.action('share', getUserTo('context'), userIs([ROLES.ADMIN]), async (ctx) => {
+ShareMessage.action('share', getUserTo('session'), userIs([ROLES.ADMIN]), async (ctx) => {
   try {
     const count = await User.countDocuments();
     await ctx.reply(
@@ -346,7 +346,7 @@ ShareMessage.action('share', getUserTo('context'), userIs([ROLES.ADMIN]), async 
 });
 
 ShareMessage.action('no', deleteMessage);
-ShareMessage.action('yes', getUserTo('context'), userIs([ROLES.ADMIN]), async (ctx) => {
+ShareMessage.action('yes', getUserTo('session'), userIs([ROLES.ADMIN]), async (ctx) => {
   try {
     if (
       !ctx.session.shareData ||
