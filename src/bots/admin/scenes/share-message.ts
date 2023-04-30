@@ -50,9 +50,9 @@ ShareMessage.action('exit', jumpBack());
 
 ShareMessage.on(
   message('text'),
+  deleteMessage,
   getUserTo('context'),
   userIs[ROLES.ADMIN],
-  deleteMessage,
   async (ctx, next) => {
     try {
       console.log(ctx.session.shareData);
