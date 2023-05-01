@@ -75,7 +75,7 @@ ShareMessage.on(
         reply_markup: Markup.inlineKeyboard([
           [Markup.button.callback('Добавить кнопки под сообщение', 'edit-buttons')],
           [Markup.button.callback('Изменить текст сообщения', 'edit-text')],
-          [Markup.button.callback('Добавить изображение', 'edit-photo')],
+          [Markup.button.callback('Изменить изображение', 'edit-photo')],
           [Markup.button.callback('Отмена', 'exit')]
         ]).reply_markup
       });
@@ -165,6 +165,29 @@ ShareMessage.on(
 
       ctx.session.shareData.text = text;
       ctx.session.shareData.entities = entities;
+    } catch (error: any) {
+      errorLogger.error(error.message);
+      popUp(ctx, error.message);
+    }
+  }
+);
+
+ShareMessage.action(
+  'edit-photo',
+  getUserTo('context'),
+  userIs([ROLES.ADMIN]),
+  async (ctx) => {
+    try {
+      if (!ctx.session.shareData) {
+        return;
+      }
+
+      const extraMenu = await ctx.reply('Отправьте новое изображение', {
+        reply_markup: Markup.inlineKeyboard([[Markup.button.callback('Готово', 'done')]])
+          .reply_markup
+      });
+      ctx.session.shareData.action = 'photo';
+      ctx.session.shareData.extraMenu = extraMenu.message_id;
     } catch (error: any) {
       errorLogger.error(error.message);
       popUp(ctx, error.message);
@@ -337,7 +360,8 @@ ShareMessage.action('share', getUserTo('context'), userIs([ROLES.ADMIN]), async 
       {
         reply_markup: Markup.inlineKeyboard([
           [Markup.button.callback('Да', 'yes'), Markup.button.callback('Нет', 'no')]
-        ]).reply_markup
+        ]).reply_markup,
+        parse_mode: 'MarkdownV2'
       }
     );
   } catch (error: any) {
@@ -368,9 +392,8 @@ ShareMessage.action('yes', getUserTo('context'), userIs([ROLES.ADMIN]), async (c
     const entities = ctx.session.shareData.entities;
     const photo = ctx.session.shareData.photo
       ? ctx.session.shareData.photo
-      : {
-          url: HOST + '/default_logo'
-        };
+      : HOST + '/default_logo';
+    console.log(photo);
     const reply_markup = ctx.session.shareData.keyboard
       ? Markup.inlineKeyboard(ctx.session.shareData.keyboard).reply_markup
       : undefined;
