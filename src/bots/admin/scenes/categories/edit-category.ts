@@ -57,7 +57,7 @@ EditCategory.enterHandler = async function (ctx: AdminBot) {
     const messageData = await genCategoryEditingMenu(category);
     await replyAndDeletePrevious(
       ctx,
-      messageData[0].replaceAll(/\</g, '\\<').replaceAll(/\>/g, '\\\\>'),
+      messageData[0],
       {
         disable_web_page_preview: true,
         reply_markup: messageData[1].reply_markup

@@ -136,13 +136,7 @@ EditItem.on(
 
           update = {
             $set: {
-              description:
-                value === '-'
-                  ? '-'
-                  : value
-                      .replaceAll(/\-/g, '\\-')
-                      .replaceAll(/\!/g, '\\!')
-                      .replaceAll(/\./g, '\\.')
+              description: value === '-' ? '\\-' : value
             }
           };
           break;

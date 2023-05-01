@@ -9,6 +9,7 @@ import { InlineKeyboardMarkup } from 'telegraf/types';
 import { IItem, ITEM_TYPES, currencies } from '../../models/goods.js';
 import moment from 'moment';
 import { ShopBot } from '../shop/shop-bot.js';
+import { protectMarkdownString } from '../shop/tools.js';
 
 export function getUsername(ctx: AdminBot): string {
   let username, old: string | undefined;
@@ -204,7 +205,7 @@ export async function genCategoryEditingMenu(
     [Markup.button.callback('Выйти', 'exit')]
   ]);
 
-  return [message, keyboard];
+  return [protectMarkdownString(message), keyboard];
 }
 
 export function cbFilter(filter: string | RegExp) {
@@ -343,7 +344,7 @@ export async function genItemEditingMenu(
     ]
   ]);
 
-  return [text, keyboard];
+  return [protectMarkdownString(text), keyboard];
 }
 
 export function makeColumnsKeyboard(

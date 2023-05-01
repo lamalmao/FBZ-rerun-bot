@@ -2,6 +2,7 @@ import { Scenes } from 'telegraf';
 import { AdminBot } from '../../admin-bot.js';
 import { errorLogger } from '../../../../logger.js';
 import Category, { CATEGORY_BLANK } from '../../../../models/categories.js';
+import { protectMarkdownString } from '../../../shop/tools.js';
 
 const CreateCategory = new Scenes.BaseScene<AdminBot>('create-category');
 
@@ -11,8 +12,9 @@ CreateCategory.enterHandler = async function (ctx: AdminBot) {
     const categoriesCount = await Category.countDocuments();
     const category = await Category.create({
       image: CATEGORY_BLANK,
-      description:
-        'Описание категории \nДлина не более 3096 символов\nФорматирование MarkdownV2 https://core.telegram.org/bots/api#formatting-options',
+      description: protectMarkdownString(
+        'Описание категории \nДлина не более 3096 символов\nФорматирование MarkdownV2 https://core.telegram.org/bots/api#formatting-options'
+      ),
       title: 'Категория ' + (categoriesCount + 1),
       hidden: true,
       type: 'main'

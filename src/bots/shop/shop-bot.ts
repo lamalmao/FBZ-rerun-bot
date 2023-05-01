@@ -166,9 +166,11 @@ shopBot.action(
         }
       });
       await ctx.editMessageCaption(
-        `__${mainCategory.title}__` + mainCategory.description !== '-'
-          ? `\n\n${mainCategory.description}`
-          : '',
+        protectMarkdownString(
+          `__${mainCategory.title}__` + mainCategory.description !== '\\-'
+            ? `\n\n${mainCategory.description}`
+            : ''
+        ),
         {
           parse_mode: 'MarkdownV2',
           reply_markup: Markup.inlineKeyboard(keyboard).reply_markup
@@ -229,9 +231,11 @@ shopBot.action(/sub-category:[a-z0-9]+$/, getUser(), appear, checkAccess, async 
       }
     });
     await ctx.editMessageCaption(
-      `__${category.title}__` + category.description !== '-'
-        ? `\n\n${category.description}`
-        : '',
+      protectMarkdownString(
+        `__${category.title}__` + category.description !== '-'
+          ? `\n\n${category.description}`
+          : ''
+      ),
       {
         parse_mode: 'MarkdownV2',
         reply_markup: Markup.inlineKeyboard(keyboard).reply_markup
@@ -280,7 +284,7 @@ shopBot.action(/item:[a-z0-9]+$/, getUser(), appear, checkAccess, async (ctx) =>
     });
     await ctx.editMessageCaption(
       // prettier-ignore
-      `*Товар:* ${item.title}\n*Цена:* ${item.getRealPriceIn(region)} ${CURRENCY_SIGNS[region]}${item.description !== '-' ? '\n\n' + item.description : ''}`,
+      protectMarkdownString(`*Товар:* ${item.title}\n*Цена:* ${item.getRealPriceIn(region)} ${CURRENCY_SIGNS[region]}${item.description !== '-' ? '\n\n' + item.description : ''}`),
       {
         reply_markup: Markup.inlineKeyboard([
           [Markup.button.callback('Купить', 'buy:' + itemId)],
@@ -361,6 +365,12 @@ shopBot.action(
 
       const amount = Number(parsedData[1]);
       const region = parsedData[2] as Region;
+
+      // temporary
+      if (['ua', 'eu', 'by'].includes(region)) {
+        throw new Error('На данный момент пополнение из вашего региона недоступно');
+      }
+
       ctx.refill = {
         amount,
         region
@@ -369,6 +379,7 @@ shopBot.action(
       ctx.scene.enter('refill');
     } catch (error: any) {
       errorLogger.error(error.message);
+      popUp(ctx, error.message);
       showMenu(ctx);
     }
   }
