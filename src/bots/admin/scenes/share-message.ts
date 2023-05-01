@@ -356,7 +356,7 @@ ShareMessage.action('share', getUserTo('context'), userIs([ROLES.ADMIN]), async 
   try {
     const count = await User.countDocuments();
     await ctx.reply(
-      `Вы уверены что хотите разослать это сообщение __${count}__ пользователям(ю)`,
+      `Вы уверены что хотите разослать это сообщение __${count}__ пользователям\\(ю\\)`,
       {
         reply_markup: Markup.inlineKeyboard([
           [Markup.button.callback('Да', 'yes'), Markup.button.callback('Нет', 'no')]
