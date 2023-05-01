@@ -4,8 +4,12 @@ import { AdminBot } from '../admin-bot.js';
 import { errorLogger } from '../../../logger.js';
 import { deleteMessage, getUserTo, jumpBack, popUp, userIs } from '../tools.js';
 import User, { ROLES } from '../../../models/users.js';
-import { HOST } from '../../../properties.js';
+import { CONSTANTS, HOST } from '../../../properties.js';
 import shopBot from '../../shop/shop-bot.js';
+import { writeFile } from 'fs/promises';
+import fetch from 'node-fetch';
+import crypto from 'crypto';
+import path from 'path';
 
 const ShareMessage = new Scenes.BaseScene<AdminBot>('share-message');
 ShareMessage.enterHandler = async function (ctx: AdminBot) {
@@ -390,10 +394,21 @@ ShareMessage.action('yes', getUserTo('context'), userIs([ROLES.ADMIN]), async (c
 
     const text = ctx.session.shareData.text;
     const entities = ctx.session.shareData.entities;
-    const photo = ctx.session.shareData.photo
-      ? ctx.session.shareData.photo
-      : HOST + '/default_logo';
-    console.log(photo);
+    let photo = 'default_logo';
+
+    if (ctx.session.shareData.photo) {
+      photo = crypto.randomBytes(8).toString('hex');
+      const photoLink = await ctx.telegram.getFileLink(ctx.session.shareData.photo);
+
+      const res = await fetch(photoLink);
+      const buf = await res.body;
+      if (!buf) {
+        throw new Error('Ошибка во время загрузки файла');
+      }
+
+      await writeFile(path.join(CONSTANTS.IMAGES, photo + '.jpg'), buf);
+    }
+
     const reply_markup = ctx.session.shareData.keyboard
       ? Markup.inlineKeyboard(ctx.session.shareData.keyboard).reply_markup
       : undefined;
@@ -406,7 +421,7 @@ ShareMessage.action('yes', getUserTo('context'), userIs([ROLES.ADMIN]), async (c
               disable_web_page_preview: true
             })
         : (user: number) =>
-            shopBot.telegram.sendPhoto(user, photo, {
+            shopBot.telegram.sendPhoto(user, HOST + '/' + photo, {
               caption: text,
               caption_entities: entities,
               reply_markup
@@ -420,7 +435,7 @@ ShareMessage.action('yes', getUserTo('context'), userIs([ROLES.ADMIN]), async (c
             await send(user.telegramId);
             resolve();
           } catch (error: any) {
-            console.log(error.message);
+            errorLogger.error(error.message);
             reject(error);
           }
         })
