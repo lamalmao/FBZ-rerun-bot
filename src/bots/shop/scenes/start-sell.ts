@@ -25,15 +25,12 @@ startSell.enterHandler = async function (ctx: ShopBot): Promise<void> {
     const item = await Item.findById(itemId, {
       scenario: 1,
       title: 1,
-      price: 1
+      price: 1,
+      discount: 1
     });
     if (!item) {
       throw new Error('Item not found');
     }
-
-    console.log(user.region);
-    const amount = item.getRealPriceIn(user.region);
-    console.log(amount);
 
     const order = await Order.create({
       client: ctx.from.id,
