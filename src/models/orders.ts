@@ -60,10 +60,7 @@ const OrderSchema = new Schema<IOrder>({
     type: Number,
     required: true
   },
-  manager: {
-    type: Number,
-    required: false
-  },
+  manager: Number,
   status: {
     type: String,
     required: true,
@@ -125,8 +122,7 @@ const OrderSchema = new Schema<IOrder>({
     data: {
       type: String,
       required: true
-    },
-    required: false
+    }
   },
   data: {
     login: String,
@@ -136,8 +132,7 @@ const OrderSchema = new Schema<IOrder>({
       type: String,
       required: true,
       default: false
-    },
-    required: false
+    }
   }
 });
 
