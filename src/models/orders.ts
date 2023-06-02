@@ -53,7 +53,7 @@ const OrderSchema = new Schema<IOrder>({
     required: true,
     unique: true,
     default() {
-      return crypto.randomInt(1_000_000_0, 9_999_999_9);
+      return crypto.randomInt(1_000_000_0, 10_000_000);
     }
   },
   client: {
@@ -111,26 +111,18 @@ const OrderSchema = new Schema<IOrder>({
   refund: {
     status: {
       type: String,
-      required: true,
       enum: {
         values: Object.values(ORDER_STATUSES),
         message: 'Неизвестный статус заказ: {VALUE}'
       }
     },
-    data: {
-      type: String,
-      required: true
-    }
+    data: String
   },
   data: {
     login: String,
     password: String,
     byCode: Boolean,
-    dialogue: {
-      type: String,
-      required: true,
-      default: false
-    }
+    dialogue: String
   }
 });
 
