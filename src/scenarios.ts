@@ -46,7 +46,7 @@ class ScenarioButton {
     this.pointer = pointer;
   }
 
-  public markupData(itemId: MongooseTypes.ObjectId): InlineKeyboardButton {
+  markupData(itemId: MongooseTypes.ObjectId): InlineKeyboardButton {
     let data: string;
 
     if (this.type != SCENARIO_BUTTONS_TYPES.CANCEL) {
@@ -67,7 +67,7 @@ class ScenarioButton {
   }
 }
 
-class ScenarioAct {
+export class ScenarioAct {
   public buttons: Array<Array<ScenarioButton>>;
   public content: string;
   public type: string;
@@ -123,14 +123,14 @@ class ScenarioAct {
   }
 
   public getTelegramKeyboardMarkup(
-    itemId: MongooseTypes.ObjectId
+    orderId: MongooseTypes.ObjectId
   ): Markup.Markup<InlineKeyboardMarkup> {
     const keyboardArray = new Array<Array<InlineKeyboardButton>>();
 
     this.buttons.forEach((line) => {
       const newLine = new Array<InlineKeyboardButton>();
       line.forEach((button) => {
-        newLine.push(button.markupData(itemId));
+        newLine.push(button.markupData(orderId));
       });
 
       keyboardArray.push(newLine);

@@ -339,7 +339,7 @@ shopBot.action(/buy:[a-z0-9]+/i, getUser(), appear, checkAccess, async (ctx) => 
       return;
     }
 
-    // to be continued
+    await ctx.scene.enter('sell-process');
   } catch (error: any) {
     errorLogger.error(error.message);
     showMenu(ctx);
