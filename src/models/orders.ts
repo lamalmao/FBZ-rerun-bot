@@ -53,7 +53,7 @@ const OrderSchema = new Schema<IOrder>({
     required: true,
     unique: true,
     default() {
-      return crypto.randomInt(1_000_000_0, 10_000_000);
+      return crypto.randomInt(1_000_000, 10_000_000);
     }
   },
   client: {
