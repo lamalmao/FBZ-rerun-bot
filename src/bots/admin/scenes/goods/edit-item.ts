@@ -50,7 +50,7 @@ EditItem.enterHandler = async function (ctx: AdminBot) {
       protectMarkdownString(message),
       {
         reply_markup: messageData[1].reply_markup
-        // parse_mode: 'MarkdownV2'
+        parse_mode: 'MarkdownV2'
       },
       `${HOST}/${item.cover.images.ru}`
     );
