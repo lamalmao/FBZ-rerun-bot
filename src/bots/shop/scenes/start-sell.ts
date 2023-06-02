@@ -6,6 +6,7 @@ import { Types } from 'mongoose';
 import Item from '../../../models/goods.js';
 import { Scenario } from '../../../scenarios.js';
 import Order from '../../../models/orders.js';
+import { protectMarkdownString } from '../tools.js';
 
 const startSell = new Scenes.BaseScene<ShopBot>('start-sell');
 startSell.enterHandler = async function (ctx: ShopBot): Promise<void> {
@@ -55,7 +56,7 @@ startSell.enterHandler = async function (ctx: ShopBot): Promise<void> {
     }
 
     const keyboard = act.getTelegramKeyboardMarkup(order._id);
-    const text = act.content;
+    const text = protectMarkdownString(act.content);
 
     await ctx.editMessageCaption(text, {
       reply_markup: keyboard.reply_markup,
