@@ -43,7 +43,6 @@ EditItem.enterHandler = async function (ctx: AdminBot) {
 
     const messageData = await genItemEditingMenu(item);
     const message = protectMarkdownString(messageData[0]);
-    console.log(message);
 
     await replyAndDeletePrevious(
       ctx,
