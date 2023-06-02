@@ -31,6 +31,7 @@ startSell.enterHandler = async function (ctx: ShopBot): Promise<void> {
       throw new Error('Item not found');
     }
 
+    console.log(user.region);
     const amount = item.getRealPriceIn(user.region);
     console.log(amount);
 
