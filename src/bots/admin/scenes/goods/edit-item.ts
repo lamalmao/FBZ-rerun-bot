@@ -22,6 +22,7 @@ import { Render } from '../../../../render.js';
 import Category, { CATEGORY_TYPES } from '../../../../models/categories.js';
 import { Types } from 'mongoose';
 import { Scenario } from '../../../../scenarios.js';
+import { protectMarkdownString } from '../../../shop/tools.js';
 
 const EditItem = new Scenes.BaseScene<AdminBot>('edit-item');
 EditItem.enterHandler = async function (ctx: AdminBot) {
@@ -41,12 +42,12 @@ EditItem.enterHandler = async function (ctx: AdminBot) {
     }
 
     const messageData = await genItemEditingMenu(item);
+    const message = protectMarkdownString(messageData[0]);
+    console.log(message);
+
     await replyAndDeletePrevious(
       ctx,
-      messageData[0]
-        .replaceAll(/\-/g, '\\-')
-        .replaceAll(/\!/g, '\\!')
-        .replaceAll(/\./g, '\\.'),
+      protectMarkdownString(message),
       {
         reply_markup: messageData[1].reply_markup,
         parse_mode: 'MarkdownV2'
