@@ -90,8 +90,7 @@ const OrderSchema = new Schema<IOrder>({
         message: 'Недоступный регион оплаты: {VALUE}'
       },
       default: REGIONS.RU
-    },
-    required: true
+    }
   },
   item: {
     id: {
@@ -101,8 +100,7 @@ const OrderSchema = new Schema<IOrder>({
     title: {
       type: String,
       required: true
-    },
-    required: true
+    }
   },
   paid: {
     type: Boolean,
