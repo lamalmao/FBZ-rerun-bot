@@ -89,7 +89,7 @@ sellProcess.enterHandler = async function (ctx: ShopBot): Promise<void> {
   }
 };
 
-async function proceedNext(ctx: ShopBot, next?: CallableFunction) {
+async function proceedNext(ctx: ShopBot) {
   try {
     if (!ctx.from) {
       throw new Error('No user data');
