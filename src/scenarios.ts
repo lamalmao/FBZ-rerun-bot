@@ -6,19 +6,19 @@ import { Markup } from 'telegraf';
 import { CONSTANTS } from './properties.js';
 import { errorLogger, infoLogger } from './logger.js';
 
-const SCENARIO_BUTTONS_TYPES = {
+export const SCENARIO_BUTTONS_TYPES = {
   MOVE: 'move', // Переместиться на указанный шаг
   CANCEL: 'cancel', // Отменить покупку
   SELL: 'sell' // Купить
 };
 
-const SCENARIO_ACTS_TYPES = {
+export const SCENARIO_ACTS_TYPES = {
   INFO: 'info', // Информационный шаг
-  DATA: 'data', // Шаг для запроса информации на ввод (логины пароли и тп)
-  SHOWUP: 'showup' // Шаг с демонстрацией введенных пользователем данных ему же для проверки
+  DATA: 'data' // Шаг для запроса информации на ввод (логины пароли и тп)
+  // SHOWUP: 'showup' // Шаг с демонстрацией введенных пользователем данных ему же для проверки
 };
 
-const SCENARIO_DATA_TYPES = {
+export const SCENARIO_DATA_TYPES = {
   LOGIN: 'login', // Любой вид логина, т.е. почта или пароль
   EMAIL: 'email', // Почта в качестве логина
   NUMBER: 'number', // Номер в качестве логина
@@ -123,14 +123,14 @@ export class ScenarioAct {
   }
 
   public getTelegramKeyboardMarkup(
-    orderId: MongooseTypes.ObjectId
+    itemId: MongooseTypes.ObjectId
   ): Markup.Markup<InlineKeyboardMarkup> {
     const keyboardArray = new Array<Array<InlineKeyboardButton>>();
 
     this.buttons.forEach((line) => {
       const newLine = new Array<InlineKeyboardButton>();
       line.forEach((button) => {
-        newLine.push(button.markupData(orderId));
+        newLine.push(button.markupData(itemId));
       });
 
       keyboardArray.push(newLine);

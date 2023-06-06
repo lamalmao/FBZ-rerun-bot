@@ -13,9 +13,11 @@ import {
 } from './tools.js';
 import Category, { CATEGORY_TYPES } from '../../models/categories.js';
 import { Types } from 'mongoose';
-import Item from '../../models/goods.js';
+import Item, { IItem } from '../../models/goods.js';
 import ShopStage from './scenes/index.js';
 import LocalSession from 'telegraf-session-local';
+import { IOrder } from '../../models/orders.js';
+import { Scenario } from '../../scenarios.js';
 
 export const CURRENCY_SIGNS = {
   ru: '₽',
@@ -33,6 +35,18 @@ export interface ShopBot extends BotContext {
   refill?: {
     amount: number;
     region: Region;
+  };
+  sellProcess?: {
+    scenario: Scenario;
+    item: IItem;
+    order: IOrder;
+    step: number;
+    previous?: number;
+    dataRequest?: {
+      target: string;
+      validation: boolean;
+    };
+    data: Map<string, string>;
   };
 }
 
@@ -339,7 +353,7 @@ shopBot.action(/buy:[a-z0-9]+/i, getUser(), appear, checkAccess, async (ctx) => 
       return;
     }
 
-    await ctx.scene.enter('start-sell');
+    await ctx.scene.enter('sell-process');
   } catch (error: any) {
     errorLogger.error(error.message);
     showMenu(ctx);
