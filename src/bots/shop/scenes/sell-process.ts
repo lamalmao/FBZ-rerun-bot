@@ -89,7 +89,7 @@ sellProcess.enterHandler = async function (ctx: ShopBot): Promise<void> {
   }
 };
 
-sellProcess.action(moveReg, async (ctx) => {
+async function proceedNext(ctx: ShopBot, next?: CallableFunction) {
   try {
     if (!ctx.from) {
       throw new Error('No user data');
@@ -99,11 +99,25 @@ sellProcess.action(moveReg, async (ctx) => {
       throw new Error('No sell data ' + ctx.from.id);
     }
 
-    const rawData = moveReg.exec(ctx.callbackQuery['data']);
-    if (!rawData) {
-      throw new Error('Data not parsed');
+    let actId: number;
+    if (!ctx.callbackQuery) {
+      const actData = ctx.session.sellProcess.scenario.acts.get(
+        ctx.session.sellProcess.step
+      );
+      if (!actData || !actData.next) {
+        throw new Error(
+          'Next step not provided in data block ' + ctx.session.sellProcess.scenario.name
+        );
+      }
+
+      actId = actData.next;
+    } else {
+      const rawData = moveReg.exec(ctx.callbackQuery['data']);
+      if (!rawData) {
+        throw new Error('Data not parsed');
+      }
+      actId = Number.parseInt(rawData[1]);
     }
-    const actId = Number.parseInt(rawData[1]);
 
     const act = ctx.session.sellProcess.scenario.acts.get(actId);
     if (!act) {
@@ -116,7 +130,8 @@ sellProcess.action(moveReg, async (ctx) => {
 
     await ctx.editMessageCaption(protectMarkdownString(act.content), {
       reply_markup: act.getTelegramKeyboardMarkup(ctx.session.sellProcess.item._id)
-        .reply_markup
+        .reply_markup,
+      parse_mode: 'MarkdownV2'
     });
 
     ctx.session.sellProcess.previous = ctx.session.sellProcess.step;
@@ -142,7 +157,9 @@ sellProcess.action(moveReg, async (ctx) => {
     errorLogger.error(error.message);
     popUp(ctx, 'Произошла ошибка, попробуйте снова.\nЕсли вы застряли, напишите /start');
   }
-});
+}
+
+sellProcess.action(moveReg, proceedNext);
 
 sellProcess.action(cancelReg, (ctx) => {
   showMenu(ctx);
@@ -258,6 +275,8 @@ sellProcess.on(
               return;
             }
             break;
+          default:
+            proceedNext(ctx);
         }
       }
 
