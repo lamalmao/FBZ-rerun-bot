@@ -95,6 +95,8 @@ sellProcess.action(moveReg, async (ctx) => {
       throw new Error('No user data');
     }
 
+    console.log(ctx.sellProcess);
+
     if (!ctx.sellProcess) {
       throw new Error('No sell data ' + ctx.from.id);
     }
