@@ -22,6 +22,8 @@ const sellReg = new RegExp(`${SCENARIO_BUTTONS_TYPES.SELL}#([a-z0-9]+)`, 'i');
 const sellProcess = new Scenes.BaseScene<ShopBot>('sell-process');
 sellProcess.enterHandler = async function (ctx: ShopBot): Promise<void> {
   try {
+    console.log(ctx.message);
+
     if (!ctx.callbackQuery || !ctx.from || !ctx.userInstance || !ctx.message) {
       throw new Error('No data');
     }
