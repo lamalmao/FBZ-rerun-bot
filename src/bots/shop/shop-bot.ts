@@ -36,6 +36,10 @@ export interface ShopBot extends BotContext {
     amount: number;
     region: Region;
   };
+  session: ShopSession & Scenes.SceneSession<Scenes.SceneSessionData>;
+}
+
+interface ShopSession {
   sellProcess?: {
     scenario: Scenario;
     item: IItem;
@@ -50,7 +54,7 @@ export interface ShopBot extends BotContext {
   };
 }
 
-const shopSession = new LocalSession({
+const shopSession = new LocalSession<ShopSession>({
   property: 'session',
   storage: LocalSession.storageMemory
 });

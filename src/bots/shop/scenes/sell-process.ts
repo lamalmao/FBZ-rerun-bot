@@ -74,7 +74,7 @@ sellProcess.enterHandler = async function (ctx: ShopBot): Promise<void> {
       parse_mode: 'MarkdownV2'
     });
 
-    ctx.sellProcess = {
+    ctx.session.sellProcess = {
       scenario,
       item,
       order,
@@ -95,9 +95,7 @@ sellProcess.action(moveReg, async (ctx) => {
       throw new Error('No user data');
     }
 
-    console.log(ctx.sellProcess);
-
-    if (!ctx.sellProcess) {
+    if (!ctx.session.sellProcess) {
       throw new Error('No sell data ' + ctx.from.id);
     }
 
@@ -107,19 +105,22 @@ sellProcess.action(moveReg, async (ctx) => {
     }
     const actId = Number.parseInt(rawData[1]);
 
-    const act = ctx.sellProcess.scenario.acts.get(actId);
+    const act = ctx.session.sellProcess.scenario.acts.get(actId);
     if (!act) {
-      throw new Error(`Act ${actId} in ${ctx.sellProcess.scenario.name} not found`);
+      throw new Error(
+        `Act ${actId} in ${ctx.session.sellProcess.scenario.name} not found`
+      );
     }
 
-    ctx.sellProcess.dataRequest = undefined;
+    ctx.session.sellProcess.dataRequest = undefined;
 
     await ctx.editMessageCaption(protectMarkdownString(act.content), {
-      reply_markup: act.getTelegramKeyboardMarkup(ctx.sellProcess.item._id).reply_markup
+      reply_markup: act.getTelegramKeyboardMarkup(ctx.session.sellProcess.item._id)
+        .reply_markup
     });
 
-    ctx.sellProcess.previous = ctx.sellProcess.step;
-    ctx.sellProcess.step = actId;
+    ctx.session.sellProcess.previous = ctx.session.sellProcess.step;
+    ctx.session.sellProcess.step = actId;
 
     switch (act.type) {
       case SCENARIO_ACTS_TYPES.INFO:
@@ -127,11 +128,11 @@ sellProcess.action(moveReg, async (ctx) => {
       case SCENARIO_ACTS_TYPES.DATA:
         if (!act.dataType) {
           throw new Error(
-            `Data type not found in act ${act.id} of scenario ${ctx.sellProcess.scenario.name}`
+            `Data type not found in act ${act.id} of scenario ${ctx.session.sellProcess.scenario.name}`
           );
         }
 
-        ctx.sellProcess.dataRequest = {
+        ctx.session.sellProcess.dataRequest = {
           target: act.dataType,
           validation: Boolean(act.validate)
         };
@@ -150,14 +151,14 @@ sellProcess.action(cancelReg, (ctx) => {
 
 sellProcess.action(sellReg, getUser(), async (ctx) => {
   try {
-    if (!ctx.sellProcess || !ctx.from || !ctx.userInstance) {
+    if (!ctx.session.sellProcess || !ctx.from || !ctx.userInstance) {
       throw new Error('No data');
     }
 
-    const price = ctx.sellProcess.item.getRealPrice();
+    const price = ctx.session.sellProcess.item.getRealPrice();
     if (price > ctx.userInstance.balance) {
       const difference = Math.ceil(
-        ctx.sellProcess.item.getPriceIn(ctx.userInstance.region) -
+        ctx.session.sellProcess.item.getPriceIn(ctx.userInstance.region) -
           ctx.userInstance.getBalanceIn(ctx.userInstance.region)
       );
 
@@ -172,8 +173,8 @@ sellProcess.action(sellReg, getUser(), async (ctx) => {
       });
     }
 
-    ctx.sellProcess.order.paid = true;
-    ctx.sellProcess.order.status = ORDER_STATUSES.UNTAKEN;
+    ctx.session.sellProcess.order.paid = true;
+    ctx.session.sellProcess.order.status = ORDER_STATUSES.UNTAKEN;
 
     const tasks = [
       User.updateOne(
@@ -182,13 +183,13 @@ sellProcess.action(sellReg, getUser(), async (ctx) => {
         },
         {
           balance: {
-            $inc: -ctx.sellProcess.item.getRealPrice()
+            $inc: -ctx.session.sellProcess.item.getRealPrice()
           }
         }
       ),
       Order.updateOne(
         {
-          orderId: ctx.sellProcess.order.orderId
+          orderId: ctx.session.sellProcess.order.orderId
         },
         {
           $set: {
@@ -202,7 +203,9 @@ sellProcess.action(sellReg, getUser(), async (ctx) => {
     await Promise.all(tasks);
 
     await ctx.editMessageCaption(
-      protectMarkdownString(`Ваш заказ \`${ctx.sellProcess.order.orderId}\` оформлен`)
+      protectMarkdownString(
+        `Ваш заказ \`${ctx.session.sellProcess.order.orderId}\` оформлен`
+      )
     );
   } catch (error: any) {
     errorLogger.error(error.message);
@@ -213,7 +216,7 @@ sellProcess.action(sellReg, getUser(), async (ctx) => {
 sellProcess.on(
   message('text'),
   (ctx, next) => {
-    if (!ctx.sellProcess || !ctx.sellProcess.dataRequest) {
+    if (!ctx.session.sellProcess || !ctx.session.sellProcess.dataRequest) {
       return;
     }
 
@@ -223,13 +226,13 @@ sellProcess.on(
     try {
       ctx.deleteMessage().catch(() => null);
 
-      if (!ctx.sellProcess || !ctx.sellProcess.dataRequest) {
+      if (!ctx.session.sellProcess || !ctx.session.sellProcess.dataRequest) {
         throw new Error('Data not found');
       }
 
       let value = ctx.message.text;
-      if (ctx.sellProcess.dataRequest.validation) {
-        switch (ctx.sellProcess.dataRequest.target) {
+      if (ctx.session.sellProcess.dataRequest.validation) {
+        switch (ctx.session.sellProcess.dataRequest.target) {
           case SCENARIO_DATA_TYPES.EMAIL:
             if (
               !/(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/.test(
@@ -258,7 +261,7 @@ sellProcess.on(
         }
       }
 
-      ctx.sellProcess.data.set(ctx.sellProcess.dataRequest.target, value);
+      ctx.session.sellProcess.data.set(ctx.session.sellProcess.dataRequest.target, value);
       popUp(ctx, 'Сохранено', undefined, 1000);
     } catch (error: any) {
       errorLogger.error(error.message);
