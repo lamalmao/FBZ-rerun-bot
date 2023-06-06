@@ -51,6 +51,7 @@ interface ShopSession {
       validation: boolean;
     };
     data: Map<string, string>;
+    messageId: number;
   };
 }
 

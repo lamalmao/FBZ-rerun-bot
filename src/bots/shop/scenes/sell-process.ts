@@ -22,7 +22,7 @@ const sellReg = new RegExp(`${SCENARIO_BUTTONS_TYPES.SELL}#([a-z0-9]+)`, 'i');
 const sellProcess = new Scenes.BaseScene<ShopBot>('sell-process');
 sellProcess.enterHandler = async function (ctx: ShopBot): Promise<void> {
   try {
-    if (!ctx.callbackQuery || !ctx.from || !ctx.userInstance) {
+    if (!ctx.callbackQuery || !ctx.from || !ctx.userInstance || !ctx.message) {
       throw new Error('No data');
     }
 
@@ -80,7 +80,8 @@ sellProcess.enterHandler = async function (ctx: ShopBot): Promise<void> {
       order,
       step: 0,
       previous: 0,
-      data: new Map<string, string>()
+      data: new Map<string, string>(),
+      messageId: ctx.message.message_id
     };
   } catch (e: any) {
     errorLogger.error(e.message);
@@ -130,11 +131,17 @@ async function proceedNext(ctx: ShopBot) {
 
     ctx.session.sellProcess.dataRequest = undefined;
 
-    await ctx.editMessageCaption(protectMarkdownString(act.content), {
-      reply_markup: act.getTelegramKeyboardMarkup(ctx.session.sellProcess.item._id)
-        .reply_markup,
-      parse_mode: 'MarkdownV2'
-    });
+    await ctx.telegram.editMessageCaption(
+      ctx.from.id,
+      ctx.session.sellProcess.messageId,
+      undefined,
+      protectMarkdownString(wrapDataReplacers(act.content, ctx.session.sellProcess.data)),
+      {
+        reply_markup: act.getTelegramKeyboardMarkup(ctx.session.sellProcess.item._id)
+          .reply_markup,
+        parse_mode: 'MarkdownV2'
+      }
+    );
 
     ctx.session.sellProcess.previous = ctx.session.sellProcess.step;
     ctx.session.sellProcess.step = actId;
@@ -292,5 +299,25 @@ sellProcess.on(
     }
   }
 );
+
+function wrapDataReplacers(text: string, data: Map<string, string>): string {
+  let result = text;
+  for (const [key, value] of data) {
+    result = result.replace(
+      new RegExp(`\{${key}\}`, 'gi'),
+      value ? wrapDangerousData(value) : 'не указан'
+    );
+  }
+
+  return result;
+}
+
+function wrapDangerousData(target: string): string {
+  return target
+    .replace(/\(/g, '\\(')
+    .replace(/\)/g, '\\)')
+    .replace(/\[/g, '\\[')
+    .replace(/\]/g, '\\]');
+}
 
 export default sellProcess;
