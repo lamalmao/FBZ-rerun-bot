@@ -119,6 +119,8 @@ async function proceedNext(ctx: ShopBot) {
       actId = Number.parseInt(rawData[1]);
     }
 
+    console.log(actId);
+
     const act = ctx.session.sellProcess.scenario.acts.get(actId);
     if (!act) {
       throw new Error(
@@ -275,13 +277,12 @@ sellProcess.on(
               return;
             }
             break;
-          default:
-            proceedNext(ctx);
         }
       }
 
       ctx.session.sellProcess.data.set(ctx.session.sellProcess.dataRequest.target, value);
       popUp(ctx, 'Сохранено', undefined, 1000);
+      proceedNext(ctx);
     } catch (error: any) {
       errorLogger.error(error.message);
       popUp(
