@@ -308,7 +308,10 @@ sellProcess.on(
 function wrapDataReplacers(text: string, data: Map<string, string>): string {
   let result = text;
   for (const [key, value] of data) {
-    result = result.replace(new RegExp(`\{${key}\}`, 'gi'), value ? value : 'не указан');
+    result = result.replace(
+      new RegExp(`\{${key}\}`, 'gi'),
+      wrapDangerousData(value) ? value : 'не указан'
+    );
   }
 
   const filter = new RegExp(
@@ -317,7 +320,7 @@ function wrapDataReplacers(text: string, data: Map<string, string>): string {
   );
   result = result.replace(filter, 'не указан');
 
-  return wrapDangerousData(result);
+  return result;
 }
 
 function wrapDangerousData(target: string): string {
