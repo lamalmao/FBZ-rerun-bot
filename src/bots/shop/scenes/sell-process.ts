@@ -15,7 +15,7 @@ import Order, { ORDER_STATUSES } from '../../../models/orders.js';
 import { getUser, protectMarkdownString, showMenu } from '../tools.js';
 import User from '../../../models/users.js';
 
-const moveReg = new RegExp(`${SCENARIO_BUTTONS_TYPES.MOVE}#(\d+)`, 'i');
+const moveReg = new RegExp(`${SCENARIO_BUTTONS_TYPES.MOVE}#(\\d+)`, 'i');
 const cancelReg = new RegExp(`${SCENARIO_BUTTONS_TYPES.CANCEL}#([a-z0-9]+)`, 'i');
 const sellReg = new RegExp(`${SCENARIO_BUTTONS_TYPES.SELL}#([a-z0-9]+)`, 'i');
 
