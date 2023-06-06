@@ -22,9 +22,12 @@ const sellReg = new RegExp(`${SCENARIO_BUTTONS_TYPES.SELL}#([a-z0-9]+)`, 'i');
 const sellProcess = new Scenes.BaseScene<ShopBot>('sell-process');
 sellProcess.enterHandler = async function (ctx: ShopBot): Promise<void> {
   try {
-    console.log(ctx.message);
-
-    if (!ctx.callbackQuery || !ctx.from || !ctx.userInstance || !ctx.message) {
+    if (
+      !ctx.callbackQuery ||
+      !ctx.from ||
+      !ctx.userInstance ||
+      !ctx.callbackQuery.message
+    ) {
       throw new Error('No data');
     }
 
@@ -83,7 +86,7 @@ sellProcess.enterHandler = async function (ctx: ShopBot): Promise<void> {
       step: 0,
       previous: 0,
       data: new Map<string, string>(),
-      messageId: ctx.message.message_id
+      messageId: ctx.callbackQuery.message.message_id
     };
   } catch (e: any) {
     errorLogger.error(e.message);
