@@ -196,7 +196,8 @@ export function protectMarkdownString(target: string): string {
   return target
     .replaceAll(/\-/g, '\\-')
     .replaceAll(/\./g, '\\.')
-    .replaceAll(/\!/g, '\\!');
+    .replaceAll(/\!/g, '\\!')
+    .replaceAll(/\+/g, '\\+');
 }
 
 export default function Format(target: string, ...matches): string {

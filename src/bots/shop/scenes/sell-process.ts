@@ -135,12 +135,16 @@ async function proceedNext(ctx: ShopBot) {
     }
 
     ctx.session.sellProcess.dataRequest = undefined;
+    const text = protectMarkdownString(
+      wrapDataReplacers(act.content, ctx.session.sellProcess.data)
+    );
+    console.log(text);
 
     await ctx.telegram.editMessageCaption(
       ctx.from.id,
       ctx.session.sellProcess.messageId,
       undefined,
-      protectMarkdownString(wrapDataReplacers(act.content, ctx.session.sellProcess.data)),
+      text,
       {
         reply_markup: act.getTelegramKeyboardMarkup(ctx.session.sellProcess.item._id)
           .reply_markup,
