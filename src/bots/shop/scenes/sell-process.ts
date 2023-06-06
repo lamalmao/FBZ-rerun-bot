@@ -308,13 +308,16 @@ sellProcess.on(
 function wrapDataReplacers(text: string, data: Map<string, string>): string {
   let result = text;
   for (const [key, value] of data) {
-    result = result.replace(
-      new RegExp(`\{${key}\}`, 'gi'),
-      value ? wrapDangerousData(value) : 'не указан'
-    );
+    result = result.replace(new RegExp(`\{${key}\}`, 'gi'), value ? value : 'не указан');
   }
 
-  return result;
+  const filter = new RegExp(
+    '\\{(?!' + Array.from(data.keys()).join('|') + ').{0,6}\\}',
+    'gi'
+  );
+  result = result.replace(filter, 'не указан');
+
+  return wrapDangerousData(result);
 }
 
 function wrapDangerousData(target: string): string {
@@ -322,7 +325,9 @@ function wrapDangerousData(target: string): string {
     .replace(/\(/g, '\\(')
     .replace(/\)/g, '\\)')
     .replace(/\[/g, '\\[')
-    .replace(/\]/g, '\\]');
+    .replace(/\]/g, '\\]')
+    .replace(/\{/g, '\\{')
+    .replace(/\}/g, '\\}');
 }
 
 export default sellProcess;
