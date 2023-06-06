@@ -2,7 +2,7 @@ import { Markup, Scenes } from 'telegraf';
 import { message } from 'telegraf/filters';
 import { CURRENCY_SIGNS, ShopBot } from '../shop-bot.js';
 import { errorLogger } from '../../../logger.js';
-import { popUp } from '../../admin/tools.js';
+import { deleteMessage, popUp } from '../../admin/tools.js';
 import { Types } from 'mongoose';
 import Item from '../../../models/goods.js';
 import {
@@ -213,8 +213,8 @@ sellProcess.action(sellReg, getUser(), async (ctx) => {
           telegramId: ctx.from.id
         },
         {
-          balance: {
-            $inc: -ctx.session.sellProcess.item.getRealPrice()
+          $inc: {
+            balance: -ctx.session.sellProcess.item.getRealPrice()
           }
         }
       ),
@@ -246,6 +246,7 @@ sellProcess.action(sellReg, getUser(), async (ctx) => {
 
 sellProcess.on(
   message('text'),
+  deleteMessage,
   (ctx, next) => {
     if (!ctx.session.sellProcess || !ctx.session.sellProcess.dataRequest) {
       return;
@@ -255,8 +256,6 @@ sellProcess.on(
   },
   async (ctx) => {
     try {
-      ctx.deleteMessage().catch(() => null);
-
       if (!ctx.session.sellProcess || !ctx.session.sellProcess.dataRequest) {
         throw new Error('Data not found');
       }
