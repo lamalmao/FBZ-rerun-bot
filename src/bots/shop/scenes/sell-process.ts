@@ -85,8 +85,9 @@ sellProcess.enterHandler = async function (ctx: ShopBot): Promise<void> {
 
     ctx.session.sellProcess.data.set('item', item._id);
 
-    const text = protectMarkdownString(
-      wrapDataReplacers(act.content, ctx.session.sellProcess.data)
+    const text = wrapDataReplacers(
+      protectMarkdownString(act.content),
+      ctx.session.sellProcess.data
     );
 
     await ctx.editMessageCaption(text, {
