@@ -314,7 +314,7 @@ function wrapDataReplacers(text: string, data: Map<string, string>): string {
   for (const [key, value] of data) {
     result = result.replace(
       new RegExp(`\{${key}\}`, 'gi'),
-      wrapDangerousData(value) ? value : 'не указан'
+      value ? wrapDangerousData(value) : 'не указан'
     );
   }
 
