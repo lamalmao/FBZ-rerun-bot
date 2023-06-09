@@ -48,7 +48,7 @@
     },
     {
       "id": 2,
-      "content": "Введите **почту** *\\(проверка почты включена\\)*",
+      "content": "Введите *почту* *\\(проверка почты включена\\)*",
       "type": "data",
       "dataType": "email",
       "validate": true,
@@ -71,7 +71,7 @@
     },
     {
       "id": 3,
-      "content": "Введите **пароль**",
+      "content": "Введите *пароль*",
       "type": "data",
       "dataType": "password",
       "validate": false,
@@ -94,7 +94,7 @@
     },
     {
       "id": 4,
-      "content": "Проверьте введенные данные:\nПочта: **{email}**\nПароль: **{password}**",
+      "content": "Проверьте введенные данные:\nПочта: `{email}`\nПароль: `{password}`",
       "type": "info",
       "buttons": [
         [

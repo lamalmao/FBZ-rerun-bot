@@ -44,7 +44,8 @@ sellProcess.enterHandler = async function (ctx: ShopBot): Promise<void> {
       scenario: 1,
       title: 1,
       price: 1,
-      discount: 1
+      discount: 1,
+      type: 1
     });
     if (!item) {
       throw new Error('Item not found');
