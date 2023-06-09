@@ -215,7 +215,8 @@ ItemKeys.action('free', async (ctx) => {
 
     let file = '';
     for (const key of keys) {
-      file += key.content + '\n';
+      const value = key.content;
+      file += value + '\n';
     }
 
     const temp = path.join(
