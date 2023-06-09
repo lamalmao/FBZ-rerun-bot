@@ -215,8 +215,6 @@ sellProcess.action(sellReg, getUser(), async (ctx) => {
       });
     }
 
-    console.log(ctx.session.sellProcess.item);
-
     if (ctx.session.sellProcess.item.type === ITEM_TYPES.AUTO) {
       const delivery = await Key.findOneAndUpdate(
         {
@@ -226,7 +224,8 @@ sellProcess.action(sellReg, getUser(), async (ctx) => {
         {
           $set: {
             sold: true,
-            order: ctx.session.sellProcess.order.orderId
+            order: ctx.session.sellProcess.order.orderId,
+            activated: new Date()
           }
         }
       );

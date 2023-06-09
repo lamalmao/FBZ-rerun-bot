@@ -42,7 +42,7 @@ const KeySchema = new Schema<IKey>({
 });
 
 KeySchema.plugin(mongooseFieldEncryption.fieldEncryption, {
-  fields: ['value'],
+  fields: ['content'],
   secret: DATA.secret
 });
 
