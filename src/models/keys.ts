@@ -10,7 +10,7 @@ interface IKey extends Document {
   sold: boolean;
   busyUntil?: Date;
   activated?: Date;
-  order?: Types.ObjectId;
+  order?: number;
 }
 
 const KeySchema = new Schema<IKey>({
@@ -38,7 +38,7 @@ const KeySchema = new Schema<IKey>({
     default: false
   },
   activated: Date,
-  order: SchemaTypes.ObjectId
+  order: Number
 });
 
 KeySchema.plugin(mongooseFieldEncryption.fieldEncryption, {

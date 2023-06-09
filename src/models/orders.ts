@@ -35,12 +35,7 @@ export interface IOrder {
   };
   paid: boolean;
   platform: string;
-  data: {
-    login?: string;
-    password?: string;
-    byCode?: boolean;
-    dialogue: boolean;
-  };
+  data: object;
   refund?: {
     status: RefundStatus;
     data: string;
@@ -118,12 +113,7 @@ const OrderSchema = new Schema<IOrder>({
     },
     data: String
   },
-  data: {
-    login: String,
-    password: String,
-    byCode: Boolean,
-    dialogue: String
-  }
+  data: SchemaTypes.Mixed
 });
 
 const Order = model('orders', OrderSchema);

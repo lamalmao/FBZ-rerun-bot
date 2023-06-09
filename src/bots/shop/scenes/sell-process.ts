@@ -4,7 +4,7 @@ import { CURRENCY_SIGNS, ShopBot } from '../shop-bot.js';
 import { errorLogger } from '../../../logger.js';
 import { deleteMessage, popUp } from '../../admin/tools.js';
 import { Types } from 'mongoose';
-import Item from '../../../models/goods.js';
+import Item, { ITEM_TYPES } from '../../../models/goods.js';
 import {
   SCENARIO_ACTS_TYPES,
   SCENARIO_BUTTONS_TYPES,
@@ -14,6 +14,7 @@ import {
 import Order, { ORDER_STATUSES } from '../../../models/orders.js';
 import { getUser, protectMarkdownString, showMenu } from '../tools.js';
 import User from '../../../models/users.js';
+import Key from '../../../models/keys.js';
 
 const moveReg = new RegExp(`${SCENARIO_BUTTONS_TYPES.MOVE}#(\\d+)`, 'i');
 const cancelReg = new RegExp(`${SCENARIO_BUTTONS_TYPES.CANCEL}#([a-z0-9]+)`, 'i');
@@ -213,8 +214,71 @@ sellProcess.action(sellReg, getUser(), async (ctx) => {
       });
     }
 
-    ctx.session.sellProcess.order.paid = true;
-    ctx.session.sellProcess.order.status = ORDER_STATUSES.UNTAKEN;
+    if (ctx.session.sellProcess.item.type === ITEM_TYPES.AUTO) {
+      const delivery = await Key.findOneAndUpdate(
+        {
+          item: ctx.session.sellProcess.item._id,
+          sold: false
+        },
+        {
+          $set: {
+            sold: true,
+            order: ctx.session.sellProcess.order.orderId
+          }
+        }
+      );
+
+      if (!delivery) {
+        await Order.updateOne(
+          {
+            orderId: ctx.session.sellProcess.order.orderId
+          },
+          {
+            $set: {
+              status: ORDER_STATUSES.CANCELED,
+              closingDate: new Date()
+            }
+          }
+        );
+
+        await ctx.editMessageCaption(
+          `К сожалению данный товар закончился, попробуйте позже`
+        );
+        //
+        // ДОБАВИТЬ ОПОВЕЩЕНИЯ
+        //
+
+        return;
+      }
+
+      const uid = ctx.from.id;
+
+      User.updateOne(
+        {
+          telegramId: uid
+        },
+        {
+          $inc: {
+            balance: -ctx.session.sellProcess.item.getRealPrice()
+          }
+        }
+      ).catch((err) => {
+        errorLogger.error(
+          `Ошибка во время списания денег со счета пользователя ${uid}: ${err.message}`
+        );
+      });
+
+      await ctx.editMessageCaption(`Ваш заказ: \`${delivery.content}\``, {
+        parse_mode: 'MarkdownV2'
+      });
+
+      return;
+    }
+
+    const data = {};
+    for (const [key, value] of ctx.session.sellProcess.data) {
+      data[key] = value;
+    }
 
     const tasks = [
       User.updateOne(
@@ -234,7 +298,8 @@ sellProcess.action(sellReg, getUser(), async (ctx) => {
         {
           $set: {
             paid: true,
-            status: ORDER_STATUSES.UNTAKEN
+            status: ORDER_STATUSES.UNTAKEN,
+            data
           }
         }
       )
@@ -245,7 +310,13 @@ sellProcess.action(sellReg, getUser(), async (ctx) => {
     await ctx.editMessageCaption(
       protectMarkdownString(
         `Ваш заказ \`${ctx.session.sellProcess.order.orderId}\` оформлен`
-      )
+      ),
+      {
+        parse_mode: 'MarkdownV2',
+        reply_markup: Markup.inlineKeyboard([
+          [Markup.button.callback('Я в сети', 'online#' + ctx.from.id)]
+        ]).reply_markup
+      }
     );
   } catch (error: any) {
     errorLogger.error(error.message);
