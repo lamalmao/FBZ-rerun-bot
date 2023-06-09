@@ -138,6 +138,7 @@ async function proceedNext(ctx: ShopBot) {
     const text = protectMarkdownString(
       wrapDataReplacers(act.content, ctx.session.sellProcess.data)
     );
+
     console.log(text);
 
     await ctx.telegram.editMessageCaption(
