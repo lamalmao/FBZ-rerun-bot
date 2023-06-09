@@ -83,9 +83,7 @@ sellProcess.enterHandler = async function (ctx: ShopBot): Promise<void> {
       messageId: ctx.callbackQuery.message.message_id
     };
 
-    console.log(act.content);
-
-    ctx.session.sellProcess.data.set('item', item._id);
+    ctx.session.sellProcess.data.set('item', item._id.toString());
 
     const text = wrapDataReplacers(
       protectMarkdownString(act.content),
