@@ -72,12 +72,6 @@ sellProcess.enterHandler = async function (ctx: ShopBot): Promise<void> {
     }
 
     const keyboard = act.getTelegramKeyboardMarkup(order._id);
-    const text = protectMarkdownString(act.content);
-
-    await ctx.editMessageCaption(text, {
-      reply_markup: keyboard.reply_markup,
-      parse_mode: 'MarkdownV2'
-    });
 
     ctx.session.sellProcess = {
       scenario,
@@ -90,6 +84,15 @@ sellProcess.enterHandler = async function (ctx: ShopBot): Promise<void> {
     };
 
     ctx.session.sellProcess.data.set('item', item._id);
+
+    const text = protectMarkdownString(
+      wrapDataReplacers(act.content, ctx.session.sellProcess.data)
+    );
+
+    await ctx.editMessageCaption(text, {
+      reply_markup: keyboard.reply_markup,
+      parse_mode: 'MarkdownV2'
+    });
   } catch (e: any) {
     errorLogger.error(e.message);
     popUp(ctx, 'Произошла ошибка, попробуйте снова.\nЕсли вы застряли, напишите /start');
