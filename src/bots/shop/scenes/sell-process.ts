@@ -88,6 +88,8 @@ sellProcess.enterHandler = async function (ctx: ShopBot): Promise<void> {
       data: new Map<string, string>(),
       messageId: ctx.callbackQuery.message.message_id
     };
+
+    ctx.session.sellProcess.data.set('item', item._id);
   } catch (e: any) {
     errorLogger.error(e.message);
     popUp(ctx, 'Произошла ошибка, попробуйте снова.\nЕсли вы застряли, напишите /start');
@@ -124,8 +126,6 @@ async function proceedNext(ctx: ShopBot) {
       }
       actId = Number.parseInt(rawData[1]);
     }
-
-    console.log(actId);
 
     const act = ctx.session.sellProcess.scenario.acts.get(actId);
     if (!act) {
